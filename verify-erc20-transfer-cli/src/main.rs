@@ -73,7 +73,7 @@ async fn main() -> web3::contract::Result<()> {
         )
         .get_matches();
 
-    // _install_contract().await?;
+   
     let web3 = web3::Web3::new(web3::transports::WebSocket::new("ws://localhost:8545").await?);
 
     let my_account: H160 =
