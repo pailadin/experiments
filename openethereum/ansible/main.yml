@@ -1,0 +1,29 @@
+---
+- name: deploy openethereum
+  remote_user: ubuntu
+  hosts: "nodes"
+  become: 'yes'
+  become_method: sudo
+
+  task:
+    - name: install apt packages
+      apt:
+        update_cache: yes
+        pkg:
+          - build-essential
+          - cmake
+          - libudev-dev
+          - curl
+          - perl
+          - yasm
+    - name: install rust
+      shell:
+        cmd: curl https://sh.rustup.rs -sSf | sh
+    - shell:
+        cmd: rustup override set 1.51.0
+    - name: install openethereum
+      shell:
+        cmd: >
+          git clone https://github.com/openethereum/openethereum
+          && cd openethereum
+          && cargo build --release --features final
