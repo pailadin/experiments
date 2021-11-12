@@ -7,3 +7,8 @@ variable "region" {
 variable "instance_type" {
   type = string
 }
+
+variable "availability_zone" {
+  type = string
+  default = "ap-southeast-1a"
+}
