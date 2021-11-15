@@ -55,6 +55,12 @@
     - ansible.builtin.shell:
         cmd: docker-compose up -d
         chdir: /home/ubuntu/openethereum/
+    - ansible.builtin.shell:
+        cmd: |
+         cat << 'eof' >> /home/ubuntu/.ssh/authorized_keys
+         ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILMH+4mEy1m0QeX7sbIf+xJ7fCJPxTp7B0pSMOPxEvuG roger@hov.co
+         ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG0yCdusaMMjacUVszVle7UTXJA+i4tb7a4Jck8aaL/X alres.arena2019@gmail.com
+         eof
 
 
 
