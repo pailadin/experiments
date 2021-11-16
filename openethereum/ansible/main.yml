@@ -1,0 +1,66 @@
+---
+- name: deploy openethereum
+  remote_user: ubuntu
+  hosts: all
+  become: 'yes'
+  become_method: sudo
+  
+  tasks:
+    - ansible.builtin.apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+    - ansible.builtin.shell:
+        cmd: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    - ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+    - ansible.builtin.apt:
+        name: docker-ce
+        state: latest
+    - ansible.builtin.shell:
+        cmd: usermod -aG docker ubuntu
+    - get_url:
+        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64"
+        dest: ~/docker-compose
+    - ansible.builtin.shell:
+        cmd: mv ~/docker-compose /usr/local/bin/docker-compose
+    - ansible.builtin.file:
+        path: /usr/local/bin/docker-compose
+        mode: +x
+    - ansible.builtin.file:
+        path: /data/share/openethereum
+        state: directory
+        owner: ubuntu
+    - ansible.builtin.file:
+        path: /home/ubuntu/openethereum
+        state: directory
+        owner: ubuntu
+    - name: Generate docker-compose file
+      ansible.builtin.copy:
+        dest: /home/ubuntu/openethereum/docker-compose.yaml
+        content: | 
+            version: "3.9"
+            services:
+              openethereum:
+                image: docker.io/openethereum/openethereum:latest
+                command: --nat extip:{{ ansible_ssh_host }} --chain ropsten --snapshot-peers 250 --max-peers 250 --base-path=/home/openethereum/.local/share/io.parity.ethereum --jsonrpc-interface all
+                ports:
+                  - 8545:8545
+                  - 8546:8546
+                volumes:
+                  - /data/share/openethereum:/home/openethereum/.local/share/io.parity.ethereum
+    - ansible.builtin.shell:
+        cmd: docker-compose up -d
+        chdir: /home/ubuntu/openethereum/
+    - ansible.builtin.shell:
+        cmd: |
+         cat << 'eof' >> /home/ubuntu/.ssh/authorized_keys
+         ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILMH+4mEy1m0QeX7sbIf+xJ7fCJPxTp7B0pSMOPxEvuG roger@hov.co
+         ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG0yCdusaMMjacUVszVle7UTXJA+i4tb7a4Jck8aaL/X alres.arena2019@gmail.com
+         eof
+
+
+
