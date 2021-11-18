@@ -38,6 +38,12 @@
         path: /home/ubuntu/openethereum
         state: directory
         owner: ubuntu
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: custom_nodes.txt
+        dest: /home/ubuntu/
+        owner: ubuntu
+        mode: '0644'
     - name: Generate docker-compose file
       ansible.builtin.copy:
         dest: /home/ubuntu/openethereum/docker-compose.yaml
@@ -46,12 +52,14 @@
             services:
               openethereum:
                 image: docker.io/openethereum/openethereum:latest
-                command: --nat extip:{{ ansible_ssh_host }} --chain ropsten --snapshot-peers 250 --max-peers 250 --base-path=/home/openethereum/.local/share/io.parity.ethereum --jsonrpc-interface all
+                command: --nat extip:{{ ansible_ssh_host }} --chain ropsten --ws-apis=all --reserved-peers ./custom_nodes.txt  --snapshot-peers 250 --max-peers 250 --base-path=/home/openethereum/.local/share/io.parity.ethereum --jsonrpc-interface all
                 ports:
                   - 8545:8545
                   - 8546:8546
                 volumes:
                   - /data/share/openethereum:/home/openethereum/.local/share/io.parity.ethereum
+                  - /home/ubuntu/custom_nodes.txt:/home/openethereum/custom_nodes.txt
+        owner: ubuntu
     - ansible.builtin.shell:
         cmd: docker-compose up -d
         chdir: /home/ubuntu/openethereum/
