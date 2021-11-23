@@ -70,7 +70,7 @@
             services:
               openethereum:
                 image: docker.io/openethereum/openethereum:latest
-                command: --nat extip:{{ ansible_ssh_host }} --chain ropsten --ws-apis all --jsonrpc-apis all --ws-interface all --reserved-peers ./custom_nodes.txt  --snapshot-peers 250 --max-peers 250 --base-path=/home/openethereum/.local/share/io.parity.ethereum --jsonrpc-interface all
+                command: --nat extip:{{ ansible_ssh_host }} --chain ropsten --ws-apis all --jsonrpc-apis all --ws-interface all  --snapshot-peers 250 --max-peers 250 --base-path=/home/openethereum/.local/share/io.parity.ethereum --jsonrpc-interface all --warp-barrier 11440429 --tracing on
                 ports:
                   - 8545:8545
                   - 8546:8546
