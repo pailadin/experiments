@@ -1,0 +1,30 @@
+[
+  {
+    "name": "USDCoin",
+    "address": "0x509ee0d083ddf8ac028f2a56731412edd63223b9",
+    "symbol": "USDC",
+    "decimals": 6,
+    "icon": "/usdc.png"
+  },
+  {
+    "name": "YEENUS",
+    "address": "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7",
+    "symbol": "YEENUS",
+    "decimals": 8,
+    "icon": "/generic.png"
+  },
+  {
+    "name": "XEENUS",
+    "address": "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c",
+    "symbol": "XEENUS",
+    "decimals": 18,
+    "icon": "/generic.png"
+  },
+  {
+    "name": "WEENUS",
+    "address": "0xaFF4481D10270F50f203E0763e2597776068CBc5",
+    "symbol": "WEENUS",
+    "decimals": 18,
+    "icon": "/generic.png"
+  }
+]
