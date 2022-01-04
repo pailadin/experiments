@@ -21,119 +21,6 @@ use solana_program::{
 /// Program state handler.
 pub struct Processor {}
 impl Processor {
-    fn _process_initialize_mint(
-        accounts: &[AccountInfo],
-        decimals: u8,
-        mint_authority: Pubkey,
-        freeze_authority: COption<Pubkey>,
-        rent_sysvar_account: bool,
-    ) -> ProgramResult {
-        let account_info_iter = &mut accounts.iter();
-        let mint_info = next_account_info(account_info_iter)?;
-        let mint_data_len = mint_info.data_len();
-        let rent = if rent_sysvar_account {
-            Rent::from_account_info(next_account_info(account_info_iter)?)?
-        } else {
-            Rent::get()?
-        };
-
-        let mut mint = Mint::unpack_unchecked(&mint_info.data.borrow())?;
-        if mint.is_initialized {
-            return Err(TokenError::AlreadyInUse.into());
-        }
-
-        if !rent.is_exempt(mint_info.lamports(), mint_data_len) {
-            return Err(TokenError::NotRentExempt.into());
-        }
-
-        mint.mint_authority = COption::Some(mint_authority);
-        mint.decimals = decimals;
-        mint.is_initialized = true;
-        mint.freeze_authority = freeze_authority;
-
-        Mint::pack(mint, &mut mint_info.data.borrow_mut())?;
-
-        Ok(())
-    }
-
-    /// Processes an [InitializeMint](enum.TokenInstruction.html) instruction.
-    pub fn process_initialize_mint(
-        accounts: &[AccountInfo],
-        decimals: u8,
-        mint_authority: Pubkey,
-        freeze_authority: COption<Pubkey>,
-    ) -> ProgramResult {
-        Self::_process_initialize_mint(accounts, decimals, mint_authority, freeze_authority, true)
-    }
-
-    /// Processes an [InitializeMint2](enum.TokenInstruction.html) instruction.
-    pub fn process_initialize_mint2(
-        accounts: &[AccountInfo],
-        decimals: u8,
-        mint_authority: Pubkey,
-        freeze_authority: COption<Pubkey>,
-    ) -> ProgramResult {
-        Self::_process_initialize_mint(accounts, decimals, mint_authority, freeze_authority, false)
-    }
-
-    fn _process_initialize_account(
-        accounts: &[AccountInfo],
-        owner: Option<&Pubkey>,
-        rent_sysvar_account: bool,
-    ) -> ProgramResult {
-        let account_info_iter = &mut accounts.iter();
-        let new_account_info = next_account_info(account_info_iter)?;
-        let mint_info = next_account_info(account_info_iter)?;
-        let owner = if let Some(owner) = owner {
-            owner
-        } else {
-            next_account_info(account_info_iter)?.key
-        };
-        let new_account_info_data_len = new_account_info.data_len();
-        let rent = if rent_sysvar_account {
-            Rent::from_account_info(next_account_info(account_info_iter)?)?
-        } else {
-            Rent::get()?
-        };
-
-        let mut account = Account::unpack_unchecked(&new_account_info.data.borrow())?;
-        if account.is_initialized() {
-            return Err(TokenError::AlreadyInUse.into());
-        }
-
-        if !rent.is_exempt(new_account_info.lamports(), new_account_info_data_len) {
-            return Err(TokenError::NotRentExempt.into());
-        }
-
-        account.mint = *mint_info.key;
-        account.owner = *owner;
-        account.delegate = COption::None;
-        account.delegated_amount = 0;
-        account.state = AccountState::Initialized;
-
-        account.is_native = COption::None;
-        account.amount = 0;
-
-        Account::pack(account, &mut new_account_info.data.borrow_mut())?;
-
-        Ok(())
-    }
-
-    /// Processes an [InitializeAccount](enum.TokenInstruction.html) instruction.
-    pub fn process_initialize_account(accounts: &[AccountInfo]) -> ProgramResult {
-        Self::_process_initialize_account(accounts, None, true)
-    }
-
-    /// Processes an [InitializeAccount2](enum.TokenInstruction.html) instruction.
-    pub fn process_initialize_account2(accounts: &[AccountInfo], owner: Pubkey) -> ProgramResult {
-        Self::_process_initialize_account(accounts, Some(&owner), true)
-    }
-
-    /// Processes an [InitializeAccount3](enum.TokenInstruction.html) instruction.
-    pub fn process_initialize_account3(accounts: &[AccountInfo], owner: Pubkey) -> ProgramResult {
-        Self::_process_initialize_account(accounts, Some(&owner), false)
-    }
-
     fn _process_initialize_multisig(
         accounts: &[AccountInfo],
         m: u8,
@@ -174,16 +61,6 @@ impl Processor {
         Multisig::pack(multisig, &mut multisig_info.data.borrow_mut())?;
 
         Ok(())
-    }
-
-    /// Processes a [InitializeMultisig](enum.TokenInstruction.html) instruction.
-    pub fn process_initialize_multisig(accounts: &[AccountInfo], m: u8) -> ProgramResult {
-        Self::_process_initialize_multisig(accounts, m, true)
-    }
-
-    /// Processes a [InitializeMultisig2](enum.TokenInstruction.html) instruction.
-    pub fn process_initialize_multisig2(accounts: &[AccountInfo], m: u8) -> ProgramResult {
-        Self::_process_initialize_multisig(accounts, m, false)
     }
 
     /// Processes a [Transfer](enum.TokenInstruction.html) instruction.
