@@ -28,6 +28,10 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
 
     Workflow[] wortkflows;
     
+    function listWorkflows() external view returns(Workflow[]) {
+        return workflows;
+    }
+    
     // Add storage (key <> value pair)
     function addWorkflow(
         GnosisSafe safe,
@@ -38,6 +42,8 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         workflow.safe = safe;
         workflow.delegates = delegates;
         workflow.actions = actions;
+
+        workflows.push(workflow);
     }
 
 
