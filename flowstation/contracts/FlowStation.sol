@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0;
+//SPDX-License-Identifier: Unlicense
+pragma solidity <=8.11.0;
 
 import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";

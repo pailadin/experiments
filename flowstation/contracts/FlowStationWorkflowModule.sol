@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity >=7.0.0;
+//SPDX-License-Identifier: Unlicense
+pragma solidity <=8.11.0;
 pragma abicoder v2;
 
 import "./IFlowStationWorkflowModule.sol";
@@ -22,9 +22,13 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         Action[] actions;
     }
     
-    mapping(uint => address) public _delegates;
-    mapping(uint => Action) public actions;
+    mapping(address => uint) public _delegates;
+    
+    mapping(uint => Workflow) public workflow;
 
+    Workflow[] wortkflows;
+    
+    // Add storage (key <> value pair)
     function addWorkflow(
         GnosisSafe safe,
         address[] calldata delegates,
@@ -63,7 +67,6 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
                 "cannot execute ether transfer"
             );
         } else {
-            // token transfer
             bytes memory data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
                 to,
@@ -82,7 +85,7 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     }
 
     function executeWorkflow(
-        uint256 workflow,
+        uint256 workflow
         // bytes[] calldata arguments
     ) external {
       workflow;
