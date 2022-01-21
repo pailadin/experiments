@@ -30,9 +30,9 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     mapping(address => mapping(uint => address)) public _delegates;
     
     /// @dev Safe -> Workflow[]
-    mapping(address => mapping(uint => Workflow[])) public workflow;
+    mapping(address => mapping(uint => Workflow[])) public workflows;
 
-    Workflow[] workflows;
+    // Workflow[] workflows;
 
     int256 count = workflows.length;
 
@@ -45,13 +45,13 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         GnosisSafe safe,
         address[] calldata delegates,
         Action[] calldata actions
-    ) external returns (uint256) {
+    ) external authorized returns (uint256) {
         Workflow workflow;
         workflow.safe = safe;
         workflow.delegates = delegates;
         workflow.actions = actions;
 
-        workflows.push(workflow);
+        workflows[address(safe)][count] = workflow;
     }
 
 
