@@ -5,6 +5,10 @@ pragma abicoder v2;
 import "./IFlowStationWorkflowModule.sol";
 
 contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
+    string public constant NAME = "Flow Station Workflow Module";
+
+    string public constant VERSION = "0.0.1";
+    
     struct Transfer {
       address token;
       address recipient;
@@ -28,9 +32,13 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     /// @dev Safe -> Workflow[]
     mapping(address => mapping(uint => Workflow[])) public workflow;
 
-    Workflow[] wortkflows;
+    Workflow[] workflows;
 
     int256 count = workflows.length;
+
+    constructor() ("FlowStationModule") {
+
+    }
 
     function listWorkflows() external view returns(Workflow[]) {
         return workflows;
