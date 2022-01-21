@@ -32,8 +32,6 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     /// @dev Safe -> Workflow[]
     mapping(address => mapping(uint => Workflow[])) public workflows;
 
-    // Workflow[] workflows;
-
     int256 count = workflows.length;
 
     function listWorkflows() external view returns(Workflow[]) {
