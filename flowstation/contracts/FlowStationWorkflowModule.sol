@@ -21,13 +21,21 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         address[] delegates;
         Action[] actions;
     }
+
+    /// @dev Safe -> Delegate
+    mapping(address => mapping(uint => address)) public _delegates;
     
-    mapping(address => uint) public _delegates;
-    
-    mapping(uint => Workflow) public workflow;
+    /// @dev Safe -> Workflow[]
+    mapping(address => mapping(uint => Workflow[])) public workflow;
 
     Workflow[] wortkflows;
-    
+
+    int256 count = workflows.length;
+
+    function listWorkflows() external view returns(Workflow[]) {
+        return workflows;
+    }
+
     // Add storage (key <> value pair)
     function addWorkflow(
         GnosisSafe safe,
@@ -38,6 +46,8 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         workflow.safe = safe;
         workflow.delegates = delegates;
         workflow.actions = actions;
+
+        workflows.push(workflow);
     }
 
 
