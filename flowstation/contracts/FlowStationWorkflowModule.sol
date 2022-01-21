@@ -36,10 +36,6 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
 
     int256 count = workflows.length;
 
-    constructor() ("FlowStationModule") {
-
-    }
-
     function listWorkflows() external view returns(Workflow[]) {
         return workflows;
     }
