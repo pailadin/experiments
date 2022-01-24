@@ -58,7 +58,7 @@ interface IFlowStationWorkflowModule {
     ) external returns (uint);
 
     /// @dev executes the workflow given the safe and it's id
-    /// @param _safe This would help as locate what safe that have a _workflow
+    /// @param _safe This would help us locate what safe that have a _workflow
     /// @param _workflow workflow id
     function executeWorkflow(
         GnosisSafe _safe,
@@ -111,16 +111,6 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         return count;
     }
 
-    function getSelector(string calldata _func) external pure returns (bytes4) {
-        return bytes4(keccak256(bytes(_func)));
-    }
-
-    function getByte(string memory _greet) external pure returns (bytes memory) {
-        bytes memory data = abi.encodeWithSignature("greet(string)", _greet);
-
-        return data;
-    }
-
     function executeWorkflow(GnosisSafe _safe, uint _workflow) override external {
         Workflow memory workflow = safeWorkflows[address(_safe)][_workflow];
 
@@ -131,33 +121,14 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
             (success, data) = address(this).call(
                 abi.encodeWithSelector(
                     workflow.actions[index].selector,
-                    "Hello, World!"
+                    workflow.actions[index].arguments
                 )
             );
         } 
 
         require(success, "Call failed!");
     }
-
-    function greet(string memory _greet) public pure returns (string memory) {
-        return _greet;
-    }
     
-    function test() external returns(bytes memory) {
-        (bool success, bytes memory data) = address(this).call(
-            abi.encodeWithSelector(
-                bytes4(
-                    keccak256(bytes("greet(string)"))
-                ),
-                "Hello, World!"
-            )
-        );
-
-        require(success, "Call failed");
-
-        return data;
-    }
-
     function executeTransfers(
         GnosisSafe safe,
         Transfer[] calldata transfers
@@ -184,7 +155,6 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
                 "cannot execute ether transfer"
             );
         } else {
-            // token transfer
             bytes memory data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
                 to,
@@ -200,5 +170,33 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
                 "cannot execute token transfer"
             );
         }
+    }
+    
+    /// @dev testing purposes
+    function test() external returns(bytes memory) {
+        (bool success, bytes memory data) = address(this).call(
+            abi.encodeWithSelector(
+                bytes4(
+                    keccak256(bytes("greet(string)"))
+                ),
+                "Hello, World!"
+            )
+        );
+
+        require(success, "Call failed");
+
+        return data;
+    }
+
+    /// @dev Testing purposes
+    function getSelector(string calldata _func) external pure returns (bytes4) {
+        return bytes4(keccak256(bytes(_func)));
+    }
+
+    /// @dev Testing purposes
+    function getByte(string memory _greet) external pure returns (bytes memory) {
+        bytes memory data = abi.encodeWithSignature("greet(string)", _greet);
+
+        return data;
     }
 }
