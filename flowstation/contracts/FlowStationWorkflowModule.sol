@@ -57,6 +57,9 @@ interface IFlowStationWorkflowModule {
         Action[] calldata _actions
     ) external returns (uint);
 
+    /// @dev executes the workflow given the safe and it's id
+    /// @param _safe This would help as locate what safe that have a _workflow
+    /// @param _workflow workflow id
     function executeWorkflow(
         GnosisSafe _safe,
         uint _workflow
@@ -159,6 +162,43 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         GnosisSafe safe,
         Transfer[] calldata transfers
     ) override external {
-        
+        for (uint256 i = 0; i < transfers.length; i++) {
+            transfer(safe, transfers[i].token, payable(transfers[i].recipient), transfers[i].amount);
+        }
+    }
+
+    function transfer(
+        GnosisSafe safe,
+        address token,
+        address payable to,
+        uint256 amount
+    ) private {
+        if (token == address(0)) {
+            require(
+                safe.execTransactionFromModule(
+                    to,
+                    amount,
+                    "",
+                    Enum.Operation.Call
+                ),
+                "cannot execute ether transfer"
+            );
+        } else {
+            // token transfer
+            bytes memory data = abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                to,
+                amount
+            );
+            require(
+                safe.execTransactionFromModule(
+                    token,
+                    0,
+                    data,
+                    Enum.Operation.Call
+                ),
+                "cannot execute token transfer"
+            );
+        }
     }
 }
