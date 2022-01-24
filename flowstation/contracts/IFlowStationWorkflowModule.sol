@@ -20,10 +20,6 @@ interface IFlowStationWorkflowModule {
         address[] delegates;
         Action[] actions;
     }
-
-    function swap() {}
-
-    function transfer() {}
     
     function addWorkflow(
         GnosisSafe safe,

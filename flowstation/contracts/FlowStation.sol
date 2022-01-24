@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity <=8.11.0;
+pragma solidity >=0.7.0;
 
 import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
@@ -14,8 +14,8 @@ contract FlowStation {
 
     struct Transfer {
       address recipient;
-      uint256 amount;
       address token;
+      uint256 amount;
     }
 
     function executeBulkTransfer(
