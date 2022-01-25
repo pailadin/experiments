@@ -73,7 +73,7 @@ interface IFlowStationWorkflowModule {
     ) external;
 }
 
-contract FlowStationWorkflowModule {
+contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     string public constant NAME = "Flow Station Workflow Module";
 
     string public constant VERSION = "0.0.1";
@@ -106,10 +106,11 @@ contract FlowStationWorkflowModule {
     /// @dev Safe -> Workflow -> index -> delegate address
     mapping(address => mapping(uint => mapping(uint => address))) public workflowDelegates;
 
-    mapping (address => mapping(address => uint8)) activeWorkflowDelegate;
+    /// @dev Safe -> Delegate -> Delegate or not
+    mapping (address => mapping(address => bool)) private activeWorkflowDelegate;
 
     modifier canDelegate(address _safe, address _sender) {
-        require(activeWorkflowDelegate[_safe][_sender] == 1, "Sender is not a delegate");
+        require(activeWorkflowDelegate[_safe][_sender] == true, "Sender is not a delegate");
         _;
     }
 
@@ -143,10 +144,9 @@ contract FlowStationWorkflowModule {
 
         for (uint index = 0; index < workflow.actions.length; index++) {
             (success, data) = address(this).call(
-                abi.encodeWithSelector(
-                    workflow.actions[index].selector,
-                    "Hello, Testing!"
-                    // workflow.actions[index].arguments
+                abi.encodePacked(
+                    workflow.actions[index].selector, 
+                    workflow.actions[index].arguments
                 )
             );
         } 
