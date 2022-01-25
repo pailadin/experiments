@@ -106,6 +106,13 @@ contract FlowStationWorkflowModule {
     /// @dev Safe -> Workflow -> index -> delegate address
     mapping(address => mapping(uint => mapping(uint => address))) public workflowDelegates;
 
+    mapping (address => mapping(address => uint8)) activeWorkflowDelegate;
+
+    modifier canDelegate(address _safe, address _sender) {
+        require(activeWorkflowDelegate[_safe][_sender] == 1, "Sender is not a delegate");
+        _;
+    }
+
     /// @dev it should update the workflowDelegates
     function addWorkflow(
         GnosisSafe _safe,
@@ -128,7 +135,7 @@ contract FlowStationWorkflowModule {
         return count;
     }
 
-    function executeWorkflow(GnosisSafe _safe, uint _workflow) external {
+    function executeWorkflow(GnosisSafe _safe, uint _workflow) external payable canDelegate(address(_safe), msg.sender) {
         Workflow memory workflow = safeWorkflows[address(_safe)][_workflow];
 
         bool success;
