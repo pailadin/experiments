@@ -73,11 +73,28 @@ interface IFlowStationWorkflowModule {
     ) external;
 }
 
-contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
+contract FlowStationWorkflowModule {
     string public constant NAME = "Flow Station Workflow Module";
 
     string public constant VERSION = "0.0.1";
     
+    struct Transfer {
+      address token;
+      address recipient;
+      uint256 amount;
+    }
+
+    struct Action {
+        bytes4 selector;
+        bytes arguments;
+    }
+
+    struct Workflow {
+        GnosisSafe safe;
+        address[] delegates;
+        Action[] actions;
+    }
+
     Workflow[] public workflows;
 
     /// @dev Safe -> workflow id -> Workflow
@@ -86,15 +103,15 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     /// @dev Safe -> number of workflows
     mapping(address => uint) public safeWorkflowCount;
 
-    /// @dev Safe -> Workflow -> address[] (delegates)
-    mapping(address => mapping(uint => address[])) public workflowDelegates;
+    /// @dev Safe -> Workflow -> index -> delegate address
+    mapping(address => mapping(uint => mapping(uint => address))) public workflowDelegates;
 
     /// @dev it should update the workflowDelegates
     function addWorkflow(
         GnosisSafe _safe,
         address[] calldata _delegates,
         Action[] calldata _actions
-    ) override external returns(uint)  {
+    ) external returns(uint)  {
         address safeAddress = address(_safe);
 
         uint count = safeWorkflowCount[safeAddress];
@@ -111,7 +128,7 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         return count;
     }
 
-    function executeWorkflow(GnosisSafe _safe, uint _workflow) override external {
+    function executeWorkflow(GnosisSafe _safe, uint _workflow) external {
         Workflow memory workflow = safeWorkflows[address(_safe)][_workflow];
 
         bool success;
@@ -121,18 +138,21 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
             (success, data) = address(this).call(
                 abi.encodeWithSelector(
                     workflow.actions[index].selector,
-                    workflow.actions[index].arguments
+                    "Hello, Testing!"
+                    // workflow.actions[index].arguments
                 )
             );
         } 
-
+        
+        // emit ExecuteWorkflow(data);
+        
         require(success, "Call failed!");
     }
     
     function executeTransfers(
         GnosisSafe safe,
         Transfer[] calldata transfers
-    ) override external {
+    ) external {
         for (uint256 i = 0; i < transfers.length; i++) {
             transfer(safe, transfers[i].token, payable(transfers[i].recipient), transfers[i].amount);
         }
@@ -171,7 +191,7 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
             );
         }
     }
-    
+
     /// @dev testing purposes
     function test() external returns(bytes memory) {
         (bool success, bytes memory data) = address(this).call(
