@@ -135,11 +135,8 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         bytes memory data;
 
         for (uint index = 0; index < workflow.actions.length; index++) {
-            console.logBytes(abi.encodePacked(workflow.actions[index].selector, workflow.actions[index].arguments));
-            console.logBytes(bytes.concat(workflow.actions[index].selector, workflow.actions[index].arguments));
-
             // (success, data) = address(this).call(abi.encodeWithSignature("add(uint, uint)", 1, 2));
-            (success, data) = address(this).call(bytes(workflow.actions[index].arguments));
+            (success, data) = address(this).call(abi.encode(workflow.actions[index].selector, workflow.actions[index].arguments));
 
             emit ExecuteWorkflow(data);
         } 
@@ -210,7 +207,7 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         return _greet;
     }
 
-    function encodeWithSignature() public pure returns(bytes memory) {
+    function encodeSignature() public pure returns(bytes memory) {
         return abi.encodeWithSignature("add(uint, uint)", 1, 2);
     }
     
