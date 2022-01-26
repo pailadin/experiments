@@ -1,6 +1,9 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity >=0.7.0;
+pragma solidity <=8.11.0;
 pragma abicoder v2;
+
+
+import "hardhat/console.sol";
 
 import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
@@ -97,6 +100,8 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         _;
     }
 
+    event ExecuteWorkflow(bytes _data);
+
     /// @dev it should update the workflowDelegates
     function addWorkflow(
         GnosisSafe _safe,
@@ -116,6 +121,10 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         
         safeWorkflowCount[safeAddress]++;
         
+        for (uint index = 0; index < _delegates.length; index++) {
+            activeWorkflowDelegate[safeAddress][_delegates[index]] = true;    
+        }
+
         return count;
     }
 
@@ -126,15 +135,14 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         bytes memory data;
 
         for (uint index = 0; index < workflow.actions.length; index++) {
-            (success, data) = address(this).call(
-                abi.encodePacked(
-                    workflow.actions[index].selector, 
-                    workflow.actions[index].arguments
-                )
-            );
+            console.logBytes(abi.encodePacked(workflow.actions[index].selector, workflow.actions[index].arguments));
+            console.logBytes(bytes.concat(workflow.actions[index].selector, workflow.actions[index].arguments));
+
+            // (success, data) = address(this).call(abi.encodeWithSignature("add(uint, uint)", 1, 2));
+            (success, data) = address(this).call(bytes(workflow.actions[index].arguments));
+
+            emit ExecuteWorkflow(data);
         } 
-        
-        // emit ExecuteWorkflow(data);
         
         require(success, "Call failed!");
     }
@@ -183,21 +191,29 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     }
 
     /// @dev testing purposes
-    function test() external returns(bytes memory) {
-        (bool success, bytes memory data) = address(this).call(
-            abi.encodeWithSelector(
-                bytes4(
-                    keccak256(bytes("greet(string)"))
-                ),
-                "Hello, World!"
-            )
-        );
-
-        require(success, "Call failed");
-
-        return data;
+    function add(uint _a, uint _b) public pure returns(uint) {
+        return _a + _b;
     }
 
+    /// @dev testing purposes
+    function average(uint[] memory _numbers) public pure returns(uint) {
+        uint sum = 0;
+
+        for (uint index = 0; index < _numbers.length; index++) {
+            sum += _numbers[index];
+        }
+
+        return sum / _numbers.length;
+    }
+
+    function greet(string memory _greet) public pure returns(string memory) {
+        return _greet;
+    }
+
+    function encodeWithSignature() public pure returns(bytes memory) {
+        return abi.encodeWithSignature("add(uint, uint)", 1, 2);
+    }
+    
     /// @dev Testing purposes
     function getSelector(string calldata _func) external pure returns (bytes4) {
         return bytes4(keccak256(bytes(_func)));
