@@ -65,7 +65,7 @@ interface IFlowStationWorkflowModule {
         uint _workflow
         // uint _workflow,
         // bytes[] calldata _arguments
-    ) external;
+    ) external payable;
 
     function executeTransfers(
         GnosisSafe safe,
@@ -77,23 +77,6 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     string public constant NAME = "Flow Station Workflow Module";
 
     string public constant VERSION = "0.0.1";
-    
-    struct Transfer {
-      address token;
-      address recipient;
-      uint256 amount;
-    }
-
-    struct Action {
-        bytes4 selector;
-        bytes arguments;
-    }
-
-    struct Workflow {
-        GnosisSafe safe;
-        address[] delegates;
-        Action[] actions;
-    }
 
     Workflow[] public workflows;
 
@@ -119,7 +102,7 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         GnosisSafe _safe,
         address[] calldata _delegates,
         Action[] calldata _actions
-    ) external returns(uint)  {
+    ) override external returns(uint)  {
         address safeAddress = address(_safe);
 
         uint count = safeWorkflowCount[safeAddress];
@@ -136,7 +119,7 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         return count;
     }
 
-    function executeWorkflow(GnosisSafe _safe, uint _workflow) external payable canDelegate(address(_safe), msg.sender) {
+    function executeWorkflow(GnosisSafe _safe, uint _workflow) override external payable canDelegate(address(_safe), msg.sender) {
         Workflow memory workflow = safeWorkflows[address(_safe)][_workflow];
 
         bool success;
@@ -159,7 +142,7 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
     function executeTransfers(
         GnosisSafe safe,
         Transfer[] calldata transfers
-    ) external {
+    ) override external {
         for (uint256 i = 0; i < transfers.length; i++) {
             transfer(safe, transfers[i].token, payable(transfers[i].recipient), transfers[i].amount);
         }
