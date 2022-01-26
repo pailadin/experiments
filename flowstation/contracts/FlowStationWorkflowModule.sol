@@ -135,8 +135,10 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         bytes memory data;
 
         for (uint index = 0; index < workflow.actions.length; index++) {
-            // (success, data) = address(this).call(abi.encodeWithSignature("add(uint, uint)", 1, 2));
-            (success, data) = address(this).call(abi.encode(workflow.actions[index].selector, workflow.actions[index].arguments));
+            
+            (success, data) = address(this).call(
+                abi.encodePacked(workflow.actions[index].selector, workflow.actions[index].arguments)
+            );
 
             emit ExecuteWorkflow(data);
         } 
@@ -187,12 +189,12 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         }
     }
 
-    /// @dev testing purposes
+    /// @dev Testing purposes
     function add(uint _a, uint _b) public pure returns(uint) {
         return _a + _b;
     }
 
-    /// @dev testing purposes
+    /// @dev Testing purposes
     function average(uint[] memory _numbers) public pure returns(uint) {
         uint sum = 0;
 
@@ -203,12 +205,9 @@ contract FlowStationWorkflowModule is IFlowStationWorkflowModule {
         return sum / _numbers.length;
     }
 
+    /// @dev Testing purposes
     function greet(string memory _greet) public pure returns(string memory) {
         return _greet;
-    }
-
-    function encodeSignature() public pure returns(bytes memory) {
-        return abi.encodeWithSignature("add(uint, uint)", 1, 2);
     }
     
     /// @dev Testing purposes
