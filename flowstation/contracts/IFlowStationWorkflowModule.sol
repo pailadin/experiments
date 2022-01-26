@@ -22,15 +22,20 @@ interface IFlowStationWorkflowModule {
     }
     
     function addWorkflow(
-        GnosisSafe safe,
-        address[] calldata delegates,
-        Action[] calldata actions
-    ) external returns (uint256);
+        GnosisSafe _safe,
+        address[] calldata _delegates,
+        Action[] calldata _actions
+    ) external returns (uint);
 
+    /// @dev executes the workflow given the safe and it's id
+    /// @param _safe This would help us locate what safe that have a _workflow
+    /// @param _workflow workflow id
     function executeWorkflow(
-        uint256 workflow,
-        bytes[] calldata arguments
-    ) external;
+        GnosisSafe _safe,
+        uint _workflow
+        // uint _workflow,
+        // bytes[] calldata _arguments
+    ) external payable;
 
     function executeTransfers(
         GnosisSafe safe,
