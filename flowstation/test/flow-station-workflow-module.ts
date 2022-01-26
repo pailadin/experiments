@@ -1,8 +1,6 @@
-import chaiAsPromised from 'chai-as-promised';
 import { expect, use } from "chai";
 import { ethers } from "hardhat";
 
-use(chaiAsPromised);
 const { AbiCoder } = ethers.utils;
 
 describe.only("FlowStationWorkflowModule", function () {
