@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 
 const { AbiCoder } = ethers.utils;
 
-describe.only("FlowStationWorkflowModule", function () {
+describe("FlowStationWorkflowModule", function () {
   const abiCoder = new AbiCoder();
   const { AddressZero } = ethers.constants;
 
@@ -84,4 +84,6 @@ describe.only("FlowStationWorkflowModule", function () {
     
     expect(await flowStation.executeWorkflow(owner.address, 0)).to.not.eqls({});
   });
+
+  it('should call other contracts transfer')
 });
