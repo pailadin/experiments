@@ -6,6 +6,8 @@ import "hardhat/console.sol";
 
 import "./GnosisSafe.sol";
 
+/// @notice You can use this contract for basic simulation (bulk transferring and swap)
+/// @custom:experimental This is an experimental contract
 contract FlowStationWorkflowModule {
     string public constant NAME = "FlowStation Workflow Module";
 
@@ -18,8 +20,8 @@ contract FlowStationWorkflowModule {
 
     struct Workflow {
         GnosisSafe safe;
-        address[] delegates;
         Action[] actions;
+        address[] delegates;
     }
 
     Workflow[] public workflows;
