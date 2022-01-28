@@ -28,7 +28,7 @@ describe("FlowStationWorkflowModule", function () {
     
     await flowStation.deployed();
 
-    expect(await flowStation.safeWorkflows(owner.address, 0)).to.equals(AddressZero);
+    expect(flowStation.workflows).to.have.length(0);
     expect(await flowStation.safeWorkflowCount(owner.address)).to.equals(0);
     expect(await flowStation.workflowDelegates(owner.address, 0, 0)).to.equals(AddressZero);
   });
@@ -56,7 +56,9 @@ describe("FlowStationWorkflowModule", function () {
 
     await addWorkflowTx.wait();
 
-    expect(await flowStation.safeWorkflows(owner.address, 0)).to.not.equals(AddressZero);
+    const workflow = await flowStation.workflows(0);
+    
+    expect(workflow).to.equals(owner.address);
   });
 
   it('should successfully execute the workflow', async function () {
@@ -82,7 +84,7 @@ describe("FlowStationWorkflowModule", function () {
 
     await addWorkflowTx.wait();
     
-    expect(await flowStation.executeWorkflow(owner.address, 0)).to.not.eqls({});
+    expect(await flowStation.executeWorkflow(0)).to.not.eqls({});
   });
 
   it('should call other contracts transfer')

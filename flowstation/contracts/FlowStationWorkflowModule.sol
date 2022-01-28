@@ -5,6 +5,8 @@ pragma abicoder v2;
 import "hardhat/console.sol";
 
 import "./GnosisSafe.sol";
+import "./SimpleUniswapV3.sol";
+import "./BulkTransfer.sol";
 
 /// @notice You can use this contract for basic simulation (bulk transferring and swap)
 /// @custom:experimental This is an experimental contract
@@ -25,9 +27,10 @@ contract FlowStationWorkflowModule {
     }
 
     Workflow[] public workflows;
+    
+    SimpleUniswapV3 public simpleUniswapV3;
 
-    /// @dev Safe -> workflow id -> Workflow
-    mapping(address => mapping(uint => Workflow)) public safeWorkflows;
+    BulkTransfer public bulkTransfer;
 
     /// @dev Safe -> number of workflows
     mapping(address => uint) public safeWorkflowCount;
@@ -53,13 +56,16 @@ contract FlowStationWorkflowModule {
     ) external returns(uint)  {
         address safeAddress = address(_safe);
 
-        uint count = safeWorkflowCount[safeAddress];
+        workflows.push();
 
-        safeWorkflows[safeAddress][count].safe = _safe;
-        safeWorkflows[safeAddress][count].delegates = _delegates;
+        uint count = workflows.length;
+        uint256 newIndex = workflows.length -1;
+
+        workflows[newIndex].safe = _safe;
+        workflows[newIndex].delegates = _delegates;
 
         for (uint index = 0; index < _actions.length; index++) {
-            safeWorkflows[safeAddress][count].actions.push(_actions[index]);
+            workflows[newIndex].actions.push(_actions[index]);
         }
         
         safeWorkflowCount[safeAddress]++;
@@ -71,14 +77,13 @@ contract FlowStationWorkflowModule {
         return count;
     }
 
-    function executeWorkflow(GnosisSafe _safe, uint _workflow) external payable canDelegate(address(_safe), msg.sender) {
-        Workflow memory workflow = safeWorkflows[address(_safe)][_workflow];
+    function executeWorkflow(uint _workflow) external payable canDelegate(address(workflows[_workflow].safe), msg.sender) {
+        Workflow memory workflow = workflows[_workflow];
 
         bool success;
         bytes memory data;
 
         for (uint index = 0; index < workflow.actions.length; index++) {
-            
             (success, data) = address(this).call(
                 abi.encodePacked(workflow.actions[index].selector, workflow.actions[index].arguments)
             );
