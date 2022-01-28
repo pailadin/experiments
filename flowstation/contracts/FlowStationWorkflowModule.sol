@@ -83,9 +83,11 @@ contract FlowStationWorkflowModule {
         bool success;
         bytes memory data;
 
+        GnosisSafe safe = workflows[_workflow].safe;
+
         for (uint index = 0; index < workflow.actions.length; index++) {
             (success, data) = address(this).call(
-                abi.encodePacked(workflow.actions[index].selector, workflow.actions[index].arguments)
+                abi.encodePacked(workflow.actions[index].selector, abi.encode(safe), workflow.actions[index].arguments)
             );
 
             emit ExecuteWorkflow(data);

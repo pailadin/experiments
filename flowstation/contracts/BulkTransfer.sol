@@ -6,7 +6,7 @@ import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
 
 import "./GnosisSafe.sol";
 
-contract FlowStation {
+contract BulkTransfer {
     using GnosisSafeMath for uint256;
 
     string public constant NAME = "FlowStation Bulk Transfer";
@@ -51,6 +51,7 @@ contract FlowStation {
                 to,
                 amount
             );
+            
             require(
                 safe.execTransactionFromModule(
                     token,
