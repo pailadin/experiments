@@ -10,10 +10,7 @@ import {
 } from "./helpers";
 import { BulkTransfer } from "../typechain";
 
-
 const SAFE_OWNER_ADDRESS = '0xC9e29C46E35AA801a8226886912a9b1A9e355D47';
-
-const ALCHEMY_API = 'https://eth-rinkeby.alchemyapi.io/v2/JRg6lBJPJ8PiIFVvvlkSqakwc5cGDCvj';
 
 describe.only('BulkTransfer with Alchemy', function () {
   it('should have the correct balance', async function () {
