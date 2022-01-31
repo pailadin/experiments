@@ -45,7 +45,8 @@
     "solidity-coverage": "^0.7.18",
     "ts-node": "^10.4.0",
     "typechain": "^5.2.0",
-    "typescript": "^4.5.4"
+    "typescript": "^4.5.4",
+    "web3": "^1.7.0"
   },
   "dependencies": {
     "ramda": "^0.28.0"

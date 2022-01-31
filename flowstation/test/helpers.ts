@@ -24,7 +24,7 @@ export function encodeFlowStationTransactionData(
 ) {
   const abi = JSON.parse(
     fs.readFileSync(
-      path.resolve(__dirname, "../data/abi/FlowStation.json"),
+      path.resolve(__dirname, "./bulk-transfer-abi.json"),
       "utf8"
     )
   );

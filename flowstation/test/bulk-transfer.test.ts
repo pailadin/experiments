@@ -1,9 +1,8 @@
 /* eslint-disable node/no-missing-import */
-import chai, { expect } from "chai";
-import { BigNumber } from "ethers";
-import { ethers } from "hardhat";
 import R from "ramda";
 import Safe, { EthersAdapter, SafeFactory } from "@gnosis.pm/safe-core-sdk";
+import { expect } from "chai";
+import { ethers, } from "hardhat";
 
 import {
   encodeFlowStationTransactionData,
@@ -11,44 +10,50 @@ import {
 } from "./helpers";
 import { BulkTransfer } from "../typechain";
 
-const WALLETS = [
-  "0x1fC95137c0849D5D91cFC9d18A376111aa7c9E6f",
-  "0x04820dbFde040AeD112D4D1028E018219C5203ba",
-  "0x0E583c0F2a8FF6B7B7BE1114707eBcaA1a4E551A",
-  "0x965A0751C5354C41CBD04B84A2A3533716536ba3",
-  "0xF25E60386D90f4a1AD8d65aD2146B9cCEb4DbA55",
-];
 
-describe.only("BulkTransfer", function () {
-  beforeEach(async function () {
-    const signer = ethers.provider.getSigner(WALLETS[0]);
+const SAFE_OWNER_ADDRESS = '0xC9e29C46E35AA801a8226886912a9b1A9e355D47';
+
+const ALCHEMY_API = 'https://eth-rinkeby.alchemyapi.io/v2/JRg6lBJPJ8PiIFVvvlkSqakwc5cGDCvj';
+
+describe.only('BulkTransfer with Alchemy', function () {
+  it('should have the correct balance', async function () {
+    const owner = await ethers.getSigner('0xC9e29C46E35AA801a8226886912a9b1A9e355D47');
+    
+    console.log('OWNER ADDRESS: ', await owner.getAddress());
 
     const ethAdapter = new EthersAdapter({
       ethers,
-      signer,
+      signer: owner,
     });
 
-    const balance = await ethAdapter.getBalance(WALLETS[0]!);
+    
+    const signer = await ethers.getSigner(owner.address);
 
-    expect(balance.gte(BigNumber.from(25).mul(1e14))).to.be.true;
+    const balance = await signer.getBalance();
 
-    const FlowStation = await ethers.getContractFactory("FlowStation");
+    const actual = balance.gt(0);
 
-    const contract = await FlowStation.deploy();
+    expect(actual).to.be.true;
+
+    const BulkTransfer = await ethers.getContractFactory('BulkTransfer');
+
+    const contract = await BulkTransfer.deploy();
 
     await contract.deployed();
 
     this.contract = contract;
-    
-    console.log(`module contract deployed: ${contract.address}`);
 
+    console.info('DEPLOYED!!!');
+    
     const safeFactory = await SafeFactory.create({
       ethAdapter,
     });
 
+    console.log('SAFE FACTORY DONE');
+
     const safe = await safeFactory.deploySafe({
-      owners: R.take(3, WALLETS),
-      threshold: 2,
+      owners: [SAFE_OWNER_ADDRESS],
+      threshold: 1,
     });
 
     this.safe = safe;
@@ -57,13 +62,13 @@ describe.only("BulkTransfer", function () {
 
     (await signer.sendTransaction({
       to: safe.getAddress(),
-      value: ethers.utils.parseEther("0.0025"),
+      value: ethers.utils.parseEther("0.0000001"),
     })).wait;
 
     console.log("ETH sent to safe");
 
     const owners = await Promise.all(
-      R.take(3, WALLETS).map((owner: any) =>
+      [SAFE_OWNER_ADDRESS].map((owner: any) =>
         safe.connect({
           ethAdapter: new EthersAdapter({
             ethers,
@@ -72,7 +77,7 @@ describe.only("BulkTransfer", function () {
         })
       )
     );
-
+    
     this.owners = owners;
 
     const transaction = await safe.createTransaction({
@@ -89,7 +94,7 @@ describe.only("BulkTransfer", function () {
       await R.head(owners)!.executeTransaction(transaction)
     ).transactionResponse?.wait();
 
-    console.log("module enabled");
+    console.log("Module enabled");
   });
 
   describe("#executeBulkTransfer", function () {
@@ -100,24 +105,27 @@ describe.only("BulkTransfer", function () {
         contract: BulkTransfer;
       };
 
+
       const transaction = await safe.createTransaction({
         to: contract.address,
         value: "0",
         data: encodeFlowStationTransactionData("executeBulkTransfer", [
           safe.getAddress(),
-          R.takeLast(2, WALLETS).map((recipient: any) => [
+          ['0xB0E965c2c3Ab93007662B6Efaff38549bA01FbFF'].map((recipient: any) => [
             recipient,
-            ethers.utils.parseEther("0.0005"),
+            ethers.utils.parseEther("0.000000001"),
             ethers.constants.AddressZero,
           ]),
         ]),
       });
 
+      console.log('TRANSACTION CREATED');
+
       await Promise.all(
-        R.take(2, owners).map((owner: any) => owner.signTransaction(transaction))
+        owners.map((owner: any) => owner.signTransaction(transaction))
       );
 
-      const result = await R.head(owners)!.executeTransaction(transaction, {
+      const result = await owners[0].executeTransaction(transaction, {
         gasLimit: 250000,
       });
 

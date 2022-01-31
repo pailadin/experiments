@@ -9,14 +9,14 @@ import "./GnosisSafe.sol";
 contract BulkTransfer {
     using GnosisSafeMath for uint256;
 
-    string public constant NAME = "FlowStation Bulk Transfer";
+    string public constant NAME = "Bulk Transfer";
 
     string public constant VERSION = "0.0.1";
 
     struct Transfer {
       address recipient;
-      address token;
       uint256 amount;
+      address token;
     }
 
     function executeBulkTransfer(

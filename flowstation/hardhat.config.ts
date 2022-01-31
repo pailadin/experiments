@@ -22,14 +22,23 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
+const ALCHEMY_API = 'https://eth-rinkeby.alchemyapi.io/v2/JRg6lBJPJ8PiIFVvvlkSqakwc5cGDCvj';
+const PRIVATE_KEY = 'e57a0b19e2a0a1a20864e9f4ef2b464b54d65dbe5bb6b5d8da677a955c5602aa';
+
 const config: HardhatUserConfig = {
   solidity: '0.8.4',
+  defaultNetwork: 'hardhat',
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    rinkeby: {
+      url: ALCHEMY_API,
+      accounts: [PRIVATE_KEY],
     },
+    hardhat: {
+      forking: {
+        url: ALCHEMY_API,
+        blockNumber: 8493990,
+      }
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
@@ -40,6 +49,7 @@ const config: HardhatUserConfig = {
   },
   mocha: {
     require: ['ts-node/register/transpile-only'],
+    timeout: '5m',
   },
 };
 
