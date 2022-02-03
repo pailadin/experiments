@@ -4,8 +4,7 @@ import { expect } from "chai";
 import { ethers, } from "hardhat";
 
 
-describe.only('BulkTransfer with Alchemy', function () {
-  '@gnosis.pm/safe-contracts/contracts/proxies/ProxyFactory.sol'
+describe('BulkTransfer with Alchemy', function () {
 
   describe('Deployment', function () {
     it('should deploy the safe factory successfully', async function () {

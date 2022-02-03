@@ -21,7 +21,7 @@ contract FlowStationWorkflowModule {
     }
 
     struct Workflow {
-        GnosisSafe safe;
+        IGnosisSafe safe;
         Action[] actions;
         address[] delegates;
     }
@@ -50,7 +50,7 @@ contract FlowStationWorkflowModule {
 
     /// @dev it should update the workflowDelegates
     function addWorkflow(
-        GnosisSafe _safe,
+        IGnosisSafe _safe,
         address[] calldata _delegates,
         Action[] calldata _actions
     ) external returns(uint)  {
@@ -83,7 +83,7 @@ contract FlowStationWorkflowModule {
         bool success;
         bytes memory data;
 
-        GnosisSafe safe = workflows[_workflow].safe;
+        IGnosisSafe safe = workflows[_workflow].safe;
 
         for (uint index = 0; index < workflow.actions.length; index++) {
             (success, data) = address(this).call(

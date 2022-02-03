@@ -1,4 +1,4 @@
-import { expect, use } from "chai";
+import { expect } from "chai";
 import { ethers } from "hardhat";
 
 const { AbiCoder } = ethers.utils;

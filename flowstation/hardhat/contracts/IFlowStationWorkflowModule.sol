@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0;
 
-import "./GnosisSafe.sol";
+import "./IGnosisSafe.sol";
 
 interface IFlowStationWorkflowModule {
     struct Transfer {
@@ -16,13 +16,13 @@ interface IFlowStationWorkflowModule {
     }
 
     struct Workflow {
-        GnosisSafe safe;
+        IGnosisSafe safe;
         address[] delegates;
         Action[] actions;
     }
     
     function addWorkflow(
-        GnosisSafe _safe,
+        IGnosisSafe _safe,
         address[] calldata _delegates,
         Action[] calldata _actions
     ) external returns (uint);
@@ -31,14 +31,14 @@ interface IFlowStationWorkflowModule {
     /// @param _safe This would help us locate what safe that have a _workflow
     /// @param _workflow workflow id
     function executeWorkflow(
-        GnosisSafe _safe,
+        IGnosisSafe _safe,
         uint _workflow
         // uint _workflow,
         // bytes[] calldata _arguments
     ) external payable;
 
     function executeTransfers(
-        GnosisSafe safe,
+        IGnosisSafe safe,
         Transfer[] calldata transfers
     ) external;
 }
