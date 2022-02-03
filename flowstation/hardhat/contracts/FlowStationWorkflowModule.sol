@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 import "hardhat/console.sol";
 
-import "./GnosisSafe.sol";
+import "./IGnosisSafe.sol";
 import "./SimpleUniswapV3.sol";
 import "./BulkTransfer.sol";
 

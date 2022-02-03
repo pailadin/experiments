@@ -1,13 +1,14 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity >=0.7.0;
 
-import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
-import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
+// import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
+// import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
 
-import "./GnosisSafe.sol";
+import "./IGnosisSafe.sol";
+import "./Enum.sol";
 
 contract BulkTransfer {
-    using GnosisSafeMath for uint256;
+    // using GnosisSafeMath for uint256;
 
     string public constant NAME = "Bulk Transfer";
 
@@ -15,12 +16,12 @@ contract BulkTransfer {
 
     struct Transfer {
       address recipient;
-      uint256 amount;
       address token;
+      uint256 amount;
     }
 
     function executeBulkTransfer(
-        GnosisSafe safe,
+        IGnosisSafe safe,
         Transfer[] calldata transfers
     ) external {
         for (uint256 i = 0; i < transfers.length; i++) {
@@ -29,7 +30,7 @@ contract BulkTransfer {
     }
 
     function transfer(
-        GnosisSafe safe,
+        IGnosisSafe safe,
         address token,
         address payable to,
         uint256 amount

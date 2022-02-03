@@ -23,6 +23,7 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const ALCHEMY_API = 'https://eth-rinkeby.alchemyapi.io/v2/JRg6lBJPJ8PiIFVvvlkSqakwc5cGDCvj';
+const ALCHEMY_MAINNET_API = 'https://eth-mainnet.alchemyapi.io/v2/JRg6lBJPJ8PiIFVvvlkSqakwc5cGDCvj';
 const PRIVATE_KEY = 'e57a0b19e2a0a1a20864e9f4ef2b464b54d65dbe5bb6b5d8da677a955c5602aa';
 
 const config: HardhatUserConfig = {
@@ -35,10 +36,10 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       forking: {
-        url: ALCHEMY_API,
-        blockNumber: 8493990,
-      }
-    }
+        url: ALCHEMY_MAINNET_API,
+        blockNumber: 12504120,
+      },
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
