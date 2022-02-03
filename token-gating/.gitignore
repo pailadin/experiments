@@ -1,0 +1,4 @@
+.terraform
+.vscode
+.local
+node_modules/
