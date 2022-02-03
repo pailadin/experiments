@@ -13,9 +13,9 @@ module.exports = function (web3) {
     }
     function waitUntilBlock(seconds, targetBlock) {
       return new Promise(function (resolve) {
-        var asyncIterator = function asyncIterator() {
+        const asyncIterator = function asyncIterator() {
           return web3.eth.getBlock('latest', function (e, _ref) {
-            var number = _ref.number;
+            const number = _ref.number;
   
             if (number >= targetBlock - 1) {
               return sendRpc('evm_increaseTime', [seconds]).then(function () {
@@ -29,12 +29,12 @@ module.exports = function (web3) {
       });
     }
     function wait() {
-      var seconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 20;
-      var blocks = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+      const seconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 20;
+      const blocks = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
   
       return new Promise(function (resolve) {
         return web3.eth.getBlock('latest', function (e, _ref2) {
-          var number = _ref2.number;
+          const number = _ref2.number;
   
           resolve(blocks + number);
         });

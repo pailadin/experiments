@@ -69,24 +69,32 @@ contract.only('BulkTransfer', function(accounts) {
     let modules = await gnosisSafe.getModules()
 
     assert.equal(1, modules.length)
-    assert.equal(bulkTransferSafeModule.address, modules[0])
+    assert.equal(bulkTransferSafeModule.address, modules[0]);
+  });
+
+  it('should execute transfer', async () => {
+    const token = await TestToken.new({from: accounts[0]})
+    await token.transfer(gnosisSafe.address, 1000, {from: accounts[0]}) 
+    
+    let enableModuleData = await gnosisSafe.contract.methods.enableModule(bulkTransferSafeModule.address).encodeABI()
+    await execTransaction(gnosisSafe.address, 0, enableModuleData, CALL, "enable module")
 
     let bulkTransferData = await bulkTransferSafeModule
-        .contract
-        .methods
-        .executeBulkTransfer(
-          gnosisSafe.address, 
-          [
-            [accounts[1], token.address, 10]
-          ]
-        ).encodeABI();
+      .contract
+      .methods
+      .executeBulkTransfer(
+        gnosisSafe.address, 
+        [
+          [accounts[1], 10, token.address]
+        ]
+      ).encodeABI();
 
     await execTransaction(
-        bulkTransferSafeModule.address, 
-        0, 
-        bulkTransferData, 
-        CALL, 
-        "execute transfer"
+      bulkTransferSafeModule.address, 
+      0, 
+      bulkTransferData, 
+      CALL, 
+      "execute transfer"
     );
   });
 })
