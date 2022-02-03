@@ -1,3 +1,4 @@
+const { expect } = require('chai');
 const utils = require('@gnosis.pm/safe-contracts/test/utils/general')
 const truffleContract = require("@truffle/contract")
 const GnosisSafeBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json")
@@ -17,7 +18,6 @@ const TestToken = artifacts.require("./TestToken.sol");
 contract('FlowStationWorkflowModule', function(accounts) {
   let lw;
   let gnosisSafe;
-  let bulkTransferSafeModule;
   let flowStationWorkflowModule;
 
   const CALL = 0;
@@ -91,7 +91,45 @@ contract('FlowStationWorkflowModule', function(accounts) {
   });
 
   describe('#addWorkflow', function () {
-    it('should add a workflow', async () => {
+    it('should execute', async () => {
+      const token = await TestToken.new({from: accounts[0]});
+      await token.transfer(gnosisSafe.address, 1000, {from: accounts[0]});
+      
+      let enableModuleData = await gnosisSafe.contract.methods.enableModule(flowStationWorkflowModule.address).encodeABI();
+      
+      await execTransaction(gnosisSafe.address, 0, enableModuleData, CALL, "enable module");
+      
+      const selector = web3.eth.abi.encodeFunctionSignature("add(uint256,uint256)");
+      const args = web3.eth.abi.encodeParameters(['uint256','uint256'], ['1', '1']);
+
+      let addWorkflowData = await flowStationWorkflowModule
+        .contract
+        .methods
+        .addWorkflow(
+          gnosisSafe.address, 
+          [accounts[0], accounts[1]],
+          [
+            [selector, args]
+          ]
+        ).encodeABI();
+  
+      const data = await execTransaction(
+        flowStationWorkflowModule.address, 
+        0, 
+        addWorkflowData, 
+        CALL, 
+        "add workflow"
+      );
+
+      const workflowsFn = await flowStationWorkflowModule.contract.methods.workflows(0);
+      const workflow = await workflowsFn.call();
+
+      expect(workflow).to.be.not.undefined;
+    });
+  });
+
+  describe('#executeWorkflow', function () {
+    it('should execute', async () => {
       const token = await TestToken.new({from: accounts[0]});
       await token.transfer(gnosisSafe.address, 1000, {from: accounts[0]});
       
@@ -119,6 +157,19 @@ contract('FlowStationWorkflowModule', function(accounts) {
         addWorkflowData, 
         CALL, 
         "add workflow"
+      );
+
+      let executeWorkflowData = await flowStationWorkflowModule
+        .contract
+        .methods
+        .executeWorkflow(0).encodeABI();
+
+      const data = await execTransaction(
+        flowStationWorkflowModule.address, 
+        0, 
+        executeWorkflowData, 
+        CALL, 
+        "execute workflow"
       );
     });
   });

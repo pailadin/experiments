@@ -36,6 +36,8 @@
     "@gnosis.pm/truffle-nice-tools": "^1.3.0",
     "@openzeppelin/contracts": "^4.4.2",
     "@truffle/hdwallet-provider": "^1.0.0",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
     "eth-lightwallet": "^4.0.0",
     "ethereumjs-abi": "^0.6.8",
     "ganache-cli": "6.11.0",

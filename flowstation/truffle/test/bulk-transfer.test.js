@@ -1,3 +1,5 @@
+const { expect, use } = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 const utils = require('@gnosis.pm/safe-contracts/test/utils/general')
 
 const truffleContract = require("@truffle/contract")
@@ -6,12 +8,14 @@ const GnosisSafeBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/G
 const GnosisSafe = truffleContract(GnosisSafeBuildInfo)
 GnosisSafe.setProvider(web3.currentProvider)
 
-const GnosisSafeProxyBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/GnosisSafeProxy.json")
+const GnosisSafeProxyBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/GnosisSafeProxy.json");
 const GnosisSafeProxy = truffleContract(GnosisSafeProxyBuildInfo)
 GnosisSafeProxy.setProvider(web3.currentProvider)
 
 const BulkTransfer = artifacts.require("./BulkTransfer.sol")
 const TestToken = artifacts.require("./TestToken.sol")
+
+use(chaiAsPromised);
 
 contract('BulkTransfer', function(accounts) {
   let lw
@@ -86,16 +90,16 @@ contract('BulkTransfer', function(accounts) {
       .executeBulkTransfer(
         gnosisSafe.address, 
         [
-          [accounts[1], token.address, 10]
+          [accounts[1], token.address, 10],
         ]
       ).encodeABI();
 
-    await execTransaction(
+    await expect(execTransaction(
       bulkTransferSafeModule.address, 
       0, 
       bulkTransferData, 
       CALL, 
       "execute transfer"
-    );
+    )).to.eventually.be.fulfilled;
   });
 })
