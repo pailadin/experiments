@@ -29,6 +29,7 @@ module.exports = function (web3) {
       asyncIterator();
     });
   }
+  
   function wait() {
     const seconds = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 20;
     const blocks = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
@@ -47,5 +48,6 @@ module.exports = function (web3) {
   return { 
     wait, 
     waitUntilBlock,
+    execTransaction
   };
 }
