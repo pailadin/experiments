@@ -2,6 +2,7 @@ const utils = require('@gnosis.pm/safe-contracts/test/utils/general')
 const truffleContract = require("@truffle/contract")
 const GnosisSafeBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json")
 const GnosisSafeProxyBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/GnosisSafeProxy.json")
+const { ADDRESS_ZERO } = require('./constants');
 
 const GnosisSafe = truffleContract(GnosisSafeBuildInfo)
 GnosisSafe.setProvider(web3.currentProvider)
@@ -20,16 +21,15 @@ contract('FlowStationWorkflowModule', function(accounts) {
   let flowStationWorkflowModule;
 
   const CALL = 0;
-  const ADDRESS_0 = '0x0000000000000000000000000000000000000000';
 
   beforeEach(async function() {
     // Create lightwallet
     lw = await utils.createLightwallet();
 
     // Create Master Copies
-    let bmodule = await BulkTransfer.deployed();
+    let bulkTransferContract = await BulkTransfer.deployed();
     
-    console.log(bmodule.address);
+    console.log('BulkTransfer', bulkTransferContract.address);
 
     bulkTransferSafeModule = await BulkTransfer.new();
 
@@ -52,12 +52,12 @@ contract('FlowStationWorkflowModule', function(accounts) {
         accounts[1]
       ], 
       2, 
-      ADDRESS_0, 
+      ADDRESS_ZERO, 
       "0x", 
-      ADDRESS_0, 
-      ADDRESS_0, 
+      ADDRESS_ZERO, 
+      ADDRESS_ZERO, 
       0, 
-      ADDRESS_0, 
+      ADDRESS_ZERO, 
       { from: accounts[0] }
     );
   });
@@ -65,13 +65,13 @@ contract('FlowStationWorkflowModule', function(accounts) {
   let execTransaction = async function(to, value, data, operation, message) {
     let nonce = await gnosisSafe.nonce();
 
-    let transactionHash = await gnosisSafe.getTransactionHash(to, value, data, operation, 0, 0, 0, ADDRESS_0, ADDRESS_0, nonce);
+    let transactionHash = await gnosisSafe.getTransactionHash(to, value, data, operation, 0, 0, 0, ADDRESS_ZERO, ADDRESS_ZERO, nonce);
 
     let sigs = utils.signTransaction(lw, [lw.accounts[0], lw.accounts[1]], transactionHash);
 
     utils.logGasUsage(
         'execTransaction ' + message,
-        await gnosisSafe.execTransaction(to, value, data, operation, 0, 0, 0, ADDRESS_0, ADDRESS_0, sigs, { from: accounts[0] })
+        await gnosisSafe.execTransaction(to, value, data, operation, 0, 0, 0, ADDRESS_ZERO, ADDRESS_ZERO, sigs, { from: accounts[0] })
     );
   }
 

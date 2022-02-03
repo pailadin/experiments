@@ -1,7 +1,7 @@
 const utils = require('@gnosis.pm/safe-contracts/test/utils/general')
 
 const truffleContract = require("@truffle/contract")
-
+const { ADDRESS_ZERO } = require('./constants');
 const GnosisSafeBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json")
 const GnosisSafe = truffleContract(GnosisSafeBuildInfo)
 GnosisSafe.setProvider(web3.currentProvider)
@@ -18,17 +18,16 @@ contract('BulkTransfer', function(accounts) {
   let gnosisSafe
   let bulkTransferSafeModule
 
-  const CALL = 0
-  const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
+  const CALL = 0;
 
   beforeEach(async function() {
     // Create lightwallet
     lw = await utils.createLightwallet()
 
     // Create Master Copies
-    let module = await BulkTransfer.deployed()
+    let mod = await BulkTransfer.deployed()
     
-    console.log(module.address)
+    console.log('BulkTransferModule', mod.address)
     
     bulkTransferSafeModule = await BulkTransfer.new()
 
@@ -42,22 +41,22 @@ contract('BulkTransfer', function(accounts) {
             accounts[1]
         ], 
         2, 
-        ADDRESS_0, 
+        ADDRESS_ZERO, 
         "0x", 
-        ADDRESS_0, 
-        ADDRESS_0, 0, 
-        ADDRESS_0, 
+        ADDRESS_ZERO, 
+        ADDRESS_ZERO, 0, 
+        ADDRESS_ZERO, 
         { from: accounts[0] }
     );
   });
 
   let execTransaction = async function(to, value, data, operation, message) {
     let nonce = await gnosisSafe.nonce()
-    let transactionHash = await gnosisSafe.getTransactionHash(to, value, data, operation, 0, 0, 0, ADDRESS_0, ADDRESS_0, nonce)
+    let transactionHash = await gnosisSafe.getTransactionHash(to, value, data, operation, 0, 0, 0, ADDRESS_ZERO, ADDRESS_ZERO, nonce)
     let sigs = utils.signTransaction(lw, [lw.accounts[0], lw.accounts[1]], transactionHash)
     utils.logGasUsage(
         'execTransaction ' + message,
-        await gnosisSafe.execTransaction(to, value, data, operation, 0, 0, 0, ADDRESS_0, ADDRESS_0, sigs, { from: accounts[0] })
+        await gnosisSafe.execTransaction(to, value, data, operation, 0, 0, 0, ADDRESS_ZERO, ADDRESS_ZERO, sigs, { from: accounts[0] })
     )
   }
 
@@ -87,7 +86,7 @@ contract('BulkTransfer', function(accounts) {
       .executeBulkTransfer(
         gnosisSafe.address, 
         [
-          [accounts[1], 10, token.address]
+          [accounts[1], token.address, 10]
         ]
       ).encodeABI();
 

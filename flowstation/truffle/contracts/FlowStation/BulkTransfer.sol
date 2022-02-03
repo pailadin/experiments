@@ -16,8 +16,8 @@ contract BulkTransfer {
 
     struct Transfer {
       address recipient;
-      uint256 amount;
       address token;
+      uint256 amount;
     }
 
     function executeBulkTransfer(
