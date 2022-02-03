@@ -13,7 +13,7 @@ GnosisSafeProxy.setProvider(web3.currentProvider)
 const BulkTransfer = artifacts.require("./BulkTransfer.sol")
 const TestToken = artifacts.require("./TestToken.sol")
 
-contract.only('BulkTransfer', function(accounts) {
+contract('BulkTransfer', function(accounts) {
   let lw
   let gnosisSafe
   let bulkTransferSafeModule
@@ -26,8 +26,10 @@ contract.only('BulkTransfer', function(accounts) {
     lw = await utils.createLightwallet()
 
     // Create Master Copies
-    let amodule = await BulkTransfer.deployed()
-    console.log(amodule.address)
+    let module = await BulkTransfer.deployed()
+    
+    console.log(module.address)
+    
     bulkTransferSafeModule = await BulkTransfer.new()
 
     const gnosisSafeMasterCopy = await GnosisSafe.new({ from: accounts[0] })

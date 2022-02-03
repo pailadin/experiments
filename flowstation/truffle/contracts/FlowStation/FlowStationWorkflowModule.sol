@@ -3,7 +3,7 @@ pragma solidity <=8.11.0;
 pragma abicoder v2;
 
 import "./IGnosisSafe.sol";
-import "./BulkTransfer.sol";
+// import "./BulkTransfer.sol";
 
 /// @notice You can use this contract for basic simulation (bulk transferring and swap)
 /// @custom:experimental This is an experimental contract
@@ -25,7 +25,7 @@ contract FlowStationWorkflowModule {
 
     Workflow[] public workflows;
 
-    BulkTransfer public bulkTransfer;
+    // BulkTransfer public bulkTransfer;
 
     /// @dev Safe -> number of workflows
     mapping(address => uint) public safeWorkflowCount;
