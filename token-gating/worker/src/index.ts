@@ -36,8 +36,6 @@ export class WorkerService {
 
   private cronJob: cron.ScheduledTask | null = null;
 
-  private isSyncing=false;
-
   constructor() {
     this.clientBot = new Client({
       intents: [Intents.FLAGS.GUILDS],
@@ -176,6 +174,11 @@ export class WorkerService {
           events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, isPriority);
           await this.digestEvents(events);
         }
+      }
+      if (events.length > 0) {
+        const lastEvent = R.last(events);
+        events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, isPriority);
+        await this.digestEvents(events);
       }
     }
   }
