@@ -1,8 +1,8 @@
 import getPort from 'get-port';
-import { Connection } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import temp from 'temp';
 import { Client } from 'discord.js';
+import { Connection } from 'mongoose';
 import { WorkerService } from '../../src/index';
 import { container } from '../../inversify.config';
 import { TYPES as GLOBAL_TYPES } from '../../types';
@@ -16,6 +16,7 @@ export type Context = {
   port: number;
   mongod: MongoMemoryServer;
   client: Client;
+  mongoose: Connection;
 };
 
 export async function setup(this: Context, preStart = () => <void>undefined) {
@@ -34,6 +35,8 @@ export async function setup(this: Context, preStart = () => <void>undefined) {
 
   preStart();
 
+  this.mongoose = await container.get<Promise<Connection>>(GLOBAL_TYPES.mongoose);
+
   this.workerService = container.get<WorkerService>(GLOBAL_TYPES.WorkerService);
 
   try {
@@ -48,8 +51,7 @@ export async function setup(this: Context, preStart = () => <void>undefined) {
 export async function teardown(this: Context) {
   await this.workerService.stop();
 
-  const mongoose = await container.get<Promise<Connection>>(GLOBAL_TYPES.mongoose);
-  await mongoose.close();
+  await this.mongoose.close();
 
   await this.mongod.stop();
 
