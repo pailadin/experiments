@@ -1,98 +1,221 @@
 /* eslint-disable no-await-in-loop */
-/* eslint-disable no-console */
-/* eslint-disable max-len */
-/* eslint-disable no-tabs */
-/* eslint-disable no-case-declarations */
-/* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import WebSocket from 'ws';
+/* eslint-disable max-len */
+import Queue from 'p-queue';
+import { inject, injectable } from 'inversify';
+import Logger from '@highoutput/logger';
 import axios from 'axios';
-import PQueue from 'p-queue';
-import { Zlib } from 'zlib';
-import { delay } from 'bluebird';
+import { Client, Intents } from 'discord.js';
 import R from 'ramda';
-import { Client, Intents, TextChannel } from 'discord.js';
-import * as DiscordUser from 'discord.js-user-account';
-import { MongoClient } from 'mongodb';
-import * as MongoService from './mongo-service';
-import { EtherScanObject } from './types/etherscan';
-import { ID } from './types/node';
+import Bluebird from 'bluebird';
+import cron from 'node-cron';
+import {
+  TYPES as GLOBAL_TYPES,
+  ID,
+  Event,
+  EtherScanObject,
+} from '../types';
+import { TYPES } from './types';
+import CollectionRepository from './repositories/collection';
+import OwnershipRepository from './repositories/ownership';
+import ObjectId, { ObjectType } from '../library/object-id';
 
-const ETHERSCAN_KEY = 'S1W3GXNSMC72X93RF6XD2VPMQVXUUC5KY2';
-const GUILD_ID = '';
+@injectable()
+export class WorkerService {
+  @inject(TYPES.localQueue) private readonly localQueue!: Queue;
 
-let isStop = false;
+  @inject(TYPES.ETHERSCAN_KEY) private readonly etherscanKey!: string;
 
-export const clientBot = new Client({
-  intents: [Intents.FLAGS.GUILDS],
+  @inject(GLOBAL_TYPES.logger) private readonly logger!: Logger;
 
-});
+  @inject(TYPES.CollectionRepository) private readonly collectionRepository!: CollectionRepository;
 
-clientBot.on('ready', () => {
-  if (!clientBot.user) {
-    throw new Error('Unable to login');
-  } else {
-    console.log(`${clientBot.user.username} has Logged In`);
-  }
-});
+  @inject(TYPES.OwnershipRepository) private readonly ownershipRepository!: OwnershipRepository;
 
-const queue = new PQueue({
-  concurrency: 1,
-  intervalCap: 1,
-  interval: 200,
-});
+  public clientBot : Client;
 
-function retrieveEvents(
-  collection: ID,
-  startBlock: string | null,
-  endBlock: string | null,
-  priority: number,
-): Promise<Event[]> {
-  return queue.add(async () => {
-    const etherScanResponse:EtherScanObject = await axios.post(`https://api.etherscan.io/api?module=account&action=tokennfttx&contractaddress=${document.contractaddress}&page=1&startblock=${startBlock}&sort=asc&apikey=${ETHERSCAN_KEY}`);
+  private cronJob: cron.ScheduledTask | null = null;
 
-    return etherScanResponse.result.map((transaction) => {
-      const { from, to, tokenID } = transaction;
+  constructor() {
+    this.clientBot = new Client({
+      intents: [Intents.FLAGS.GUILDS],
 
-      let sender = from;
-      if (sender === '0x0000000000000000000000000000000000000000') { sender = transaction.contractAddress; }
-
-      return {
-        sender,
-        receiver: to,
-        tokenID,
-        collection,
-
-      };
     });
-  }, {
-    priority,
-  });
-}
+    this.clientBot.on('ready', () => {
+      if (!this.clientBot.user) {
+        throw new Error('Unable to login');
+      } else {
+        this.logger.info(`${this.clientBot.user.username} has Logged In`);
+      }
+    });
 
-function digestEvents(events: Event[]): Promise<void> {
+    process.on('uncaughtException', async (error) => {
+      this.logger.critical(error);
+    });
 
-}
+    process.on('uncaughtExceptionMonitor', async (error) => {
+      this.logger.critical(error);
+    });
 
-function syncCollection(collection: ID): Promise<void> {
-  const events = retrieveEvents(collection, null, '0', 1).then((result) => result).then((result) => result).finally((results) => results);
-}
+    process.on('unhandledRejection', async (error) => {
+      this.logger.critical(error || 'unhandledRejection');
+    });
+  }
 
-async function worker() {
+  async retrieveEvents(
+    collection: ID,
+    startBlock: string | null,
+    endBlock: string | null,
+    isPriority: boolean,
+  ): Promise<Event[]> {
+    this.logger.info('retrieveEvents');
 
-}
+    const targetCollection = await this.collectionRepository.findOne({
+      id: collection,
+    });
 
-export async function start() {
-  await clientBot.login('OTM1NjkxNDY2ODE3Mjk0Mzc2.YfCUlQ.XyJ454J83zXjWv2iWq2QavV6GEg');
-  await MongoService.start();
-  await worker();
-}
+    if (!targetCollection) { throw new Error('Collection does not exist'); }
 
-export async function stop() {
-  isStop = true;
+    return this.localQueue.add(async () => {
+      const etherScanResponse = await axios.post('https://api.etherscan.io/api', {}, {
+        params: {
+          module: 'account',
+          action: 'tokennfttx',
+          contractaddress: targetCollection.contractAddress,
+          page: 1,
+          offset: 10000,
+          startblock: startBlock || '',
+          endblock: endBlock || '',
+          sort: 'desc',
+          apikey: this.etherscanKey,
+        },
+      });
 
-  clientBot.removeAllListeners();
-  clientBot.destroy();
+      const etherScanData = etherScanResponse.data as EtherScanObject;
 
-  await MongoService.stop();
+      return etherScanData.result.map((transaction) => {
+        const {
+          from, contractAddress, to, tokenID, blockNumber,
+        } = transaction;
+
+        let sender = from;
+
+        if (sender === '0x0000000000000000000000000000000000000000') { sender = contractAddress; }
+
+        return {
+
+          sender,
+          receiver: to,
+          tokenID,
+          collection,
+          blockNumber,
+
+        } as Event;
+      });
+    }, {
+      priority: isPriority ? 1 : 0,
+
+    });
+  }
+
+  async digestEvents(events: Event[]) {
+    this.logger.info('digestEvents');
+
+    await Bluebird.map(events, async (event) => {
+      const {
+        blockNumber,
+        collection,
+        receiver,
+        tokenID,
+      } = event;
+
+      const ownership = await this.ownershipRepository.findOne({
+        filter: {
+          tokenID,
+        },
+      });
+
+      if (ownership) {
+        if (ownership.blockNumber < event.blockNumber) {
+          await this.ownershipRepository.updateOne({
+            filter: {
+              tokenID,
+            },
+            data: {
+              owner: receiver,
+            },
+          });
+        }
+      } else {
+        await this.ownershipRepository.create({
+          id: ObjectId.generate(ObjectType.OWNERSHIP).buffer,
+          data: {
+            blockNumber,
+            tokenID,
+            collection,
+            owner: receiver,
+          },
+        });
+      }
+    });
+  }
+
+  async syncCollection(collection: ID, isPriority: boolean) {
+    this.logger.info('syncCollection');
+
+    let events = await this.retrieveEvents(collection, '0', null, true);
+
+    if (events.length < 10000) {
+      await this.digestEvents(events);
+    } else {
+      while (events.length >= 10000) {
+        if (events) {
+          const lastEvent = R.last(events);
+          events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, isPriority);
+          await this.digestEvents(events);
+        }
+      }
+      if (events.length > 0) {
+        const lastEvent = R.last(events);
+        events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, isPriority);
+        await this.digestEvents(events);
+      }
+    }
+  }
+
+  async startSync() {
+    const collections = await this.collectionRepository.find({
+      filter: {},
+    });
+
+    await Bluebird.map(collections, async (collection) => {
+      await this.syncCollection(collection.id, true);
+    });
+
+    this.cronJob = cron.schedule('0 */20 * * * *', async () => {
+      await Bluebird.map(collections, async (collection) => {
+        await this.syncCollection(collection.id, false);
+      });
+    }, {
+      scheduled: true,
+
+    });
+  }
+
+  async start() {
+    this.logger.info('Starting Worker Service');
+    await this.clientBot.login('OTM1NjkxNDY2ODE3Mjk0Mzc2.YfCUlQ.XyJ454J83zXjWv2iWq2QavV6GEg');
+    await this.startSync();
+    this.logger.info('Worker Service Started');
+  }
+
+  async stop() {
+    this.logger.info('Stopping Worker Service');
+    this.localQueue.onIdle();
+    this.clientBot.destroy();
+    if (this.cronJob) {
+      this.cronJob.stop();
+    }
+    this.logger.info('Worker Service Stopped');
+  }
 }

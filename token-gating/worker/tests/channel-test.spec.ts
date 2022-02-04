@@ -35,8 +35,8 @@ describe('Channel Test', () => {
 
   test('should remove channel', async function (this: Context) {
     await this.channel.delete();
-    const isExist = this.guild.channels.cache.get(this.channel.id);
-    expect(isExist).toBeUndefined();
+
+    expect(this.guild.channels.fetch(this.channel.id)).rejects.toBeTruthy();
   });
 
   test('should set private channel', async function (this: Context) {
@@ -44,9 +44,16 @@ describe('Channel Test', () => {
       VIEW_CHANNEL: false,
     });
 
-    const permission = this.channel.permissionsFor(this.guild.roles.everyone);
+    let isPrivate;
+    const response = await this.guild.channels.fetch(this.channel.id);
 
-    expect(permission.has([Permissions.FLAGS.VIEW_CHANNEL])).toEqual(false);
+    if (response) {
+      isPrivate = !response.permissionsFor(this.guild.roles.everyone).has([Permissions.FLAGS.VIEW_CHANNEL]);
+    }
+
+    expect(response).not.toBeNull();
+
+    expect(isPrivate).toEqual(true);
   });
 
   test('should add category channel', async function (this: Context) {
