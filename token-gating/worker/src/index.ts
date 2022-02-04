@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-len */
 import Queue from 'p-queue';
@@ -57,28 +58,41 @@ export class WorkerService {
     startBlock: string | null,
     endBlock: string | null,
     isPriority: boolean,
-  ):Promise<Event[]> {
+  ): Promise<Event[]> {
     this.logger.info('retrieveEvents');
 
-    const contractAddress = await this.collectionRepository.findOne({
+    const targetCollection = await this.collectionRepository.findOne({
       id: collection,
     });
 
-    if (!contractAddress) { throw new Error('Collection does not exist'); }
+    if (!targetCollection) { throw new Error('Collection does not exist'); }
 
-    const events = await this.localQueue.add(async () => {
-      const etherScanResponse:EtherScanObject = await axios.post(`https://api.etherscan.io/api?module=account&action=tokennfttx&contractaddress=${contractAddress}&page=1&offset=5&startblock=${startBlock || ''}&endBlock=${endBlock || ''}&sort=desc&apikey=${this.etherscanKey}`);
+    return this.localQueue.add(async () => {
+      const etherScanResponse = await axios.post('https://api.etherscan.io/api', {}, {
+        params: {
+          module: 'account',
+          action: 'tokennfttx',
+          contractaddress: targetCollection.contractAddress,
+          page: 1,
+          startblock: startBlock || '',
+          endblock: endBlock || '',
+          sort: 'desc',
+          apikey: this.etherscanKey,
+        },
+      });
 
-      return etherScanResponse.result.map((transaction) => {
-        const { from, to, tokenID } = transaction;
+      const etherScanData = etherScanResponse.data as EtherScanObject;
 
-        let sender = from;
+      return etherScanData.result.map((transaction) => {
+        let sender = transaction.from;
+
         if (sender === '0x0000000000000000000000000000000000000000') { sender = transaction.contractAddress; }
 
         return {
+
           sender,
-          receiver: to,
-          tokenID,
+          receiver: transaction.to,
+          tokenID: transaction.tokenID,
           collection,
 
         } as Event;
@@ -86,8 +100,6 @@ export class WorkerService {
     }, {
       priority: isPriority ? 1 : 0,
     });
-
-    return events;
   }
 
   digestEvents(events: Event[]) {
@@ -97,9 +109,20 @@ export class WorkerService {
   async syncCollection(collection: ID) {
     this.logger.info('syncCollection');
 
-    const events = await this.retrieveEvents(collection, '0', null, true);
+    let eventLength = 0;
+    const initialEvent = await this.retrieveEvents(collection, '0', null, true);
 
-    this.logger.info(events);
+    eventLength = initialEvent.length;
+
+    if (eventLength < 10000) {
+      this.digestEvents(initialEvent);
+    } else {
+      while (eventLength >= 10000) {
+        const events = await this.retrieveEvents(collection, '0', null, true);
+        this.digestEvents(events);
+        eventLength = events.length;
+      }
+    }
   }
 
   async start() {
