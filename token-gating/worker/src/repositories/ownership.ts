@@ -13,8 +13,8 @@ type OwnershipDocument = Document<ID> & Ownership;
 export default class OwnershipRepository
   extends Repository<
   Ownership,
-    Pick<Ownership, 'collection' | 'tokenID' |'owner' > & Partial<Pick<Ownership, 'createdAt'>>,
-    Partial<Pick<Ownership, 'id' | 'tokenID' | 'collection' | 'owner' | 'createdAt'>>
+    Pick<Ownership, 'collection' | 'tokenID' |'owner' | 'blockNumber'> & Partial<Pick<Ownership, 'createdAt'>>,
+    Partial<Pick<Ownership, 'id' | 'tokenID' | 'collection' | 'owner' | 'blockNumber'| 'createdAt'>>
   > {
   async getModel(db: Connection) {
     const schema = new Schema<OwnershipDocument>({
@@ -31,6 +31,10 @@ export default class OwnershipRepository
         required: true,
       },
       owner: {
+        type: String,
+        required: true,
+      },
+      blockNumber: {
         type: String,
         required: true,
       },

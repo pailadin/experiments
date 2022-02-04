@@ -5,4 +5,5 @@ export type Event = {
   receiver: string;
   tokenID: string;
   collection: ID;
+  blockNumber: string;
 };
