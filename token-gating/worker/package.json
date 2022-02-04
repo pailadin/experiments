@@ -6,7 +6,7 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix --cache",
     "start": "cross-env DEBUG=error*,critical*,info* TS_NODE_PROJECT=./tsconfig.json TS_NODE_FILES=true ts-node ./src/index.ts",
-    "test": "jest --detectOpenHandles --forceExit",
+    "test": "cross-env DEBUG=error*,critical*,info*  jest --detectOpenHandles --forceExit",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "author": "",
@@ -24,6 +24,7 @@
     "@typescript-eslint/parser": "^4.28.3",
     "axios": "^0.24.0",
     "bluebird": "^3.7.2",
+    "bs58": "^4.0.1",
     "commander": "^8.1.0",
     "cross-env": "^7.0.3",
     "discord-api-types": "^0.24.0",
@@ -40,7 +41,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "inversify": "^6.0.1",
+    "inversify": "^5.1.1",
     "mongodb": "^4.2.2",
     "mongodb-memory-server": "^8.0.4",
     "mongoose": "^5.13.13",
@@ -55,6 +56,7 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.1",
     "@types/jest": "^27.4.0",
     "@types/mongodb": "^4.0.7",
     "@types/ms": "^0.7.31",
