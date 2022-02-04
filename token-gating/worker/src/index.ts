@@ -6,6 +6,9 @@ import { inject, injectable } from 'inversify';
 import Logger from '@highoutput/logger';
 import axios from 'axios';
 import { Client, Intents } from 'discord.js';
+import R from 'ramda';
+import Bluebird from 'bluebird';
+import cron from 'node-cron';
 import {
   TYPES as GLOBAL_TYPES,
   ID,
@@ -14,6 +17,8 @@ import {
 } from '../types';
 import { TYPES } from './types';
 import CollectionRepository from './repositories/collection';
+import OwnershipRepository from './repositories/ownership';
+import ObjectId, { ObjectType } from '../library/object-id';
 
 @injectable()
 export class WorkerService {
@@ -25,7 +30,13 @@ export class WorkerService {
 
   @inject(TYPES.CollectionRepository) private readonly collectionRepository!: CollectionRepository;
 
+  @inject(TYPES.OwnershipRepository) private readonly ownershipRepository!: OwnershipRepository;
+
   public clientBot : Client;
+
+  private cronJob: cron.ScheduledTask | null = null;
+
+  private isSyncing=false;
 
   constructor() {
     this.clientBot = new Client({
@@ -74,6 +85,7 @@ export class WorkerService {
           action: 'tokennfttx',
           contractaddress: targetCollection.contractAddress,
           page: 1,
+          offset: 10000,
           startblock: startBlock || '',
           endblock: endBlock || '',
           sort: 'desc',
@@ -84,62 +96,123 @@ export class WorkerService {
       const etherScanData = etherScanResponse.data as EtherScanObject;
 
       return etherScanData.result.map((transaction) => {
-        let sender = transaction.from;
+        const {
+          from, contractAddress, to, tokenID, blockNumber,
+        } = transaction;
 
-        if (sender === '0x0000000000000000000000000000000000000000') { sender = transaction.contractAddress; }
+        let sender = from;
+
+        if (sender === '0x0000000000000000000000000000000000000000') { sender = contractAddress; }
 
         return {
 
           sender,
-          receiver: transaction.to,
-          tokenID: transaction.tokenID,
+          receiver: to,
+          tokenID,
           collection,
+          blockNumber,
 
         } as Event;
       });
     }, {
       priority: isPriority ? 1 : 0,
+
     });
   }
 
-  digestEvents(events: Event[]) {
+  async digestEvents(events: Event[]) {
     this.logger.info('digestEvents');
+
+    await Bluebird.map(events, async (event) => {
+      const {
+        blockNumber,
+        collection,
+        receiver,
+        tokenID,
+      } = event;
+
+      const ownership = await this.ownershipRepository.findOne({
+        filter: {
+          tokenID,
+        },
+      });
+
+      if (ownership) {
+        if (ownership.blockNumber < event.blockNumber) {
+          await this.ownershipRepository.updateOne({
+            filter: {
+              tokenID,
+            },
+            data: {
+              owner: receiver,
+            },
+          });
+        }
+      } else {
+        await this.ownershipRepository.create({
+          id: ObjectId.generate(ObjectType.OWNERSHIP).buffer,
+          data: {
+            blockNumber,
+            tokenID,
+            collection,
+            owner: receiver,
+          },
+        });
+      }
+    });
   }
 
-  async syncCollection(collection: ID) {
+  async syncCollection(collection: ID, isPriority: boolean) {
     this.logger.info('syncCollection');
 
-    let eventLength = 0;
-    const initialEvent = await this.retrieveEvents(collection, '0', null, true);
+    let events = await this.retrieveEvents(collection, '0', null, true);
 
-    eventLength = initialEvent.length;
-
-    if (eventLength < 10000) {
-      this.digestEvents(initialEvent);
+    if (events.length < 10000) {
+      await this.digestEvents(events);
     } else {
-      while (eventLength >= 10000) {
-        const events = await this.retrieveEvents(collection, '0', null, true);
-        this.digestEvents(events);
-        eventLength = events.length;
+      while (events.length >= 10000) {
+        if (events) {
+          const lastEvent = R.last(events);
+          events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, isPriority);
+          await this.digestEvents(events);
+        }
       }
     }
   }
 
-  async start() {
-    this.logger.info('starting');
-    this.localQueue.add(async () => {
-      this.logger.info({
-        etherscanKey: this.etherscanKey,
-      });
+  async startSync() {
+    const collections = await this.collectionRepository.find({
+      filter: {},
     });
+
+    await Bluebird.map(collections, async (collection) => {
+      await this.syncCollection(collection.id, true);
+    });
+
+    this.cronJob = cron.schedule('0 */20 * * * *', async () => {
+      await Bluebird.map(collections, async (collection) => {
+        await this.syncCollection(collection.id, false);
+      });
+    }, {
+      scheduled: true,
+
+    });
+  }
+
+  async start() {
+    this.logger.info('Starting Worker Service');
     await this.clientBot.login('OTM1NjkxNDY2ODE3Mjk0Mzc2.YfCUlQ.XyJ454J83zXjWv2iWq2QavV6GEg');
-    this.logger.info('started');
+    await this.startSync();
+    this.logger.info('Worker Service Started');
   }
 
   async stop() {
-    this.logger.info('stopping');
+    this.logger.info('Stopping Worker Service');
     this.localQueue.onIdle();
     this.clientBot.destroy();
-    this.logger.info('stopped');
+    if (this.cronJob) {
+      this.cronJob.stop();
+    }
+    this.logger.info('Worker Service Stopped');
   }
 }
