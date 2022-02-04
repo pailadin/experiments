@@ -25,7 +25,6 @@ globalContainer.bind(TYPES.mongoose)
 
 const container = Container.merge(
   globalContainer,
-
   workerContainer,
 
 ) as Container;
