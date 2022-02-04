@@ -1,6 +1,8 @@
 export * from './node';
 export * from './etherscan';
 export * from './event';
+export * from './collection';
+export * from './ownership';
 
 export const TYPES = {
   MONGODB_URI: Symbol.for('MONGODB_URI'),
