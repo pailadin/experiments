@@ -5,4 +5,6 @@ export const TYPES = {
   SCHEME: Symbol.for('SCHEME'),
   BASE_URL: Symbol.for('BASE_URL'),
   localQueue: Symbol.for('workerLocalQueue'),
+  CollectionRepository: Symbol.for('CollectionRepository'),
+  OwnershipRepository: Symbol.for('OwnershipRepository'),
 };
