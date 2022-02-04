@@ -8,5 +8,6 @@ export enum CollectionStatus {
 export type Collection = Node & {
   contractAddress: string;
   status: CollectionStatus;
+  blockNumber: string;
   createdAt: Date;
 };

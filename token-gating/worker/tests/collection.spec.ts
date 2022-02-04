@@ -31,6 +31,7 @@ describe('Collection Test', () => {
       data: {
         contractAddress: '0x06012c8cf97bead5deae237070f9587f8e7a266d',
         status: CollectionStatus.INITIALIZING,
+        blockNumber: '14136833',
       },
     });
 
@@ -39,19 +40,5 @@ describe('Collection Test', () => {
     });
 
     expect(collections.length).toEqual(1);
-  });
-
-  test('should get list of events', async function (this: Context) {
-    const id = ObjectId.generate(ObjectType.COLLECTION).buffer;
-    await this.collectionRepository.create({
-      id,
-      data: {
-        contractAddress: '0x06012c8cf97bead5deae237070f9587f8e7a266d',
-        status: CollectionStatus.INITIALIZING,
-      },
-    });
-
-    await this.workerService.syncCollection(id);
-    expect(true);
   });
 });

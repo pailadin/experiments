@@ -14,6 +14,7 @@ import {
   ID,
   Event,
   EtherScanObject,
+  CollectionStatus,
 } from '../types';
 import { TYPES } from './types';
 import CollectionRepository from './repositories/collection';
@@ -160,10 +161,14 @@ export class WorkerService {
     });
   }
 
-  async syncCollection(collection: ID, isPriority: boolean) {
+  async syncCollection(collection: ID) {
     this.logger.info('syncCollection');
 
     let events = await this.retrieveEvents(collection, '0', null, true);
+
+    const latestEvent = R.head(events);
+
+    const latestBlockNumber = latestEvent ? latestEvent.blockNumber : '0';
 
     if (events.length < 10000) {
       await this.digestEvents(events);
@@ -171,16 +176,23 @@ export class WorkerService {
       while (events.length >= 10000) {
         if (events) {
           const lastEvent = R.last(events);
-          events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, isPriority);
+          events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, true);
           await this.digestEvents(events);
         }
       }
       if (events.length > 0) {
         const lastEvent = R.last(events);
-        events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, isPriority);
+        events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, true);
         await this.digestEvents(events);
       }
     }
+
+    await this.collectionRepository.updateOne({
+      id: collection,
+      data: {
+        blockNumber: latestBlockNumber,
+      },
+    });
   }
 
   async startSync() {
@@ -189,12 +201,26 @@ export class WorkerService {
     });
 
     await Bluebird.map(collections, async (collection) => {
-      await this.syncCollection(collection.id, true);
+      await this.syncCollection(collection.id);
     });
 
     this.cronJob = cron.schedule('0 */20 * * * *', async () => {
       await Bluebird.map(collections, async (collection) => {
-        await this.syncCollection(collection.id, false);
+        const events = await this.retrieveEvents(collection.id, collection.blockNumber, null, false);
+
+        const latestEvent = R.head(events);
+
+        const latestBlockNumber = latestEvent ? latestEvent.blockNumber : '0';
+
+        await this.digestEvents(events);
+
+        await this.collectionRepository.updateOne({
+          id: collection.id,
+          data: {
+            status: CollectionStatus.UPDATED,
+            blockNumber: latestBlockNumber,
+          },
+        });
       });
     }, {
       scheduled: true,

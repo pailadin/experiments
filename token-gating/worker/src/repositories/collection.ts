@@ -14,8 +14,8 @@ type CollectionDocument = Document<ID> & Collection;
 export default class CollectionRepository
   extends Repository<
   Collection,
-    Pick<Collection, 'contractAddress' | 'status' > & Partial<Pick<Collection, 'createdAt'>>,
-    Partial<Pick<Collection, 'id' | 'contractAddress' | 'status' | 'createdAt'>>
+    Pick<Collection, 'contractAddress' | 'status' | 'blockNumber'> & Partial<Pick<Collection, 'createdAt'>>,
+    Partial<Pick<Collection, 'id' | 'contractAddress' | 'status' | 'blockNumber' | 'createdAt'>>
   > {
   async getModel(db: Connection) {
     const schema = new Schema<CollectionDocument>({
@@ -30,6 +30,10 @@ export default class CollectionRepository
       status: {
         type: String,
         default: CollectionStatus.INITIALIZING,
+      },
+      blockNumber: {
+        type: String,
+        default: '0',
       },
       createdAt: {
         type: Date,
