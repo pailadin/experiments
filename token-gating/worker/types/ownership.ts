@@ -1,7 +1,8 @@
-import { ID, Node } from './node';
+import { ID } from './node';
 
-export type Ownership = Node & {
-  collection: ID;
+export type Ownership = {
+  id: ID;
+  collectionID: ID;
   tokenID: string;
   owner: string;
   blockNumber: string;
