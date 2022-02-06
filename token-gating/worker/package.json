@@ -50,6 +50,7 @@
     "p-queue": "^6.6.2",
     "ramda": "^0.28.0",
     "reflect-metadata": "^0.1.13",
+    "sinon": "^13.0.1",
     "temp": "^0.9.4",
     "ts-node": "^10.2.1",
     "tsify": "^5.0.4",
@@ -62,6 +63,7 @@
     "@types/mongodb": "^4.0.7",
     "@types/ms": "^0.7.31",
     "@types/node-cron": "^3.0.1",
+    "@types/sinon": "^10.0.10",
     "@types/temp": "^0.9.1",
     "jest": "^27.4.7",
     "ts-jest": "^27.1.3"
