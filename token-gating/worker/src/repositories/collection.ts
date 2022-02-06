@@ -14,7 +14,7 @@ type CollectionDocument = Document<ID> & Collection;
 export default class CollectionRepository
   extends Repository<
   Collection,
-    Pick<Collection, 'contractAddress' | 'status' | 'blockNumber'> & Partial<Pick<Collection, 'createdAt'>>,
+    Pick<Collection, 'contractAddress' | 'status' > & Partial<Pick<Collection, 'blockNumber' | 'createdAt'>>,
     Partial<Pick<Collection, 'id' | 'contractAddress' | 'status' | 'blockNumber' | 'createdAt'>>
   > {
   async getModel(db: Connection) {

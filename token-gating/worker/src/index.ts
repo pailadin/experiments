@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-len */
@@ -5,10 +6,10 @@ import Queue from 'p-queue';
 import { inject, injectable } from 'inversify';
 import Logger from '@highoutput/logger';
 import axios from 'axios';
-import { Client, Intents } from 'discord.js';
 import R from 'ramda';
 import Bluebird from 'bluebird';
-import cron from 'node-cron';
+// import EventEmitter from 'events';
+import EventEmitter from 'events';
 import {
   TYPES as GLOBAL_TYPES,
   ID,
@@ -23,8 +24,6 @@ import ObjectId, { ObjectType } from '../library/object-id';
 
 @injectable()
 export class WorkerService {
-  @inject(TYPES.localQueue) private readonly localQueue!: Queue;
-
   @inject(TYPES.ETHERSCAN_KEY) private readonly etherscanKey!: string;
 
   @inject(GLOBAL_TYPES.logger) private readonly logger!: Logger;
@@ -33,22 +32,14 @@ export class WorkerService {
 
   @inject(TYPES.OwnershipRepository) private readonly ownershipRepository!: OwnershipRepository;
 
-  public clientBot : Client;
+  static localQueue : Queue;
 
-  private cronJob: cron.ScheduledTask | null = null;
+  public eventHandler : EventEmitter;
 
   constructor() {
-    this.clientBot = new Client({
-      intents: [Intents.FLAGS.GUILDS],
+    WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
 
-    });
-    this.clientBot.on('ready', () => {
-      if (!this.clientBot.user) {
-        throw new Error('Unable to login');
-      } else {
-        this.logger.info(`${this.clientBot.user.username} has Logged In`);
-      }
-    });
+    this.eventHandler = new EventEmitter();
 
     process.on('uncaughtException', async (error) => {
       this.logger.critical(error);
@@ -63,66 +54,74 @@ export class WorkerService {
     });
   }
 
+  async getEtherScanData(
+    params: {
+      contractAddress: string,
+      batchSize?: number | null,
+      startBlock?: string | null,
+      endBlock?: string | null,
+  },
+  ):Promise<EtherScanObject> {
+    const etherScanResponse = await axios.post('https://api.etherscan.io/api', {}, {
+      params: {
+        module: 'account',
+        action: 'tokennfttx',
+        contractaddress: params.contractAddress,
+        page: 1,
+        offset: params.batchSize ? params.batchSize : 10000,
+        startblock: params.startBlock,
+        endblock: params.endBlock,
+        sort: 'desc',
+        apikey: this.etherscanKey,
+      },
+    });
+
+    return etherScanResponse.data;
+  }
+
   async retrieveEvents(
+    params: {
     collection: ID,
-    startBlock: string | null,
-    endBlock: string | null,
-    isPriority: boolean,
+    contractAddress: string,
+    batchSize?: number | null,
+    startBlock?: string | null,
+    endBlock?: string | null,
+
+   },
   ): Promise<Event[]> {
-    this.logger.info('retrieveEvents');
+    const { collection } = params;
 
-    const targetCollection = await this.collectionRepository.findOne({
-      id: collection,
+    const etherScanData = await this.getEtherScanData({
+      ...params,
     });
 
-    if (!targetCollection) { throw new Error('Collection does not exist'); }
+    const events = etherScanData.result.map((transaction) => {
+      const {
+        from, contractAddress, to, tokenID, blockNumber,
+      } = transaction;
 
-    return this.localQueue.add(async () => {
-      const etherScanResponse = await axios.post('https://api.etherscan.io/api', {}, {
-        params: {
-          module: 'account',
-          action: 'tokennfttx',
-          contractaddress: targetCollection.contractAddress,
-          page: 1,
-          offset: 10000,
-          startblock: startBlock || '',
-          endblock: endBlock || '',
-          sort: 'desc',
-          apikey: this.etherscanKey,
-        },
-      });
+      let sender = from;
 
-      const etherScanData = etherScanResponse.data as EtherScanObject;
+      if (sender === '0x0000000000000000000000000000000000000000') { sender = contractAddress; }
 
-      return etherScanData.result.map((transaction) => {
-        const {
-          from, contractAddress, to, tokenID, blockNumber,
-        } = transaction;
+      return {
 
-        let sender = from;
+        sender,
+        receiver: to,
+        tokenID,
+        collection,
+        blockNumber,
 
-        if (sender === '0x0000000000000000000000000000000000000000') { sender = contractAddress; }
-
-        return {
-
-          sender,
-          receiver: to,
-          tokenID,
-          collection,
-          blockNumber,
-
-        } as Event;
-      });
-    }, {
-      priority: isPriority ? 1 : 0,
-
+      } as Event;
     });
+
+    this.eventHandler.emit('OnEvent', events);
+
+    return events;
   }
 
   async digestEvents(events: Event[]) {
-    this.logger.info('digestEvents');
-
-    await Bluebird.map(events, async (event) => {
+    await Bluebird.map(events, async (event, index) => {
       const {
         blockNumber,
         collection,
@@ -144,6 +143,7 @@ export class WorkerService {
             },
             data: {
               owner: receiver,
+              blockNumber,
             },
           });
         }
@@ -153,7 +153,7 @@ export class WorkerService {
           data: {
             blockNumber,
             tokenID,
-            collection,
+            collectionID: collection,
             owner: receiver,
           },
         });
@@ -161,37 +161,59 @@ export class WorkerService {
     });
   }
 
-  async syncCollection(collection: ID) {
+  async syncCollection(collection: ID, priority: boolean, batchSize?: number | null) {
     this.logger.info('syncCollection');
 
-    let events = await this.retrieveEvents(collection, '0', null, true);
+    const collectionData = await this.collectionRepository.findOne({
+      id: collection,
+    });
 
-    const latestEvent = R.head(events);
+    if (!collectionData) { throw new Error('Collection does not exist'); }
 
-    const latestBlockNumber = latestEvent ? latestEvent.blockNumber : '0';
+    await WorkerService.localQueue.add(async () => {
+      const startBlock = collectionData.blockNumber;
+      let currentBlock = '0';
+      let latestBlock : string | null = null;
+      while (true) {
+        const events = await this.retrieveEvents({
 
-    if (events.length < 10000) {
-      await this.digestEvents(events);
-    } else {
-      while (events.length >= 10000) {
-        if (events) {
-          const lastEvent = R.last(events);
-          events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, true);
-          await this.digestEvents(events);
+          collection,
+          contractAddress: collectionData.contractAddress,
+          startBlock,
+          endBlock: currentBlock === '0' ? null : currentBlock,
+          batchSize,
+        });
+
+        if (events.length === 0) {
+          this.logger.warn('Contract Address has no events.');
+          break;
+        }
+
+        await this.digestEvents(events);
+
+        const latestEvent = R.head(events);
+
+        if (!latestBlock && latestEvent) {
+          latestBlock = latestEvent.blockNumber;
+        }
+
+        const event = R.last(events);
+        currentBlock = event ? event.blockNumber : '0';
+
+        if (events.length < 10000) {
+          break;
         }
       }
-      if (events.length > 0) {
-        const lastEvent = R.last(events);
-        events = await this.retrieveEvents(collection, '0', lastEvent ? lastEvent.blockNumber : null, true);
-        await this.digestEvents(events);
-      }
-    }
 
-    await this.collectionRepository.updateOne({
-      id: collection,
-      data: {
-        blockNumber: latestBlockNumber,
-      },
+      await this.collectionRepository.updateOne({
+        id: collection,
+        data: {
+          blockNumber: latestBlock || '0',
+          status: latestBlock ? CollectionStatus.UPDATED : CollectionStatus.INITIALIZING,
+        },
+      });
+    }, {
+      priority: priority ? 1 : 0,
     });
   }
 
@@ -201,47 +223,20 @@ export class WorkerService {
     });
 
     await Bluebird.map(collections, async (collection) => {
-      await this.syncCollection(collection.id);
-    });
-
-    this.cronJob = cron.schedule('0 */20 * * * *', async () => {
-      await Bluebird.map(collections, async (collection) => {
-        const events = await this.retrieveEvents(collection.id, collection.blockNumber, null, false);
-
-        const latestEvent = R.head(events);
-
-        const latestBlockNumber = latestEvent ? latestEvent.blockNumber : '0';
-
-        await this.digestEvents(events);
-
-        await this.collectionRepository.updateOne({
-          id: collection.id,
-          data: {
-            status: CollectionStatus.UPDATED,
-            blockNumber: latestBlockNumber,
-          },
-        });
-      });
+      await this.syncCollection(collection.id, true);
     }, {
-      scheduled: true,
-
+      concurrency: 1,
     });
   }
 
   async start() {
     this.logger.info('Starting Worker Service');
-    await this.clientBot.login('OTM1NjkxNDY2ODE3Mjk0Mzc2.YfCUlQ.XyJ454J83zXjWv2iWq2QavV6GEg');
     await this.startSync();
     this.logger.info('Worker Service Started');
   }
 
   async stop() {
     this.logger.info('Stopping Worker Service');
-    this.localQueue.onIdle();
-    this.clientBot.destroy();
-    if (this.cronJob) {
-      this.cronJob.stop();
-    }
     this.logger.info('Worker Service Stopped');
   }
 }
