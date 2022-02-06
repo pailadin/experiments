@@ -115,7 +115,7 @@ export class WorkerService {
       } as Event;
     });
 
-    this.eventHandler.emit('OnEvent', events);
+    this.eventHandler.emit('transfer', events);
 
     return events;
   }

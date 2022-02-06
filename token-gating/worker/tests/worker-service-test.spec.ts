@@ -47,7 +47,7 @@ describe('Worker Service Test', () => {
     await teardown.apply(this);
   });
 
-  test('should update the ownership table by single contract address', async function (this: Context) {
+  test('should update the block number by single contract address', async function (this: Context) {
     await this.workerService.syncCollection(this.collection.id, true, 100);
 
     const etherScanData = await this.workerService.getEtherScanData({
@@ -69,7 +69,7 @@ describe('Worker Service Test', () => {
   test('should emit OnEvent when retrieving events ', async function (this: Context) {
     const spy = sinon.spy();
 
-    this.workerService.eventHandler.on('OnEvent', spy);
+    this.workerService.eventHandler.on('transfer', spy);
 
     await this.workerService.syncCollection(this.collection.id, true, 1);
 
