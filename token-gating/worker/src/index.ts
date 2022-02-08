@@ -184,7 +184,7 @@ export class WorkerService {
       if (batch.length >= batchSize) {
         startTimestamp = timestamp;
         await model.bulkWrite(batch);
-        this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} size => ${batch.length} byteLen => ${sizeof(batch)}`);
+        this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} size => ${batch.length}`);
         batch = [];
         await delay(100);
       }
