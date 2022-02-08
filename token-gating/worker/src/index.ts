@@ -8,7 +8,6 @@ import Logger from '@highoutput/logger';
 import axios from 'axios';
 import R from 'ramda';
 import Bluebird from 'bluebird';
-// import EventEmitter from 'events';
 import EventEmitter from 'events';
 import {
   TYPES as GLOBAL_TYPES,
@@ -57,7 +56,7 @@ export class WorkerService {
   async getEtherScanData(
     params: {
       contractAddress: string,
-      batchSize?: number | null,
+      blockSize?: number | null,
       startBlock?: string | null,
       endBlock?: string | null,
   },
@@ -68,7 +67,7 @@ export class WorkerService {
         action: 'tokennfttx',
         contractaddress: params.contractAddress,
         page: 1,
-        offset: params.batchSize ? params.batchSize : 10000,
+        offset: params.blockSize ? params.blockSize : 10000,
         startblock: params.startBlock,
         endblock: params.endBlock,
         sort: 'desc',
@@ -83,7 +82,7 @@ export class WorkerService {
     params: {
     collection: ID,
     contractAddress: string,
-    batchSize?: number | null,
+    blockSize?: number | null,
     startBlock?: string | null,
     endBlock?: string | null,
 
@@ -97,7 +96,7 @@ export class WorkerService {
 
     const events = etherScanData.result.map((transaction) => {
       const {
-        from, contractAddress, to, tokenID, blockNumber,
+        from, contractAddress, to, tokenID, timeStamp, blockNumber,
       } = transaction;
 
       let sender = from;
@@ -111,6 +110,7 @@ export class WorkerService {
         tokenID,
         collection,
         blockNumber,
+        timestamp: parseInt(timeStamp, 10),
 
       } as Event;
     });
@@ -120,13 +120,78 @@ export class WorkerService {
     return events;
   }
 
-  async digestEvents(events: Event[]) {
-    await Bluebird.map(events, async (event, index) => {
+  private async digestEventsV2(events: Event[]) {
+    const tokenIDList = events.map((event) => event.tokenID);
+
+    const ownerships = await this.ownershipRepository.find({
+      filter: {
+        tokenID: {
+          $in: tokenIDList,
+        },
+      },
+    });
+
+    let batch: unknown[] = [];
+    const batchSize = 1000;
+    const model = await this.ownershipRepository.model;
+
+    await Bluebird.map(events, async (event) => {
       const {
-        blockNumber,
         collection,
         receiver,
         tokenID,
+        timestamp,
+      } = event;
+
+      const ownership = ownerships.find((ownershipData) => ownershipData.tokenID === tokenID);
+
+      if (ownership) {
+        if (ownership.timestamp < event.timestamp) {
+          batch.push({
+            updateOne: {
+              filter: { tokenID },
+              update: {
+                $set: {
+                  ...ownership,
+                  owner: receiver,
+                  timestamp,
+                },
+              },
+            },
+          });
+        }
+      } else {
+        batch.push({
+          insertOne: {
+            document: {
+              _id: ObjectId.generate(ObjectType.OWNERSHIP).buffer,
+              timestamp,
+              tokenID,
+              collectionID: collection,
+              owner: receiver,
+            },
+          },
+        });
+      }
+
+      if (batch.length >= batchSize) {
+        await model.bulkWrite(batch);
+        batch = [];
+      }
+    });
+
+    if (batch.length > 0) {
+      await model.bulkWrite(batch);
+    }
+  }
+
+  private async digestEvents(events: Event[]) {
+    await Bluebird.map(events, async (event) => {
+      const {
+        collection,
+        receiver,
+        tokenID,
+        timestamp,
       } = event;
 
       const ownership = await this.ownershipRepository.findOne({
@@ -136,14 +201,15 @@ export class WorkerService {
       });
 
       if (ownership) {
-        if (ownership.blockNumber < event.blockNumber) {
+        if (ownership.timestamp < event.timestamp) {
           await this.ownershipRepository.updateOne({
             filter: {
               tokenID,
             },
             data: {
+              ...ownership,
               owner: receiver,
-              blockNumber,
+              timestamp,
             },
           });
         }
@@ -151,7 +217,7 @@ export class WorkerService {
         await this.ownershipRepository.create({
           id: ObjectId.generate(ObjectType.OWNERSHIP).buffer,
           data: {
-            blockNumber,
+            timestamp,
             tokenID,
             collectionID: collection,
             owner: receiver,
@@ -161,9 +227,7 @@ export class WorkerService {
     });
   }
 
-  async syncCollection(collection: ID, priority: boolean, batchSize?: number | null) {
-    this.logger.info('syncCollection');
-
+  async syncCollection(collection: ID, priority: boolean, blockSize?: number | null) {
     const collectionData = await this.collectionRepository.findOne({
       id: collection,
     });
@@ -181,7 +245,7 @@ export class WorkerService {
           contractAddress: collectionData.contractAddress,
           startBlock,
           endBlock: currentBlock === '0' ? null : currentBlock,
-          batchSize,
+          blockSize,
         });
 
         if (events.length === 0) {
@@ -189,7 +253,7 @@ export class WorkerService {
           break;
         }
 
-        await this.digestEvents(events);
+        await this.digestEventsV2(events);
 
         const latestEvent = R.head(events);
 
@@ -215,6 +279,8 @@ export class WorkerService {
     }, {
       priority: priority ? 1 : 0,
     });
+
+    this.logger.info('syncCollection');
   }
 
   async startSync() {
