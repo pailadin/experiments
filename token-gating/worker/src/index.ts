@@ -122,8 +122,6 @@ export class WorkerService {
   }
 
   private async digestEvents(events: Event[]) {
-    this.logger.info(`Event Size: ${events.length}`);
-
     const tokenIDList = events.map((event) => event.tokenID);
 
     const ownerships = await this.ownershipRepository.find({
@@ -191,7 +189,7 @@ export class WorkerService {
     }
 
     if (batch.length > 0) {
-      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
+      this.logger.info(`BulkWrite(REMAINING): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
       await model.bulkWrite(batch);
       batch = [];
       await delay(100);
@@ -218,6 +216,9 @@ export class WorkerService {
           endBlock: currentBlock === '0' ? null : currentBlock,
           blockSize,
         });
+
+        this.logger.info(`Collection: ${collection}`);
+        this.logger.info(`StartBlock: ${startBlock} EndBlock:${currentBlock} EventSize: ${events.length}`);
 
         if (events.length === 0) {
           this.logger.warn('Contract Address has no events.');
