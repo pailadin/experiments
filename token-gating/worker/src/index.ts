@@ -135,7 +135,7 @@ export class WorkerService {
     });
 
     let batch : Record<string, unknown>[] = [];
-    const batchSize = 500;
+    const batchSize = 10000;
     const model = await this.ownershipRepository.model;
     let startTimestamp = 0;
 
