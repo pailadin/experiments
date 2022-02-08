@@ -35,7 +35,6 @@ export class WorkerService {
 
   constructor() {
     if (!WorkerService.localQueue) {
-      this.logger.info('New LocalQueue Instance');
       WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
     }
   }
