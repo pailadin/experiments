@@ -189,7 +189,7 @@ export class WorkerService {
     }
 
     if (batch.length > 0) {
-      this.logger.info(`BulkWrite(REMAINING): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
+      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
       await model.bulkWrite(batch);
       batch = [];
       await delay(100);
@@ -217,7 +217,9 @@ export class WorkerService {
           blockSize,
         });
 
-        this.logger.info(`Collection: ${collection}`);
+        this.logger.info({
+          collection,
+        });
         this.logger.info(`StartBlock: ${startBlock} EndBlock:${currentBlock} EventSize: ${events.length}`);
 
         if (events.length === 0) {
