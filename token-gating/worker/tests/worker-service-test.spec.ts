@@ -2,7 +2,6 @@
 /* eslint-disable no-console */
 
 import R from 'ramda';
-import sinon from 'sinon';
 import CollectionRepository from '../src/repositories/collection';
 import { Context as FixtureContext, setup, teardown } from './helpers/fixture';
 import { TYPES } from '../src/types';
@@ -53,32 +52,9 @@ describe('Worker Service Test', () => {
     await teardown.apply(this);
   });
 
-  test('should emit OnEvent when retrieving events ', async function (this: Context) {
-    const spy = sinon.spy();
-    this.blockSize = 1;
-    this.workerService.eventHandler.on('transfer', spy);
-
-    await this.workerService.syncCollection(this.collection.id, true, this.blockSize);
-
-    const etherScanData = await getEtherScanData({
-      contractAddress: this.contractAddress,
-      apikey: this.apiKey,
-      blockSize: this.blockSize,
-    });
-
-    const latestEvent = R.head(etherScanData.result);
-
-    const collectionData = await this.collectionRepository.findOne({
-      id: this.collection.id,
-    });
-
-    expect(latestEvent).toBeDefined();
-    expect(collectionData).not.toBeNull();
-    expect(spy.calledOnce).toEqual(true);
-  });
-
   test('should update the owner of token ', async function (this: Context) {
     this.blockSize = 1;
+
     const etherScanData = await getEtherScanData({
       contractAddress: this.contractAddress,
       apikey: this.apiKey,

@@ -21,6 +21,8 @@ globalContainer.bind(TYPES.mongoose)
     useNewUrlParser: true,
     useUnifiedTopology: true,
     socketTimeoutMS: ms('5m'),
+    connectTimeoutMS: ms('5m'),
+    reconnectTries: 60,
   })).inSingletonScope();
 
 const container = Container.merge(
