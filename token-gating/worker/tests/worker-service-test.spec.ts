@@ -53,30 +53,9 @@ describe('Worker Service Test', () => {
     await teardown.apply(this);
   });
 
-  test.only('should update the collection by single contract address', async function (this: Context) {
-    await this.workerService.syncCollection(this.collection.id, true, this.blockSize);
-
-    const etherScanData = await getEtherScanData({
-      contractAddress: this.contractAddress,
-      apikey: this.apiKey,
-      blockSize: this.blockSize,
-    });
-
-    const latestEvent = R.head(etherScanData.result);
-
-    const collectionData = await this.collectionRepository.findOne({
-      id: this.collection.id,
-    });
-
-    expect(latestEvent).toBeDefined();
-    expect(collectionData).not.toBeNull();
-    expect(collectionData!.blockNumber).toEqual(latestEvent!.blockNumber);
-    expect(collectionData!.status).toEqual(CollectionStatus.UPDATED);
-  });
-
   test('should emit OnEvent when retrieving events ', async function (this: Context) {
     const spy = sinon.spy();
-
+    this.blockSize = 1;
     this.workerService.eventHandler.on('transfer', spy);
 
     await this.workerService.syncCollection(this.collection.id, true, this.blockSize);
@@ -99,6 +78,7 @@ describe('Worker Service Test', () => {
   });
 
   test('should update the owner of token ', async function (this: Context) {
+    this.blockSize = 1;
     const etherScanData = await getEtherScanData({
       contractAddress: this.contractAddress,
       apikey: this.apiKey,
@@ -121,6 +101,7 @@ describe('Worker Service Test', () => {
   });
 
   test('should update ownership table', async function (this: Context) {
+    this.blockSize = 10;
     const etherScanData = await getEtherScanData({
       contractAddress: this.contractAddress,
       apikey: this.apiKey,
@@ -165,5 +146,27 @@ describe('Worker Service Test', () => {
     });
 
     expect(currentOwnerships.length).toEqual(updatedOwnerships.length);
+  });
+
+  test('should update the collection by single contract address', async function (this: Context) {
+    this.blockSize = 10000;
+    await this.workerService.syncCollection(this.collection.id, true, this.blockSize);
+
+    const etherScanData = await getEtherScanData({
+      contractAddress: this.contractAddress,
+      apikey: this.apiKey,
+      blockSize: this.blockSize,
+    });
+
+    const latestEvent = R.head(etherScanData.result);
+
+    const collectionData = await this.collectionRepository.findOne({
+      id: this.collection.id,
+    });
+
+    expect(latestEvent).toBeDefined();
+    expect(collectionData).not.toBeNull();
+    expect(collectionData!.blockNumber).toEqual(latestEvent!.blockNumber);
+    expect(collectionData!.status).toEqual(CollectionStatus.UPDATED);
   });
 });
