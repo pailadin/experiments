@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -8,8 +9,8 @@ import Logger from '@highoutput/logger';
 import axios from 'axios';
 import R from 'ramda';
 import Bluebird from 'bluebird';
-// import EventEmitter from 'events';
 import EventEmitter from 'events';
+import delay from '@highoutput/delay';
 import {
   TYPES as GLOBAL_TYPES,
   ID,
@@ -40,24 +41,12 @@ export class WorkerService {
     WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
 
     this.eventHandler = new EventEmitter();
-
-    process.on('uncaughtException', async (error) => {
-      this.logger.critical(error);
-    });
-
-    process.on('uncaughtExceptionMonitor', async (error) => {
-      this.logger.critical(error);
-    });
-
-    process.on('unhandledRejection', async (error) => {
-      this.logger.critical(error || 'unhandledRejection');
-    });
   }
 
   async getEtherScanData(
     params: {
       contractAddress: string,
-      batchSize?: number | null,
+      blockSize?: number | null,
       startBlock?: string | null,
       endBlock?: string | null,
   },
@@ -68,7 +57,7 @@ export class WorkerService {
         action: 'tokennfttx',
         contractaddress: params.contractAddress,
         page: 1,
-        offset: params.batchSize ? params.batchSize : 10000,
+        offset: params.blockSize ? params.blockSize : 10000,
         startblock: params.startBlock,
         endblock: params.endBlock,
         sort: 'desc',
@@ -83,7 +72,7 @@ export class WorkerService {
     params: {
     collection: ID,
     contractAddress: string,
-    batchSize?: number | null,
+    blockSize?: number | null,
     startBlock?: string | null,
     endBlock?: string | null,
 
@@ -97,7 +86,7 @@ export class WorkerService {
 
     const events = etherScanData.result.map((transaction) => {
       const {
-        from, contractAddress, to, tokenID, blockNumber,
+        from, contractAddress, to, tokenID, timeStamp, blockNumber,
       } = transaction;
 
       let sender = from;
@@ -111,59 +100,92 @@ export class WorkerService {
         tokenID,
         collection,
         blockNumber,
+        timestamp: Number(timeStamp),
 
       } as Event;
     });
 
     this.eventHandler.emit('transfer', events);
-
     return events;
   }
 
-  async digestEvents(events: Event[]) {
-    await Bluebird.map(events, async (event, index) => {
+  private async digestEvents(events: Event[], _batchSize?: number | null) {
+    const tokenIDList = events.map((event) => event.tokenID);
+
+    const ownerships = await this.ownershipRepository.find({
+      filter: {
+        tokenID: {
+          $in: tokenIDList,
+        },
+      },
+    });
+
+    const batchSize = _batchSize || 10000;
+
+    let batch : Record<string, unknown>[] = [];
+    const model = await this.ownershipRepository.model;
+    let startTimestamp = 0;
+
+    for (const event of events) {
       const {
-        blockNumber,
         collection,
         receiver,
         tokenID,
+        timestamp,
       } = event;
 
-      const ownership = await this.ownershipRepository.findOne({
-        filter: {
-          tokenID,
-        },
-      });
+      const ownership = ownerships.find((ownershipData) => ownershipData.tokenID === tokenID);
+
+      if (startTimestamp === 0) { startTimestamp = timestamp; }
 
       if (ownership) {
-        if (ownership.blockNumber < event.blockNumber) {
-          await this.ownershipRepository.updateOne({
-            filter: {
-              tokenID,
-            },
-            data: {
-              owner: receiver,
-              blockNumber,
+        if (ownership.timestamp < event.timestamp) {
+          batch.push({
+            updateOne: {
+              filter: { tokenID },
+              update: {
+                $set: {
+                  ...ownership,
+                  owner: receiver,
+                  timestamp,
+                },
+              },
             },
           });
         }
       } else {
-        await this.ownershipRepository.create({
-          id: ObjectId.generate(ObjectType.OWNERSHIP).buffer,
-          data: {
-            blockNumber,
-            tokenID,
-            collectionID: collection,
-            owner: receiver,
+        batch.push({
+          insertOne: {
+            document: {
+              _id: ObjectId.generate(ObjectType.OWNERSHIP).buffer,
+              timestamp,
+              tokenID,
+              collectionID: collection,
+              owner: receiver,
+              createdAt: new Date(),
+            },
           },
         });
       }
-    });
+
+      if (batch.length >= batchSize) {
+        await model.bulkWrite(batch);
+        this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} size => ${batch.length}`);
+        startTimestamp = timestamp;
+        batch = [];
+        await delay(100);
+      }
+    }
+
+    if (batch.length > 0) {
+      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
+      await model.bulkWrite(batch);
+      batch = [];
+      await delay(100);
+    }
   }
 
-  async syncCollection(collection: ID, priority: boolean, batchSize?: number | null) {
-    this.logger.info('syncCollection');
-
+  async syncCollection(collection: ID, priority: boolean, blockSize?: number | null, batchSize?: number | null) {
     const collectionData = await this.collectionRepository.findOne({
       id: collection,
     });
@@ -174,6 +196,7 @@ export class WorkerService {
       const startBlock = collectionData.blockNumber;
       let currentBlock = '0';
       let latestBlock : string | null = null;
+      this.logger.info(`ContractAddress: ${collectionData.contractAddress}`);
       while (true) {
         const events = await this.retrieveEvents({
 
@@ -181,7 +204,7 @@ export class WorkerService {
           contractAddress: collectionData.contractAddress,
           startBlock,
           endBlock: currentBlock === '0' ? null : currentBlock,
-          batchSize,
+          blockSize,
         });
 
         if (events.length === 0) {
@@ -189,13 +212,15 @@ export class WorkerService {
           break;
         }
 
-        await this.digestEvents(events);
-
         const latestEvent = R.head(events);
 
         if (!latestBlock && latestEvent) {
           latestBlock = latestEvent.blockNumber;
         }
+
+        this.logger.info(`LatestBlock: ${latestBlock} StartBlock: ${startBlock} EndBlock:${currentBlock} EventSize: ${events.length}`);
+
+        await this.digestEvents(events, batchSize);
 
         const event = R.last(events);
         currentBlock = event ? event.blockNumber : '0';
@@ -215,6 +240,8 @@ export class WorkerService {
     }, {
       priority: priority ? 1 : 0,
     });
+
+    this.logger.info('syncCollection');
   }
 
   async startSync() {

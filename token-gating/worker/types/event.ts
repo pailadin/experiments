@@ -6,4 +6,5 @@ export type Event = {
   tokenID: string;
   collection: ID;
   blockNumber: string;
+  timestamp: number;
 };
