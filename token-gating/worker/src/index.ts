@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-await-in-loop */
@@ -8,9 +9,6 @@ import { inject, injectable } from 'inversify';
 import Logger from '@highoutput/logger';
 import axios from 'axios';
 import R from 'ramda';
-import Bluebird from 'bluebird';
-import EventEmitter from 'events';
-import delay from '@highoutput/delay';
 import {
   TYPES as GLOBAL_TYPES,
   ID,
@@ -33,14 +31,13 @@ export class WorkerService {
 
   @inject(TYPES.OwnershipRepository) private readonly ownershipRepository!: OwnershipRepository;
 
-  static localQueue : Queue;
-
-  public eventHandler : EventEmitter;
+  private static localQueue: Queue;
 
   constructor() {
-    WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
-
-    this.eventHandler = new EventEmitter();
+    if (!WorkerService.localQueue) {
+      this.logger.info('New LocalQueue Instance');
+      WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
+    }
   }
 
   async getEtherScanData(
@@ -105,12 +102,11 @@ export class WorkerService {
       } as Event;
     });
 
-    this.eventHandler.emit('transfer', events);
     return events;
   }
 
   private async digestEvents(events: Event[], _batchSize?: number | null) {
-    const tokenIDList = events.map((event) => event.tokenID);
+    const tokenIDList = R.uniq(events.map((event) => event.tokenID));
 
     const ownerships = await this.ownershipRepository.find({
       filter: {
@@ -173,15 +169,13 @@ export class WorkerService {
         this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} size => ${batch.length}`);
         startTimestamp = timestamp;
         batch = [];
-        await delay(100);
       }
     }
 
     if (batch.length > 0) {
-      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
       await model.bulkWrite(batch);
+      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
       batch = [];
-      await delay(100);
     }
   }
 
@@ -242,28 +236,5 @@ export class WorkerService {
     });
 
     this.logger.info('syncCollection');
-  }
-
-  async startSync() {
-    const collections = await this.collectionRepository.find({
-      filter: {},
-    });
-
-    await Bluebird.map(collections, async (collection) => {
-      await this.syncCollection(collection.id, true);
-    }, {
-      concurrency: 1,
-    });
-  }
-
-  async start() {
-    this.logger.info('Starting Worker Service');
-    await this.startSync();
-    this.logger.info('Worker Service Started');
-  }
-
-  async stop() {
-    this.logger.info('Stopping Worker Service');
-    this.logger.info('Worker Service Stopped');
   }
 }
