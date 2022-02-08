@@ -29,7 +29,7 @@ export async function getEtherScanData(
 
   if (!etherScanData) { throw new Error('EtherScan Failed'); }
 
-  await delay(1000);
+  await delay(100);
 
   return etherScanData;
 }

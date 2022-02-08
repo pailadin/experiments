@@ -35,7 +35,7 @@ describe('Worker Service Test', () => {
     this.ownershipRepository = container.get<OwnershipRepository>(TYPES.OwnershipRepository);
     this.workerService = container.get<WorkerService>(GLOBAL_TYPES.WorkerService);
     this.contractAddress = '0x06012c8cf97bead5deae237070f9587f8e7a266d';
-    this.blockSize = 9999;
+    this.blockSize = 1000;
     this.collection = await this.collectionRepository.create({
       id: ObjectId.generate(ObjectType.COLLECTION).buffer,
       data: {
@@ -53,7 +53,7 @@ describe('Worker Service Test', () => {
     await teardown.apply(this);
   });
 
-  test('should update the collection by single contract address', async function (this: Context) {
+  test.only('should update the collection by single contract address', async function (this: Context) {
     await this.workerService.syncCollection(this.collection.id, true, this.blockSize);
 
     const etherScanData = await getEtherScanData({

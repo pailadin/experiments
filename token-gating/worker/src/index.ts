@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -9,6 +10,7 @@ import axios from 'axios';
 import R from 'ramda';
 import Bluebird from 'bluebird';
 import EventEmitter from 'events';
+import delay from '@highoutput/delay';
 import {
   TYPES as GLOBAL_TYPES,
   ID,
@@ -103,24 +105,28 @@ export class WorkerService {
 
       if (sender === '0x0000000000000000000000000000000000000000') { sender = contractAddress; }
 
-      return {
+      const event = {
 
         sender,
         receiver: to,
         tokenID,
         collection,
         blockNumber,
-        timestamp: parseInt(timeStamp, 10),
+        timestamp: Number(timeStamp),
 
       } as Event;
-    });
 
-    this.eventHandler.emit('transfer', events);
+      this.eventHandler.emit('transfer', event);
+
+      return event;
+    });
 
     return events;
   }
 
   private async digestEvents(events: Event[]) {
+    this.logger.info(`Event Size: ${events.length}`);
+
     const tokenIDList = events.map((event) => event.tokenID);
 
     const ownerships = await this.ownershipRepository.find({
@@ -131,11 +137,12 @@ export class WorkerService {
       },
     });
 
-    let batch: unknown[] = [];
-    const batchSize = 1000;
+    let batch : Record<string, unknown>[] = [];
+    const batchSize = 500;
     const model = await this.ownershipRepository.model;
+    let startTimestamp = 0;
 
-    await Bluebird.map(events, async (event) => {
+    for (const event of events) {
       const {
         collection,
         receiver,
@@ -144,6 +151,8 @@ export class WorkerService {
       } = event;
 
       const ownership = ownerships.find((ownershipData) => ownershipData.tokenID === tokenID);
+
+      if (startTimestamp === 0) { startTimestamp = timestamp; }
 
       if (ownership) {
         if (ownership.timestamp < event.timestamp) {
@@ -169,19 +178,26 @@ export class WorkerService {
               tokenID,
               collectionID: collection,
               owner: receiver,
+              createdAt: new Date(),
             },
           },
         });
       }
 
       if (batch.length >= batchSize) {
+        this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} size => ${batch.length}`);
+        startTimestamp = timestamp;
         await model.bulkWrite(batch);
         batch = [];
+        await delay(100);
       }
-    });
+    }
 
     if (batch.length > 0) {
+      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
       await model.bulkWrite(batch);
+      batch = [];
+      await delay(100);
     }
   }
 
