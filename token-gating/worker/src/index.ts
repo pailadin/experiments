@@ -120,7 +120,7 @@ export class WorkerService {
     return events;
   }
 
-  private async digestEventsV2(events: Event[]) {
+  private async digestEvents(events: Event[]) {
     const tokenIDList = events.map((event) => event.tokenID);
 
     const ownerships = await this.ownershipRepository.find({
@@ -185,48 +185,6 @@ export class WorkerService {
     }
   }
 
-  private async digestEvents(events: Event[]) {
-    await Bluebird.map(events, async (event) => {
-      const {
-        collection,
-        receiver,
-        tokenID,
-        timestamp,
-      } = event;
-
-      const ownership = await this.ownershipRepository.findOne({
-        filter: {
-          tokenID,
-        },
-      });
-
-      if (ownership) {
-        if (ownership.timestamp < event.timestamp) {
-          await this.ownershipRepository.updateOne({
-            filter: {
-              tokenID,
-            },
-            data: {
-              ...ownership,
-              owner: receiver,
-              timestamp,
-            },
-          });
-        }
-      } else {
-        await this.ownershipRepository.create({
-          id: ObjectId.generate(ObjectType.OWNERSHIP).buffer,
-          data: {
-            timestamp,
-            tokenID,
-            collectionID: collection,
-            owner: receiver,
-          },
-        });
-      }
-    });
-  }
-
   async syncCollection(collection: ID, priority: boolean, blockSize?: number | null) {
     const collectionData = await this.collectionRepository.findOne({
       id: collection,
@@ -253,7 +211,7 @@ export class WorkerService {
           break;
         }
 
-        await this.digestEventsV2(events);
+        await this.digestEvents(events);
 
         const latestEvent = R.head(events);
 
