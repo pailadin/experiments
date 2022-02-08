@@ -5,6 +5,6 @@ export type Ownership = {
   collectionID: ID;
   tokenID: string;
   owner: string;
-  blockNumber: string;
+  timestamp: number;
   createdAt: Date;
 };
