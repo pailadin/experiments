@@ -105,7 +105,7 @@ export class WorkerService {
 
       if (sender === '0x0000000000000000000000000000000000000000') { sender = contractAddress; }
 
-      const event = {
+      return {
 
         sender,
         receiver: to,
@@ -115,12 +115,9 @@ export class WorkerService {
         timestamp: Number(timeStamp),
 
       } as Event;
-
-      this.eventHandler.emit('transfer', event);
-
-      return event;
     });
 
+    this.eventHandler.emit('transfer', events);
     return events;
   }
 
