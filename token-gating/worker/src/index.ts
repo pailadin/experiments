@@ -189,7 +189,7 @@ export class WorkerService {
     }
 
     if (batch.length > 0) {
-      this.logger.info(`BulkWrite(REMAINING): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
+      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
       await model.bulkWrite(batch);
       batch = [];
       await delay(100);
@@ -207,6 +207,7 @@ export class WorkerService {
       const startBlock = collectionData.blockNumber;
       let currentBlock = '0';
       let latestBlock : string | null = null;
+      this.logger.info(`ContractAddress: ${collectionData.contractAddress}`);
       while (true) {
         const events = await this.retrieveEvents({
 
@@ -217,7 +218,6 @@ export class WorkerService {
           blockSize,
         });
 
-        this.logger.info(`ContractAddress: ${collectionData.contractAddress}`);
         this.logger.info(`StartBlock: ${startBlock} EndBlock:${currentBlock} EventSize: ${events.length}`);
 
         if (events.length === 0) {
