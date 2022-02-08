@@ -1,7 +1,6 @@
-import { ID } from './node';
+import { ID, Node } from './node';
 
-export type Ownership = {
-  id: ID;
+export type Ownership = Node & {
   collectionID: ID;
   tokenID: string;
   owner: string;

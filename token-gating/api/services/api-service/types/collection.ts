@@ -1,12 +1,11 @@
-import { ID } from './node';
+import { Node } from './node';
 
 export enum CollectionStatus {
   INITIALIZING = 'INITIALIZING',
   UPDATED = 'UPDATED',
 }
 
-export type Collection = {
-  id: ID;
+export type Collection = Node & {
   contractAddress: string;
   status: CollectionStatus;
   blockNumber: string;
