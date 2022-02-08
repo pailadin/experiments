@@ -80,6 +80,8 @@ export class WorkerService {
       ...params,
     });
 
+    if (!etherScanData.result) { return []; }
+
     const events = etherScanData.result.map((transaction) => {
       const {
         from, contractAddress, to, tokenID, timeStamp, blockNumber,
