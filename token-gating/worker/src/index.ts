@@ -41,18 +41,6 @@ export class WorkerService {
     WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
 
     this.eventHandler = new EventEmitter();
-
-    process.on('uncaughtException', async (error) => {
-      this.logger.critical(error);
-    });
-
-    process.on('uncaughtExceptionMonitor', async (error) => {
-      this.logger.critical(error);
-    });
-
-    process.on('unhandledRejection', async (error) => {
-      this.logger.critical(error || 'unhandledRejection');
-    });
   }
 
   async getEtherScanData(
@@ -121,7 +109,7 @@ export class WorkerService {
     return events;
   }
 
-  private async digestEvents(events: Event[]) {
+  private async digestEvents(events: Event[], _batchSize?: number | null) {
     const tokenIDList = events.map((event) => event.tokenID);
 
     const ownerships = await this.ownershipRepository.find({
@@ -132,8 +120,9 @@ export class WorkerService {
       },
     });
 
+    const batchSize = _batchSize || 10000;
+
     let batch : Record<string, unknown>[] = [];
-    const batchSize = 10000;
     const model = await this.ownershipRepository.model;
     let startTimestamp = 0;
 
@@ -180,9 +169,9 @@ export class WorkerService {
       }
 
       if (batch.length >= batchSize) {
-        startTimestamp = timestamp;
         await model.bulkWrite(batch);
         this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} size => ${batch.length}`);
+        startTimestamp = timestamp;
         batch = [];
         await delay(100);
       }
@@ -196,7 +185,7 @@ export class WorkerService {
     }
   }
 
-  async syncCollection(collection: ID, priority: boolean, blockSize?: number | null) {
+  async syncCollection(collection: ID, priority: boolean, blockSize?: number | null, batchSize?: number | null) {
     const collectionData = await this.collectionRepository.findOne({
       id: collection,
     });
@@ -218,20 +207,20 @@ export class WorkerService {
           blockSize,
         });
 
-        this.logger.info(`StartBlock: ${startBlock} EndBlock:${currentBlock} EventSize: ${events.length}`);
-
         if (events.length === 0) {
           this.logger.warn('Contract Address has no events.');
           break;
         }
-
-        await this.digestEvents(events);
 
         const latestEvent = R.head(events);
 
         if (!latestBlock && latestEvent) {
           latestBlock = latestEvent.blockNumber;
         }
+
+        this.logger.info(`LatestBlock: ${latestBlock} StartBlock: ${startBlock} EndBlock:${currentBlock} EventSize: ${events.length}`);
+
+        await this.digestEvents(events, batchSize);
 
         const event = R.last(events);
         currentBlock = event ? event.blockNumber : '0';
