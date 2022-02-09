@@ -15,7 +15,7 @@ const SAFE_OWNER_ADDRESS = '0xC9e29C46E35AA801a8226886912a9b1A9e355D47';
 /**
  * SO SLOW!
  */
-describe.only('BulkTransfer with Alchemy', function () {
+describe('BulkTransfer (SLOW)', function () {
   it('should have the correct balance', async function () {
     const owner = await ethers.getSigner('0xC9e29C46E35AA801a8226886912a9b1A9e355D47');
     
