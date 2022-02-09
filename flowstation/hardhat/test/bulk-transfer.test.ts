@@ -1,5 +1,5 @@
 /* eslint-disable node/no-missing-import */
-import R from "ramda";
+/*import R from "ramda";
 import Safe, { EthersAdapter, SafeFactory } from "@gnosis.pm/safe-core-sdk";
 import { expect } from "chai";
 import { ethers, } from "hardhat";
@@ -12,9 +12,6 @@ import { BulkTransfer } from "../typechain";
 
 const SAFE_OWNER_ADDRESS = '0xC9e29C46E35AA801a8226886912a9b1A9e355D47';
 
-/**
- * SO SLOW!
- */
 describe('BulkTransfer (SLOW)', function () {
   it('should have the correct balance', async function () {
     const owner = await ethers.getSigner('0xC9e29C46E35AA801a8226886912a9b1A9e355D47');
@@ -133,4 +130,4 @@ describe('BulkTransfer (SLOW)', function () {
       console.log("transaction executed");
     });
   });
-});
+});*/
