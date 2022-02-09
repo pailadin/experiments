@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity >=0.7.0;
+pragma solidity <=0.8.11;
 pragma abicoder v2;
 
 // import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
