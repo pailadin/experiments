@@ -1,9 +1,11 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity >=0.7.0;
+pragma solidity <=0.8.11;
 pragma abicoder v2;
 
-import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
-import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
+// import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
+// import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
+
+import "./Enum.sol";
 
 interface IGnosisSafe {
     /// @dev Allows a Module to execute a Safe transaction without any further confirmations.

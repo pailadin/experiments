@@ -6,6 +6,7 @@ import '@nomiclabs/hardhat-waffle';
 import '@typechain/hardhat';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
+// import "hardhat-deploy";
 
 dotenv.config();
 
@@ -27,24 +28,34 @@ const ALCHEMY_MAINNET_API = 'https://eth-mainnet.alchemyapi.io/v2/JRg6lBJPJ8PiIF
 const PRIVATE_KEY = 'e57a0b19e2a0a1a20864e9f4ef2b464b54d65dbe5bb6b5d8da677a955c5602aa';
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.4',
+  solidity: {
+    compilers: [
+      {
+        version: '0.5.0',
+      },
+      {
+        version: '0.8.9',
+      },
+    ],
+  },
   defaultNetwork: 'hardhat',
   networks: {
     rinkeby: {
       url: ALCHEMY_API,
       accounts: [PRIVATE_KEY],
     },
+    mainnet: {
+      url: ALCHEMY_MAINNET_API,
+      
+    },
     hardhat: {
-      forking: {
-        url: ALCHEMY_MAINNET_API,
-        blockNumber: 12504120,
-      },
+      allowUnlimitedContractSize: true,
     },
   },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: 'USD',
-  },
+  // gasReporter: {
+  //   enabled: process.env.REPORT_GAS !== undefined,
+  //   currency: 'USD',
+  // },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },

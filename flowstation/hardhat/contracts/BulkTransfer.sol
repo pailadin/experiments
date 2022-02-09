@@ -1,22 +1,19 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity >=0.7.0;
+pragma solidity <=0.8.11;
 
-import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
-import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
+// import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
+// import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
 
 import "./IGnosisSafe.sol";
+import "./Enum.sol";
 
 contract BulkTransfer {
-    using GnosisSafeMath for uint256;
-
-    string public constant NAME = "Bulk Transfer";
-
-    string public constant VERSION = "0.0.1";
+    // using GnosisSafeMath for uint256;
 
     struct Transfer {
       address recipient;
-      uint256 amount;
       address token;
+      uint256 amount;
     }
 
     function executeBulkTransfer(
@@ -42,10 +39,9 @@ contract BulkTransfer {
                     "",
                     Enum.Operation.Call
                 ),
-                "cannot execute ether transfer"
+                "Cannot execute ether transfer."
             );
         } else {
-            // token transfer
             bytes memory data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
                 to,
@@ -59,7 +55,7 @@ contract BulkTransfer {
                     data,
                     Enum.Operation.Call
                 ),
-                "cannot execute token transfer"
+                "Cannot execute token transfer."
             );
         }
     }

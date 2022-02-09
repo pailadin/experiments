@@ -1,17 +1,15 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity <=8.11.0;
+pragma solidity <=0.8.11;
 pragma abicoder v2;
 
-import "hardhat/console.sol";
-
 import "./IGnosisSafe.sol";
-import "./SimpleUniswapV3.sol";
 import "./BulkTransfer.sol";
+import "./SimpleSwap.sol";
 
 /// @notice You can use this contract for basic simulation (bulk transferring and swap)
 /// @custom:experimental This is an experimental contract
-contract FlowStationWorkflowModule {
-    string public constant NAME = "FlowStation Workflow Module";
+contract WorkflowModule is BulkTransfer, SimpleSwap {
+    string public constant NAME = "Workflow Module";
 
     string public constant VERSION = "0.0.1";
 
@@ -27,10 +25,6 @@ contract FlowStationWorkflowModule {
     }
 
     Workflow[] public workflows;
-    
-    SimpleUniswapV3 public simpleUniswapV3;
-
-    BulkTransfer public bulkTransfer;
 
     /// @dev Safe -> number of workflows
     mapping(address => uint) public safeWorkflowCount;
@@ -83,11 +77,11 @@ contract FlowStationWorkflowModule {
         bool success;
         bytes memory data;
 
-        IGnosisSafe safe = workflows[_workflow].safe;
+        // IGnosisSafe safe = workflows[_workflow].safe;
 
         for (uint index = 0; index < workflow.actions.length; index++) {
             (success, data) = address(this).call(
-                abi.encodePacked(workflow.actions[index].selector, abi.encode(safe), workflow.actions[index].arguments)
+                abi.encodePacked(workflow.actions[index].selector, workflow.actions[index].arguments)
             );
 
             emit ExecuteWorkflow(data);
@@ -96,9 +90,41 @@ contract FlowStationWorkflowModule {
         require(success, "Call failed!");
     }
 
+    function encode(bytes4 selector, bytes memory arguments) public pure returns(bytes memory) {
+        return abi.encode(selector, arguments);
+    }
+
+    function pack(bytes4 selector, bytes memory arguments) public pure returns(bytes memory) {
+        return abi.encodePacked(selector, arguments);
+    }
+
+    function signature() public pure returns(bytes memory) {
+        return abi.encodeWithSignature("add(uint256,uint256)", 1,2);
+    }
+
+    function exec(bytes4 selector, bytes memory arguments) public returns(bytes memory) {
+        bool success;
+        bytes memory data;
+
+        (success, data) = address(this).call(
+            abi.encodePacked(selector, arguments)
+        );
+
+        require(success, "Call failed!");
+
+        return data;
+    }
+
     /// @dev Testing purposes
     function add(uint _a, uint _b) public pure returns(uint) {
         return _a + _b;
+    }
+
+    struct Body {
+        uint256 numOne;
+    }
+    function sumArr(Body[] calldata body) public pure returns(uint) {
+        return body[0].numOne + body[1].numOne;
     }
 
     /// @dev Testing purposes

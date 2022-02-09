@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0;
+pragma solidity <=0.8.11;
 
 import "./IGnosisSafe.sol";
 
-interface IFlowStationWorkflowModule {
+interface IWorkflowModule {
     struct Transfer {
       address token;
       address recipient;

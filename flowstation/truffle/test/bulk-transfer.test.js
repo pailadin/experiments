@@ -2,8 +2,8 @@ const { expect, use } = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const truffleContract = require("@truffle/contract")
 const utils = require('@gnosis.pm/safe-contracts/test/utils/general')
-const GnosisSafeBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json")
-const GnosisSafeProxyBuildInfo = require("@gnosis.pm/safe-contracts/build/contracts/GnosisSafeProxy.json");
+const GnosisSafeBuildInfo = require('@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json')
+const GnosisSafeProxyBuildInfo = require('@gnosis.pm/safe-contracts/build/contracts/GnosisSafeProxy.json');
 
 const { ADDRESS_ZERO } = require('./constants');
 const { execTransaction } = require('./helper');
@@ -19,7 +19,7 @@ const TestToken = artifacts.require("./TestToken.sol")
 
 use(chaiAsPromised);
 
-contract('BulkTransfer', function(accounts) {
+contract.only('BulkTransfer', function(accounts) {
   let lw
   let gnosisSafe
   let bulkTransferSafeModule
@@ -37,10 +37,11 @@ contract('BulkTransfer', function(accounts) {
 
     const gnosisSafeMasterCopy = await GnosisSafe.new({ from: accounts[0] })
     const proxy = await GnosisSafeProxy.new(gnosisSafeMasterCopy.address, { from: accounts[0] })
+
     gnosisSafe = await GnosisSafe.at(proxy.address)
     await gnosisSafe.setup(
       [
-        lw.accounts[0], 
+        lw.accounts[0],
         lw.accounts[1], 
         accounts[1]
       ], 
@@ -58,7 +59,7 @@ contract('BulkTransfer', function(accounts) {
     const token = await TestToken.new({from: accounts[0]})
     await token.transfer(gnosisSafe.address, 1000, {from: accounts[0]}) 
     
-    const enableModuleData = await gnosisSafe.contract.methods.enableModule(bulkTransferSafeModule.address).encodeABI()
+    const enableModuleData = gnosisSafe.contract.methods.enableModule(bulkTransferSafeModule.address).encodeABI()
     await execTransaction(gnosisSafe, lw, utils, accounts, gnosisSafe.address, 0, enableModuleData, CALL, "enable module")
 
     const safeModules = await gnosisSafe.getModules()
@@ -67,7 +68,7 @@ contract('BulkTransfer', function(accounts) {
     assert.equal(bulkTransferSafeModule.address, safeModules[0]);
   });
 
-  it('should execute transfer', async () => {
+  it.skip('should execute transfer', async () => {
     const token = await TestToken.new({from: accounts[0]})
     await token.transfer(gnosisSafe.address, 1000, {from: accounts[0]}) 
     
