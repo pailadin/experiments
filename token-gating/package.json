@@ -17,6 +17,7 @@
   "homepage": "https://github.com/HighOutputVentures/flowstation#readme",
   "dependencies": {
     "@types/node": "^17.0.10",
+    "apollo-server-koa": "^3.6.2",
     "husky": "^7.0.4",
     "jest": "^27.4.7",
     "mongoose": "^6.1.10",
