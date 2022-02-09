@@ -59,7 +59,7 @@ contract SimpleSwap {
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
             tokenIn: WETH,
-            tokenOut: UNI,
+            tokenOut: DAI,
             fee: poolFee,
             recipient: recipient,
             deadline: block.timestamp + 15,
