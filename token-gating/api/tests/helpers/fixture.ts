@@ -4,7 +4,7 @@ import temp from 'temp';
 import { Connection } from 'mongoose';
 import { container } from '../../inversify.config';
 import { TYPES as GLOBAL_TYPES } from '../../types';
-import { TYPES } from '../../src/types';
+import { TYPES as API_TYPES } from '../../services/api/types';
 
 temp.track();
 
@@ -23,7 +23,7 @@ export async function setup(this: Context, preStart = () => <void>undefined) {
 
   this.port = port;
 
-  container.rebind(TYPES.PORT).toConstantValue(port);
+  container.rebind(API_TYPES.PORT).toConstantValue(port);
   container
     .rebind(GLOBAL_TYPES.MONGODB_URI)
     .toConstantValue(this.mongod.getUri());
