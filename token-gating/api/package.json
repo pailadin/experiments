@@ -23,6 +23,7 @@
     "@types/ws": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "@typescript-eslint/parser": "^4.28.3",
+    "apollo-server-koa": "^3.6.3",
     "axios": "^0.24.0",
     "bluebird": "^3.7.2",
     "bs58": "^4.0.1",
