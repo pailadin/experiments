@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import jsonwebtoken from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 
@@ -10,9 +11,11 @@ export default {
         accessToken: string;
       }
     }, ctx: Context) {
-      const emailAddress = '';
+      const googleOAuth = new OAuth2Client();
 
-      if (!emailAddress) {
+      const tokenInfo = await googleOAuth.getTokenInfo(args.request.accessToken);
+
+      if (!tokenInfo.email) {
         return {
           data: null,
           error: {
@@ -24,7 +27,7 @@ export default {
 
       let adminAccountData = await ctx.services.account.adminAccountController.findOneAdminAccount({
         filter: {
-          emailAddress,
+          emailAddress: tokenInfo.email,
         },
       });
 
@@ -32,7 +35,7 @@ export default {
         adminAccountData = await ctx.services.account.adminAccountController.createAdminAccount({
           id: ObjectId.generate(ObjectType.ADMIN).buffer,
           data: {
-            emailAddress,
+            emailAddress: tokenInfo.email,
           },
         });
       }
