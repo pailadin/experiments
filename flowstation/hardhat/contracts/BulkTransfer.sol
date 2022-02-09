@@ -10,10 +10,6 @@ import "./Enum.sol";
 contract BulkTransfer {
     // using GnosisSafeMath for uint256;
 
-    string public constant NAME = "Bulk Transfer";
-
-    string public constant VERSION = "0.0.1";
-
     struct Transfer {
       address recipient;
       address token;
@@ -43,10 +39,9 @@ contract BulkTransfer {
                     "",
                     Enum.Operation.Call
                 ),
-                "cannot execute ether transfer"
+                "Cannot execute ether transfer."
             );
         } else {
-            // token transfer
             bytes memory data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
                 to,
@@ -60,7 +55,7 @@ contract BulkTransfer {
                     data,
                     Enum.Operation.Call
                 ),
-                "cannot execute token transfer"
+                "Cannot execute token transfer."
             );
         }
     }
