@@ -1,7 +1,8 @@
 import { ParameterizedContext } from 'koa';
-import { AccountRole, AdminAccount } from '../../types';
+import { AccountRole, AdminAccount, Project } from '../../types';
 import BasicDataLoader from '../../library/basic-data-loader';
 import { AccountService } from '../account';
+import { ProjectService } from '../project';
 
 export const TYPES = {
   PORT: Symbol.for('PORT'),
@@ -19,6 +20,7 @@ export type Context = ParameterizedContext<{
 }> & {
   services: {
     account: AccountService;
+    project: ProjectService;
   };
   config: {
     MONGODB_URI: string,
@@ -29,5 +31,6 @@ export type Context = ParameterizedContext<{
   fetch: typeof fetch,
   loaders: {
     adminAccount: BasicDataLoader<AdminAccount>;
+    project: BasicDataLoader<Project>;
   }
 };

@@ -22,6 +22,7 @@ import { AccountService } from '../account';
 import { Context, TYPES } from './types';
 import ObjectId from '../../library/object-id';
 import { ApplicationError } from '../../library/error';
+import { ProjectService } from '../project';
 
 @injectable()
 export class ApiService {
@@ -40,6 +41,7 @@ export class ApiService {
     @inject(GLOBAL_TYPES.logger) private readonly logger: Logger,
     @inject(GLOBAL_TYPES.fetch) private readonly fetch: typeof nodeFetch,
     @inject(GLOBAL_TYPES.AccountService) private readonly accountService: AccountService,
+    @inject(GLOBAL_TYPES.ProjectService) private readonly projectService: ProjectService,
   ) {
     this.app = new Koa();
 
@@ -60,6 +62,7 @@ export class ApiService {
       Object.assign(ctx, {
         services: {
           account: this.accountService,
+          project: this.projectService,
         },
         config: {
           MONGODB_URI: this.MONGODB_URI,

@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import ms from 'ms';
 import { container as apiContainer } from './services/api/inversify.config';
 import { container as accountContainer } from './services/account/inversify.config';
+import { container as projectContainer } from './services/project/inversify.config';
 import { TYPES } from './types';
 import logger from './library/logger';
 
@@ -31,6 +32,7 @@ const container = Container.merge(
   globalContainer,
   apiContainer,
   accountContainer,
+  projectContainer,
 ) as Container;
 
 export { container };

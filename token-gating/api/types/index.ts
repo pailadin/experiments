@@ -3,6 +3,7 @@ export * from './account';
 export * from './collection';
 export * from './ownership';
 export * from './admin-account';
+export * from './project';
 
 export const TYPES = {
   MONGODB_URI: Symbol.for('MONGODB_URI'),
@@ -15,6 +16,7 @@ export const TYPES = {
   cryptoRandomString: Symbol.for('cryptoRandomString'),
   ApiService: Symbol.for('ApiService'),
   AccountService: Symbol.for('AccountService'),
+  ProjectService: Symbol.for('ProjectService'),
 };
 
 export type InputData<TInput> = { data: TInput };
