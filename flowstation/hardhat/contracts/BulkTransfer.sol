@@ -1,25 +1,31 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity <=0.8.11;
 
-// import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
-// import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
+import "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
+import "@gnosis.pm/safe-contracts/contracts/external/GnosisSafeMath.sol";
 
+import "./SelfAuthority.sol";
 import "./IGnosisSafe.sol";
-import "./Enum.sol";
 
-contract BulkTransfer {
-    // using GnosisSafeMath for uint256;
+contract BulkTransfer is SelfAuthority {
+    using GnosisSafeMath for uint256;
 
     struct Transfer {
       address recipient;
       address token;
       uint256 amount;
     }
+    
+    modifier shouldHaveTransfers(Transfer[] calldata transfers) {
+        require(transfers.length > 0, "It should have transfers");
+
+        _;
+    }
 
     function executeBulkTransfer(
         IGnosisSafe safe,
         Transfer[] calldata transfers
-    ) external {
+    ) external selfAuthorized shouldHaveTransfers(transfers) {
         for (uint256 i = 0; i < transfers.length; i++) {
             transfer(safe, transfers[i].token, payable(transfers[i].recipient), transfers[i].amount);
         }
