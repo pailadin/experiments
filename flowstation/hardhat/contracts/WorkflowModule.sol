@@ -8,7 +8,7 @@ import "./SimpleSwap.sol";
 
 /// @notice You can use this contract for basic simulation (bulk transferring and swap)
 /// @custom:experimental This is an experimental contract
-contract WorkflowModule is BulkTransfer, SimpleSwapV3 {
+contract WorkflowModule is BulkTransfer, SimpleSwap {
     string public constant NAME = "Workflow Module";
 
     string public constant VERSION = "0.0.1";
