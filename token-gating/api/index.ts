@@ -8,7 +8,6 @@ import logger from './library/logger';
 import { ApiService } from './services/api';
 import { TYPES as GLOBAL_TYPES } from './types';
 
-
 async function start() {
   logger.info(process.env);
 
