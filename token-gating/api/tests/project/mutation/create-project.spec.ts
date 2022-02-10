@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import R from 'ramda';
 import { Context as FixtureContext, setup, teardown } from '../../helpers/fixture';
 import { TYPES } from '../../../services/project/types';
 import { container } from '../../../inversify.config';
@@ -28,18 +29,15 @@ describe('Mutation.createProject', () => {
   test('should create project', async function (this: Context) {
     const project = generateProject();
 
-    console.log('generateProject');
-
     const discordBotAccessToken = await generateDiscordToken();
-
-    console.log('generateDiscordToken');
 
     const query = `
       mutation ($request: CreateProjectRequest){
         createProject(request: $request){
-          data: {
-            name
-            description
+          data {
+            project {
+              name
+            }
           }
         }
       }
@@ -47,12 +45,10 @@ describe('Mutation.createProject', () => {
 
     const variables = {
       request: {
-        ...project,
+        ...R.omit(['id'], project),
         discordBotAccessToken,
       },
     };
-
-    console.log(variables);
 
     const response = await this.request
       .post('/graphql')
@@ -60,6 +56,7 @@ describe('Mutation.createProject', () => {
         query, variables,
       });
 
-    console.log(response);
+    expect(response.status).toEqual(200);
+    expect(response.body).toHaveProperty(['data', 'createProject', 'data', 'project', 'name'], project.name);
   });
 });
