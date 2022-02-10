@@ -35,11 +35,11 @@ describe('SimpleSwap', function () {
     });
   });
 
-  describe('#sendUsdt', function () {
+  describe('#swapAndSend', function () {
     it('should revert with, \'Must pass non 0 ETH amount\'', async function () {
       const [ _, delegate01 ] = await ethers.getSigners();
 
-      await expect(this.simpleSwap.sendUsdt(delegate01.address, { value: 0 })).revertedWith('Must pass non 0 amount');
+      await expect(this.simpleSwap.swapAndSend(delegate01.address, { value: 0 })).revertedWith('Must pass non 0 amount');
     });
   });
 

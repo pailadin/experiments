@@ -66,9 +66,9 @@ export interface WorkflowModuleInterface extends utils.Interface {
     "quoteUsdtFromEth(uint256)": FunctionFragment;
     "safeApproveWeth()": FunctionFragment;
     "safeWorkflowCount(address)": FunctionFragment;
-    "sendUsdt(address)": FunctionFragment;
     "signature()": FunctionFragment;
     "sumArr((uint256)[])": FunctionFragment;
+    "swapAndSend(address)": FunctionFragment;
     "workflowDelegates(address,uint256,uint256)": FunctionFragment;
     "workflows(uint256)": FunctionFragment;
   };
@@ -127,12 +127,12 @@ export interface WorkflowModuleInterface extends utils.Interface {
     functionFragment: "safeWorkflowCount",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "sendUsdt", values: [string]): string;
   encodeFunctionData(functionFragment: "signature", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sumArr",
     values: [WorkflowModule.BodyStruct[]]
   ): string;
+  encodeFunctionData(functionFragment: "swapAndSend", values: [string]): string;
   encodeFunctionData(
     functionFragment: "workflowDelegates",
     values: [string, BigNumberish, BigNumberish]
@@ -181,9 +181,12 @@ export interface WorkflowModuleInterface extends utils.Interface {
     functionFragment: "safeWorkflowCount",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "sendUsdt", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "signature", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sumArr", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "swapAndSend",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "workflowDelegates",
     data: BytesLike
@@ -193,12 +196,12 @@ export interface WorkflowModuleInterface extends utils.Interface {
   events: {
     "ExecuteWorkflow(bytes)": EventFragment;
     "Quote(string,uint256,uint256)": EventFragment;
-    "SendUsdt(uint256,uint256,uint24)": EventFragment;
+    "SwapAndSend(uint256,uint256,uint24)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ExecuteWorkflow"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Quote"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SendUsdt"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwapAndSend"): EventFragment;
 }
 
 export type ExecuteWorkflowEvent = TypedEvent<[string], { _data: string }>;
@@ -212,12 +215,12 @@ export type QuoteEvent = TypedEvent<
 
 export type QuoteEventFilter = TypedEventFilter<QuoteEvent>;
 
-export type SendUsdtEvent = TypedEvent<
+export type SwapAndSendEvent = TypedEvent<
   [BigNumber, BigNumber, number],
   { amountIn: BigNumber; amountOut: BigNumber; poolFee: number }
 >;
 
-export type SendUsdtEventFilter = TypedEventFilter<SendUsdtEvent>;
+export type SwapAndSendEventFilter = TypedEventFilter<SwapAndSendEvent>;
 
 export interface WorkflowModule extends BaseContract {
   contractName: "WorkflowModule";
@@ -322,17 +325,17 @@ export interface WorkflowModule extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    sendUsdt(
-      _recipient: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     signature(overrides?: CallOverrides): Promise<[string]>;
 
     sumArr(
       body: WorkflowModule.BodyStruct[],
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    swapAndSend(
+      _recipient: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     workflowDelegates(
       arg0: string,
@@ -422,17 +425,17 @@ export interface WorkflowModule extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  sendUsdt(
-    _recipient: string,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   signature(overrides?: CallOverrides): Promise<string>;
 
   sumArr(
     body: WorkflowModule.BodyStruct[],
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  swapAndSend(
+    _recipient: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   workflowDelegates(
     arg0: string,
@@ -517,17 +520,17 @@ export interface WorkflowModule extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    sendUsdt(
-      _recipient: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, number] & { amountOut: BigNumber; poolFee: number }>;
-
     signature(overrides?: CallOverrides): Promise<string>;
 
     sumArr(
       body: WorkflowModule.BodyStruct[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    swapAndSend(
+      _recipient: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, number] & { amountOut: BigNumber; poolFee: number }>;
 
     workflowDelegates(
       arg0: string,
@@ -550,16 +553,16 @@ export interface WorkflowModule extends BaseContract {
     ): QuoteEventFilter;
     Quote(message?: null, amountIn?: null, quote?: null): QuoteEventFilter;
 
-    "SendUsdt(uint256,uint256,uint24)"(
+    "SwapAndSend(uint256,uint256,uint24)"(
       amountIn?: null,
       amountOut?: null,
       poolFee?: null
-    ): SendUsdtEventFilter;
-    SendUsdt(
+    ): SwapAndSendEventFilter;
+    SwapAndSend(
       amountIn?: null,
       amountOut?: null,
       poolFee?: null
-    ): SendUsdtEventFilter;
+    ): SwapAndSendEventFilter;
   };
 
   estimateGas: {
@@ -638,16 +641,16 @@ export interface WorkflowModule extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    sendUsdt(
-      _recipient: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     signature(overrides?: CallOverrides): Promise<BigNumber>;
 
     sumArr(
       body: WorkflowModule.BodyStruct[],
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    swapAndSend(
+      _recipient: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     workflowDelegates(
@@ -748,16 +751,16 @@ export interface WorkflowModule extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    sendUsdt(
-      _recipient: string,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     signature(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sumArr(
       body: WorkflowModule.BodyStruct[],
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    swapAndSend(
+      _recipient: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     workflowDelegates(
