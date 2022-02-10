@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { Client, Intents } from 'discord.js';
+import R from 'ramda';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 
@@ -19,8 +20,6 @@ export default {
         name, description, contractAddress, discordId, discordChannel, discordBotAccessToken,
       } = args.request;
 
-      console.log('nice');
-
       const client = new Client({
         intents: [Intents.FLAGS.GUILDS],
       });
@@ -38,8 +37,6 @@ export default {
         };
       }
 
-      console.log('discord token succeeded');
-
       const project = await ctx.services.project.projectController.createProject({
         id: ObjectId.generate(ObjectType.PROJECT).buffer,
         data: {
@@ -53,9 +50,12 @@ export default {
 
       return {
         data: {
-          ...project,
-          id: new ObjectId(project.id).toString(),
+          project: {
+            ...R.omit(['id'], project),
+            id: new ObjectId(project.id).toString(),
+          },
         },
+        error: null,
       };
     },
 
