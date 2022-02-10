@@ -5,6 +5,8 @@ import crypto from 'crypto';
 export enum ObjectType {
   COLLECTION = 0,
   OWNERSHIP = 1,
+  ADMIN = 2,
+  PROJECT = 3,
 }
 
 export default class ObjectId {

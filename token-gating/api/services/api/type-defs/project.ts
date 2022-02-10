@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-koa';
 
 export default gql`
 type Project implements Node {
-  id: ObjectID!
+  id: ID!
   name: String!
   description: String
   contractAddress: String!
@@ -21,7 +21,7 @@ type CreateProjectResponseData {
   project: Project!
 }
 
-type CreateProjectleResponse {
+type CreateProjectResponse {
   error: CreateProjectError
   data: CreateProjectResponseData
 }
@@ -35,12 +35,17 @@ input CreateProjectRequest {
   discordBotAccessToken: String!
 }
 
+
+input DeleteProjectRequest {
+  id: ID!
+}
+
 type Mutation {
   createProject(request: CreateProjectRequest): CreateProjectResponse
   deleteProject(request: DeleteProjectRequest): Boolean!
 }
 
-type Mutation {
+type Query {
   projects(first: Int, after: Cursor): Connection!
 }
 `;
