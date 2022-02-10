@@ -51,5 +51,6 @@ describe('Query.project', () => {
       });
 
     expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty(['data', 'projects', 'totalCount'], 1);
   });
 });
