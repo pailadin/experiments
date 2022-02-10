@@ -8,13 +8,14 @@ describe("WorkflowModule", function () {
   const { AddressZero } = ethers.constants;
 
   beforeEach(async function () {
-    const [owner] = await ethers.getSigners();
+    const [owner, delegate01] = await ethers.getSigners();
 
     const WorkflowModule = await ethers.getContractFactory('WorkflowModule', owner);
 
     const workflowModule = await WorkflowModule.deploy();
 
     this.owner = owner;
+    this.delegate01 = delegate01;
     this.workflowModule = workflowModule;
   });
 
@@ -49,6 +50,24 @@ describe("WorkflowModule", function () {
   });
 
   describe('simple functions', function () {
+    it('should revert with \'Sender is not a delegate\', when he is not a delegate', async function () {
+      const selector = await this.workflowModule.getSelector('greet(string)');
+      const args = abiCoder.encode(['string'], ['Hello, world!']);
+  
+      const addWorkflowTx = await this.workflowModule.addWorkflow(
+        this.owner.address, 
+        [this.delegate01.address],
+        [{ 
+          selector,
+          arguments: args,
+        }]
+      );
+  
+      await addWorkflowTx.wait();
+      
+      await expect(this.workflowModule.executeWorkflow(0)).revertedWith('Sender is not a delegat');
+    });
+
     it('should successfully execute the workflow', async function () {
       const selector = await this.workflowModule.getSelector('greet(string)');
       const args = abiCoder.encode(['string'], ['Hello, world!']);
