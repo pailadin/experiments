@@ -43,7 +43,7 @@ export default {
       return {
         data: {
           accessToken: jsonwebtoken.sign(
-            { },
+            { role: adminAccountData.role },
             ctx.config.JWT_SECRET,
             {
               subject: new ObjectId(adminAccountData.id).toString(),
