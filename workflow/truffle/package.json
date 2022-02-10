@@ -1,5 +1,5 @@
 {
-  "name": "flowstation-experiment-truffle",
+  "name": "workflow-experiment-truffle",
   "version": "0.0.1",
   "description": "Experiment for FlowStation using Truffle as development environment",
   "main": "index.js",
