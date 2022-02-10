@@ -1,0 +1,182 @@
+{
+  "contractName": "Enum",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.11+commit.d7f03943\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"Enum - Collection of enums\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/FlowStation/Enum.sol\":\"Enum\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/FlowStation/Enum.sol\":{\"keccak256\":\"0x2c9a04c528b6b72d122f31184a789c45380e905d92edbed000d2df8526293139\",\"license\":\"LGPL-3.0-only\",\"urls\":[\"bzz-raw://a14ace2436962d223fbeabf14379d5d7e662b2238fee3b8de9159c5b1e601b91\",\"dweb:/ipfs/QmautCNWnxexR9G4DBqYLfxEikm6DcoKqFXsEzdoCmoBuU\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122098065ff2aadc058a57f830be94d1618bcad30cb86b45eca198cbee454b2d0c5d64736f6c634300080b0033",
+  "deployedBytecode": "0x6080604052600080fdfea264697066735822122098065ff2aadc058a57f830be94d1618bcad30cb86b45eca198cbee454b2d0c5d64736f6c634300080b0033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "106:79:1:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "106:79:1:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: LGPL-3.0-only\npragma solidity >=0.7.0;\n\n/// @title Enum - Collection of enums\ncontract Enum {\n    enum Operation {\n        Call,\n        DelegateCall\n    }\n}",
+  "sourcePath": "/Users/kevin/Documents/hov/experiments/flowstation/truffle/contracts/FlowStation/Enum.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/FlowStation/Enum.sol",
+    "exportedSymbols": {
+      "Enum": [
+        124
+      ]
+    },
+    "id": 125,
+    "license": "LGPL-3.0-only",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 119,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.7",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "42:24:1"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "Enum",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 120,
+          "nodeType": "StructuredDocumentation",
+          "src": "68:38:1",
+          "text": "@title Enum - Collection of enums"
+        },
+        "fullyImplemented": true,
+        "id": 124,
+        "linearizedBaseContracts": [
+          124
+        ],
+        "name": "Enum",
+        "nameLocation": "115:4:1",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "Enum.Operation",
+            "id": 123,
+            "members": [
+              {
+                "id": 121,
+                "name": "Call",
+                "nameLocation": "151:4:1",
+                "nodeType": "EnumValue",
+                "src": "151:4:1"
+              },
+              {
+                "id": 122,
+                "name": "DelegateCall",
+                "nameLocation": "165:12:1",
+                "nodeType": "EnumValue",
+                "src": "165:12:1"
+              }
+            ],
+            "name": "Operation",
+            "nameLocation": "131:9:1",
+            "nodeType": "EnumDefinition",
+            "src": "126:57:1"
+          }
+        ],
+        "scope": 125,
+        "src": "106:79:1",
+        "usedErrors": []
+      }
+    ],
+    "src": "42:143:1"
+  },
+  "legacyAST": {
+    "absolutePath": "project:/contracts/FlowStation/Enum.sol",
+    "exportedSymbols": {
+      "Enum": [
+        124
+      ]
+    },
+    "id": 125,
+    "license": "LGPL-3.0-only",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 119,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.7",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "42:24:1"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "Enum",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 120,
+          "nodeType": "StructuredDocumentation",
+          "src": "68:38:1",
+          "text": "@title Enum - Collection of enums"
+        },
+        "fullyImplemented": true,
+        "id": 124,
+        "linearizedBaseContracts": [
+          124
+        ],
+        "name": "Enum",
+        "nameLocation": "115:4:1",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "Enum.Operation",
+            "id": 123,
+            "members": [
+              {
+                "id": 121,
+                "name": "Call",
+                "nameLocation": "151:4:1",
+                "nodeType": "EnumValue",
+                "src": "151:4:1"
+              },
+              {
+                "id": 122,
+                "name": "DelegateCall",
+                "nameLocation": "165:12:1",
+                "nodeType": "EnumValue",
+                "src": "165:12:1"
+              }
+            ],
+            "name": "Operation",
+            "nameLocation": "131:9:1",
+            "nodeType": "EnumDefinition",
+            "src": "126:57:1"
+          }
+        ],
+        "scope": 125,
+        "src": "106:79:1",
+        "usedErrors": []
+      }
+    ],
+    "src": "42:143:1"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.11+commit.d7f03943.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.4",
+  "updatedAt": "2022-02-03T01:15:18.401Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "title": "Enum - Collection of enums",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
