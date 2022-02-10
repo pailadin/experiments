@@ -37,4 +37,5 @@ directive @deprecated(
 ) on OBJECT | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 directive @private on FIELD_DEFINITION
 directive @next on OBJECT | FIELD_DEFINITION
+directive @permission(roles: [AccountRole]!) on FIELD_DEFINITION
 `;

@@ -56,6 +56,7 @@ export class ApiService {
       cors({
         origin: '*',
         maxAge: 3600,
+        credentials: true,
       }),
     );
 
