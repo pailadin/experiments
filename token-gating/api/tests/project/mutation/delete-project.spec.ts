@@ -1,9 +1,9 @@
-import { ObjectId } from 'mongodb';
 import { Context as FixtureContext, setup, teardown } from '../../helpers/fixture';
 import { TYPES } from '../../../services/project/types';
 import { container } from '../../../inversify.config';
 import ProjectRepository from '../../../services/project/repositories/project';
 import generateProject from '../../helpers/generate-project';
+import ObjectId from '../../../library/object-id';
 
 type Context = FixtureContext & {
   projectRepository: ProjectRepository;
