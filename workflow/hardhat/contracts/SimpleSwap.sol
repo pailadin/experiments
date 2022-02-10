@@ -42,7 +42,7 @@ contract SimpleSwap is SelfAuthority, NonZeroAmount {
 
     event Quote(string message, uint256 amountIn, uint256 quote);
 
-    event SendUsdt(uint256 amountIn, uint256 amountOut, uint24 poolFee);
+    event SwapAndSend(uint256 amountIn, uint256 amountOut, uint24 poolFee);
 
     constructor() {
         owner = payable(msg.sender);
@@ -51,7 +51,7 @@ contract SimpleSwap is SelfAuthority, NonZeroAmount {
     /// @dev The `poolFee` is static it is 3000.
     /// and the input is static to 1 ether to determine the exchange of 1 ether to USDT
     /// @param _recipient address of the recipient
-    function sendUsdt(address _recipient) external nonZeroAmount(msg.value) payable returns(
+    function swapAndSend(address _recipient) external nonZeroAmount(msg.value) payable returns(
         uint256 amountOut, 
         uint24 poolFee
     ) {
@@ -74,7 +74,7 @@ contract SimpleSwap is SelfAuthority, NonZeroAmount {
 
         amountOut = _UNISWAP_ROUTER.exactInputSingle(params);
         
-        emit SendUsdt(msg.value, amountOut, poolFee);
+        emit SwapAndSend(msg.value, amountOut, poolFee);
 
         // UNISWAP_ROUTER.refundETH();
         

@@ -52,10 +52,10 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
     },
   },
-  // gasReporter: {
-  //   enabled: process.env.REPORT_GAS !== undefined,
-  //   currency: 'USD',
-  // },
+  gasReporter: {
+    enabled: true,
+    currency: 'USD',
+  },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },

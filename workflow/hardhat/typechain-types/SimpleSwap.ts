@@ -24,7 +24,7 @@ export interface SimpleSwapInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "quoteUsdtFromEth(uint256)": FunctionFragment;
     "safeApproveWeth()": FunctionFragment;
-    "sendUsdt(address)": FunctionFragment;
+    "swapAndSend(address)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -40,7 +40,7 @@ export interface SimpleSwapInterface extends utils.Interface {
     functionFragment: "safeApproveWeth",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "sendUsdt", values: [string]): string;
+  encodeFunctionData(functionFragment: "swapAndSend", values: [string]): string;
 
   decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -52,15 +52,18 @@ export interface SimpleSwapInterface extends utils.Interface {
     functionFragment: "safeApproveWeth",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "sendUsdt", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "swapAndSend",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Quote(string,uint256,uint256)": EventFragment;
-    "SendUsdt(uint256,uint256,uint24)": EventFragment;
+    "SwapAndSend(uint256,uint256,uint24)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Quote"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SendUsdt"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwapAndSend"): EventFragment;
 }
 
 export type QuoteEvent = TypedEvent<
@@ -70,12 +73,12 @@ export type QuoteEvent = TypedEvent<
 
 export type QuoteEventFilter = TypedEventFilter<QuoteEvent>;
 
-export type SendUsdtEvent = TypedEvent<
+export type SwapAndSendEvent = TypedEvent<
   [BigNumber, BigNumber, number],
   { amountIn: BigNumber; amountOut: BigNumber; poolFee: number }
 >;
 
-export type SendUsdtEventFilter = TypedEventFilter<SendUsdtEvent>;
+export type SwapAndSendEventFilter = TypedEventFilter<SwapAndSendEvent>;
 
 export interface SimpleSwap extends BaseContract {
   contractName: "SimpleSwap";
@@ -118,7 +121,7 @@ export interface SimpleSwap extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    sendUsdt(
+    swapAndSend(
       _recipient: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -137,7 +140,7 @@ export interface SimpleSwap extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  sendUsdt(
+  swapAndSend(
     _recipient: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -154,7 +157,7 @@ export interface SimpleSwap extends BaseContract {
 
     safeApproveWeth(overrides?: CallOverrides): Promise<void>;
 
-    sendUsdt(
+    swapAndSend(
       _recipient: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber, number] & { amountOut: BigNumber; poolFee: number }>;
@@ -168,16 +171,16 @@ export interface SimpleSwap extends BaseContract {
     ): QuoteEventFilter;
     Quote(message?: null, amountIn?: null, quote?: null): QuoteEventFilter;
 
-    "SendUsdt(uint256,uint256,uint24)"(
+    "SwapAndSend(uint256,uint256,uint24)"(
       amountIn?: null,
       amountOut?: null,
       poolFee?: null
-    ): SendUsdtEventFilter;
-    SendUsdt(
+    ): SwapAndSendEventFilter;
+    SwapAndSend(
       amountIn?: null,
       amountOut?: null,
       poolFee?: null
-    ): SendUsdtEventFilter;
+    ): SwapAndSendEventFilter;
   };
 
   estimateGas: {
@@ -194,7 +197,7 @@ export interface SimpleSwap extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    sendUsdt(
+    swapAndSend(
       _recipient: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -214,7 +217,7 @@ export interface SimpleSwap extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    sendUsdt(
+    swapAndSend(
       _recipient: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
