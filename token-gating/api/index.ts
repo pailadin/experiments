@@ -1,22 +1,19 @@
 /* retrigger build x26 */
 
 import { Connection } from 'mongoose';
-import getPort from 'get-port';
+
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { container } from './inversify.config';
 import logger from './library/logger';
 import { ApiService } from './services/api';
 import { TYPES as GLOBAL_TYPES } from './types';
-import { TYPES as API_TYPES } from './services/api/types';
+
 
 async function start() {
   logger.info(process.env);
 
   const mongod = await MongoMemoryServer.create();
 
-  const port = await getPort();
-
-  container.rebind(API_TYPES.PORT).toConstantValue(port);
   container
     .rebind(GLOBAL_TYPES.MONGODB_URI)
     .toConstantValue(mongod.getUri());
