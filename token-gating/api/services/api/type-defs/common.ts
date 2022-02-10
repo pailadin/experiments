@@ -6,9 +6,10 @@ scalar URL
 scalar EmailAddress
 scalar ObjectID
 scalar Cursor
+scalar Duration
 
 interface Node {
-  id: ObjectID!
+  id: ID!
 }
 
 type PageInfo {

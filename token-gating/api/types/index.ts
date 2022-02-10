@@ -17,6 +17,20 @@ export const TYPES = {
   ApiService: Symbol.for('ApiService'),
   AccountService: Symbol.for('AccountService'),
   ProjectService: Symbol.for('ProjectService'),
+  retrievePage: Symbol.for('retrievePage'),
+};
+
+export type Connection<TNode> = {
+  totalCount?: number;
+  edges: {
+    node: TNode;
+    cursor: Buffer;
+  }[];
+  pageInfo: {
+    startCursor: Buffer | null;
+    endCursor: Buffer | null;
+    hasNextPage: boolean;
+  }
 };
 
 export type InputData<TInput> = { data: TInput };

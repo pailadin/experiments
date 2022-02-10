@@ -1,11 +1,13 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
+import fetch from 'node-fetch';
 import { TYPES as GLOBAL_TYPES } from '../../types';
 import { ApiService } from '.';
 import { TYPES } from './types';
 
 const container = new Container();
 
+container.bind<typeof fetch>(GLOBAL_TYPES.fetch).toFunction(fetch);
 container.bind<number>(TYPES.PORT).toConstantValue(parseInt(process.env.PORT || '8080', 10));
 container.bind<string>(TYPES.ORIGIN_URL).toConstantValue(process.env.ORIGIN_URL || 'localhost');
 container.bind<string>(TYPES.SCHEME).toConstantValue(process.env.SCHEME || 'http');

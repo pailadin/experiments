@@ -7,14 +7,16 @@ import { container as accountContainer } from './services/account/inversify.conf
 import { container as projectContainer } from './services/project/inversify.config';
 import { TYPES } from './types';
 import logger from './library/logger';
+import retrievePage from './library/retrieve-page';
 
 const globalContainer = new Container();
 globalContainer.bind(TYPES.JWT_SECRET).toConstantValue(Buffer.from(
   process.env.JWT_SECRET || 'c372ec1add5b42bd14423ac2dbacde0d',
   'hex',
 ));
+globalContainer.bind(TYPES.retrievePage).toFunction(retrievePage);
 globalContainer.bind<typeof logger>(TYPES.logger).toConstantValue(logger);
-globalContainer.bind(TYPES.MONGODB_URI).toConstantValue(process.env.MONGODB_URI || 'mongodb://localhost/token_gating');
+globalContainer.bind(TYPES.MONGODB_URI).toConstantValue(process.env.MONGODB_URI || 'mongodb://localhost/token-gating');
 globalContainer.bind(TYPES.MONGODB_POOL_SIZE).toConstantValue(parseInt(process.env.MONGODB_POOL_SIZE || '5', 10));
 globalContainer.bind(TYPES.ENV).toConstantValue(process.env.ENV || process.env.NODE_ENV || 'staging');
 

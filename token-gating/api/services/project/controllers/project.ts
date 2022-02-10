@@ -26,6 +26,10 @@ export default class ProjectController {
     };
   }
 
+  async deleteProject(params: { filter: FilterQuery<Project> }): Promise<void> {
+    return this.projectRepository.delete(params);
+  }
+
   async findOneProject(params: { id: ID }): Promise<Project | null>;
 
   async findOneProject(params: { filter: FilterQuery<Project> }): Promise<Project | null>;
@@ -48,5 +52,19 @@ export default class ProjectController {
     return R.map((item) => ({
       ...item,
     }), await this.projectRepository.find(params));
+  }
+
+  async retrieveProjectsPage(
+    params: {
+      first?: number | null;
+      after?: Buffer | null;
+      filter?: FilterQuery<Project>
+    },
+  ) {
+    return this.projectRepository.retrievePage({
+      ...R.omit(['sort'], params),
+      cursorKey: 'createdAtCursor',
+      sortDirection: 'DESC',
+    });
   }
 }
