@@ -5,6 +5,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TestToken is ERC20 {
     constructor() ERC20("Test Token", "TT") {
-        _mint(msg.sender, 10000000);
+        _mint(msg.sender, 5000000000000000000);
     }
 }

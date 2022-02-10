@@ -13,34 +13,6 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "FallbackManager",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.FallbackManager__factory>;
-    getContractFactory(
-      name: "ModuleManager",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ModuleManager__factory>;
-    getContractFactory(
-      name: "OwnerManager",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OwnerManager__factory>;
-    getContractFactory(
-      name: "GnosisSafe",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GnosisSafe__factory>;
-    getContractFactory(
-      name: "ISignatureValidator",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ISignatureValidator__factory>;
-    getContractFactory(
-      name: "GnosisSafeProxy",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GnosisSafeProxy__factory>;
-    getContractFactory(
-      name: "IProxy",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IProxy__factory>;
-    getContractFactory(
       name: "ERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
@@ -93,41 +65,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.WorkflowModule__factory>;
 
-    getContractAt(
-      name: "FallbackManager",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.FallbackManager>;
-    getContractAt(
-      name: "ModuleManager",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ModuleManager>;
-    getContractAt(
-      name: "OwnerManager",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.OwnerManager>;
-    getContractAt(
-      name: "GnosisSafe",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GnosisSafe>;
-    getContractAt(
-      name: "ISignatureValidator",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ISignatureValidator>;
-    getContractAt(
-      name: "GnosisSafeProxy",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GnosisSafeProxy>;
-    getContractAt(
-      name: "IProxy",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IProxy>;
     getContractAt(
       name: "ERC20",
       address: string,

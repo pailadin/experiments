@@ -29,11 +29,12 @@ contract SimpleSwap is SelfAuthority, NonZeroAmount {
     
     IQuoter private constant _QUOTER = IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
 
-    /// @dev Rinkeby ERC20 Token Addresses
+    /// @dev Working in Ropsten
     address private constant _WETH = 0xc778417E063141139Fce010982780140Aa0cD5Ab;
+    address private constant _DAI = 0xaD6D458402F60fD3Bd25163575031ACDce07538D;
+
     address private constant _USDC = 0xeb8f08a975Ab53E34D8a0330E0D34de942C95926;
     address private constant _USDT = 0xdAC17F958D2ee523a2206206994597C13D831ec7;
-    address private constant _DAI = 0x8ad3aA5d5ff084307d28C8f514D7a193B2Bfe725;
     
     uint24 private constant POOL_FEE = 3000;
 
