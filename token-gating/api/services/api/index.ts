@@ -23,6 +23,7 @@ import { Context, TYPES } from './types';
 import ObjectId from '../../library/object-id';
 import { ApplicationError } from '../../library/error';
 import { ProjectService } from '../project';
+import permissionDirective from './directives/permission';
 
 @injectable()
 export class ApiService {
@@ -120,11 +121,15 @@ export class ApiService {
       recursive: true,
     }) as never);
 
+    const withDirectives = R.pipe(
+      permissionDirective('permission'),
+    );
+
     this.apollo = new ApolloServer({
-      schema: makeExecutableSchema({
+      schema: withDirectives(makeExecutableSchema({
         typeDefs,
         resolvers,
-      }),
+      })),
       context: ({ ctx, connection }) => Object.assign(ctx || {}, R.prop('context')(connection) || {}),
       debug: true,
       introspection: true,
