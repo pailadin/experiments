@@ -1,4 +1,6 @@
-import { Model, Document, FilterQuery } from 'mongoose';
+import {
+  Model, Document, FilterQuery, PipelineStage,
+} from 'mongoose';
 import R from 'ramda';
 import LRUCache from 'lru-cache';
 import objectHash from 'object-hash';
@@ -35,7 +37,7 @@ export default async function retrievePage<
 
   let totalCount: number | undefined;
 
-  const pipeline: Record<string, unknown>[] = [];
+  const pipeline: PipelineStage[] = [];
 
   if (options.search) {
     pipeline.unshift({
@@ -105,7 +107,7 @@ export default async function retrievePage<
     query = addCursorFilter(filter, params.after);
   }
 
-  const sort = { [cursorKey]: sortDirection };
+  const sort = { [cursorKey]: sortDirection } as Record<string, 1 | -1>;
 
   const documents: TDocument[] = await model
     .aggregate([

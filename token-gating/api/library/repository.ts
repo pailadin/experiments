@@ -229,7 +229,7 @@ export default abstract class Repository<
   async exists(params: { id: ID, filter: FilterQuery<TEntity> }): Promise<boolean> {
     const model = await this.model;
 
-    return model.exists((params.id ? { _id: params.id } : {
+    return !!model.exists((params.id ? { _id: params.id } : {
       ...R.omit(['id'], params.filter),
       ...(params.filter.id ? { _id: params.filter.id } : {}),
     } as never) as never);
