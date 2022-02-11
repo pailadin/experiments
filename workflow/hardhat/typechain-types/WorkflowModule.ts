@@ -25,10 +25,6 @@ export declare namespace WorkflowModule {
     selector: string;
     arguments: string;
   };
-
-  export type BodyStruct = { numOne: BigNumberish };
-
-  export type BodyStructOutput = [BigNumber] & { numOne: BigNumber };
 }
 
 export declare namespace BulkTransfer {
@@ -50,24 +46,15 @@ export interface WorkflowModuleInterface extends utils.Interface {
   functions: {
     "NAME()": FunctionFragment;
     "VERSION()": FunctionFragment;
-    "add(uint256,uint256)": FunctionFragment;
     "addWorkflow(address,address[],(bytes4,bytes)[])": FunctionFragment;
-    "average(uint256[])": FunctionFragment;
-    "encode(bytes4,bytes)": FunctionFragment;
-    "exec(bytes4,bytes)": FunctionFragment;
     "executeBulkTransfer(address,(address,address,uint256)[])": FunctionFragment;
     "executeWorkflow(uint256)": FunctionFragment;
     "getBalance()": FunctionFragment;
-    "getByte(string)": FunctionFragment;
-    "getSelector(string)": FunctionFragment;
     "greet(string)": FunctionFragment;
     "owner()": FunctionFragment;
-    "pack(bytes4,bytes)": FunctionFragment;
     "quoteUsdtFromEth(uint256)": FunctionFragment;
     "safeApproveWeth()": FunctionFragment;
     "safeWorkflowCount(address)": FunctionFragment;
-    "signature()": FunctionFragment;
-    "sumArr((uint256)[])": FunctionFragment;
     "swapAndSend(address)": FunctionFragment;
     "workflowDelegates(address,uint256,uint256)": FunctionFragment;
     "workflows(uint256)": FunctionFragment;
@@ -76,24 +63,8 @@ export interface WorkflowModuleInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "NAME", values?: undefined): string;
   encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "add",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "addWorkflow",
     values: [string, string[], WorkflowModule.ActionStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "average",
-    values: [BigNumberish[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "encode",
-    values: [BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "exec",
-    values: [BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "executeBulkTransfer",
@@ -107,14 +78,8 @@ export interface WorkflowModuleInterface extends utils.Interface {
     functionFragment: "getBalance",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "getByte", values: [string]): string;
-  encodeFunctionData(functionFragment: "getSelector", values: [string]): string;
   encodeFunctionData(functionFragment: "greet", values: [string]): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "pack",
-    values: [BytesLike, BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "quoteUsdtFromEth",
     values: [BigNumberish]
@@ -126,11 +91,6 @@ export interface WorkflowModuleInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "safeWorkflowCount",
     values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "signature", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "sumArr",
-    values: [WorkflowModule.BodyStruct[]]
   ): string;
   encodeFunctionData(functionFragment: "swapAndSend", values: [string]): string;
   encodeFunctionData(
@@ -144,14 +104,10 @@ export interface WorkflowModuleInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "NAME", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "add", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "addWorkflow",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "average", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "encode", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "exec", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "executeBulkTransfer",
     data: BytesLike
@@ -161,14 +117,8 @@ export interface WorkflowModuleInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getByte", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getSelector",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "greet", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pack", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "quoteUsdtFromEth",
     data: BytesLike
@@ -181,8 +131,6 @@ export interface WorkflowModuleInterface extends utils.Interface {
     functionFragment: "safeWorkflowCount",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "signature", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "sumArr", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "swapAndSend",
     data: BytesLike
@@ -254,33 +202,10 @@ export interface WorkflowModule extends BaseContract {
 
     VERSION(overrides?: CallOverrides): Promise<[string]>;
 
-    add(
-      _a: BigNumberish,
-      _b: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     addWorkflow(
       _safe: string,
       _delegates: string[],
       _actions: WorkflowModule.ActionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    average(
-      _numbers: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    encode(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    exec(
-      selector: BytesLike,
-      arguments: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -297,19 +222,9 @@ export interface WorkflowModule extends BaseContract {
 
     getBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getByte(_greet: string, overrides?: CallOverrides): Promise<[string]>;
-
-    getSelector(_func: string, overrides?: CallOverrides): Promise<[string]>;
-
     greet(_greet: string, overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
-
-    pack(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
 
     quoteUsdtFromEth(
       _wethAmount: BigNumberish,
@@ -322,13 +237,6 @@ export interface WorkflowModule extends BaseContract {
 
     safeWorkflowCount(
       arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    signature(overrides?: CallOverrides): Promise<[string]>;
-
-    sumArr(
-      body: WorkflowModule.BodyStruct[],
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -354,33 +262,10 @@ export interface WorkflowModule extends BaseContract {
 
   VERSION(overrides?: CallOverrides): Promise<string>;
 
-  add(
-    _a: BigNumberish,
-    _b: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   addWorkflow(
     _safe: string,
     _delegates: string[],
     _actions: WorkflowModule.ActionStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  average(
-    _numbers: BigNumberish[],
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  encode(
-    selector: BytesLike,
-    arguments: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  exec(
-    selector: BytesLike,
-    arguments: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -397,19 +282,9 @@ export interface WorkflowModule extends BaseContract {
 
   getBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getByte(_greet: string, overrides?: CallOverrides): Promise<string>;
-
-  getSelector(_func: string, overrides?: CallOverrides): Promise<string>;
-
   greet(_greet: string, overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
-
-  pack(
-    selector: BytesLike,
-    arguments: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   quoteUsdtFromEth(
     _wethAmount: BigNumberish,
@@ -422,13 +297,6 @@ export interface WorkflowModule extends BaseContract {
 
   safeWorkflowCount(
     arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  signature(overrides?: CallOverrides): Promise<string>;
-
-  sumArr(
-    body: WorkflowModule.BodyStruct[],
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -451,35 +319,12 @@ export interface WorkflowModule extends BaseContract {
 
     VERSION(overrides?: CallOverrides): Promise<string>;
 
-    add(
-      _a: BigNumberish,
-      _b: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     addWorkflow(
       _safe: string,
       _delegates: string[],
       _actions: WorkflowModule.ActionStruct[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    average(
-      _numbers: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    encode(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    exec(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     executeBulkTransfer(
       safe: string,
@@ -494,19 +339,9 @@ export interface WorkflowModule extends BaseContract {
 
     getBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getByte(_greet: string, overrides?: CallOverrides): Promise<string>;
-
-    getSelector(_func: string, overrides?: CallOverrides): Promise<string>;
-
     greet(_greet: string, overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
-
-    pack(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     quoteUsdtFromEth(
       _wethAmount: BigNumberish,
@@ -517,13 +352,6 @@ export interface WorkflowModule extends BaseContract {
 
     safeWorkflowCount(
       arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    signature(overrides?: CallOverrides): Promise<string>;
-
-    sumArr(
-      body: WorkflowModule.BodyStruct[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -570,33 +398,10 @@ export interface WorkflowModule extends BaseContract {
 
     VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
-    add(
-      _a: BigNumberish,
-      _b: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     addWorkflow(
       _safe: string,
       _delegates: string[],
       _actions: WorkflowModule.ActionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    average(
-      _numbers: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    encode(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    exec(
-      selector: BytesLike,
-      arguments: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -613,19 +418,9 @@ export interface WorkflowModule extends BaseContract {
 
     getBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getByte(_greet: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    getSelector(_func: string, overrides?: CallOverrides): Promise<BigNumber>;
-
     greet(_greet: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    pack(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     quoteUsdtFromEth(
       _wethAmount: BigNumberish,
@@ -638,13 +433,6 @@ export interface WorkflowModule extends BaseContract {
 
     safeWorkflowCount(
       arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    signature(overrides?: CallOverrides): Promise<BigNumber>;
-
-    sumArr(
-      body: WorkflowModule.BodyStruct[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -671,33 +459,10 @@ export interface WorkflowModule extends BaseContract {
 
     VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    add(
-      _a: BigNumberish,
-      _b: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     addWorkflow(
       _safe: string,
       _delegates: string[],
       _actions: WorkflowModule.ActionStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    average(
-      _numbers: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    encode(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    exec(
-      selector: BytesLike,
-      arguments: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -714,28 +479,12 @@ export interface WorkflowModule extends BaseContract {
 
     getBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getByte(
-      _greet: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getSelector(
-      _func: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     greet(
       _greet: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    pack(
-      selector: BytesLike,
-      arguments: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     quoteUsdtFromEth(
       _wethAmount: BigNumberish,
@@ -748,13 +497,6 @@ export interface WorkflowModule extends BaseContract {
 
     safeWorkflowCount(
       arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    signature(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    sumArr(
-      body: WorkflowModule.BodyStruct[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

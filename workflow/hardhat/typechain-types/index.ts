@@ -13,6 +13,7 @@ export type { IWorkflowModule } from "./IWorkflowModule";
 export type { IUniswapRouter } from "./IUniswapRouter";
 export type { SimpleSwap } from "./SimpleSwap";
 export type { TestToken } from "./TestToken";
+export type { Utility } from "./Utility";
 export type { WorkflowModule } from "./WorkflowModule";
 
 export { ERC20__factory } from "./factories/ERC20__factory";
@@ -27,4 +28,5 @@ export { IWorkflowModule__factory } from "./factories/IWorkflowModule__factory";
 export { IUniswapRouter__factory } from "./factories/IUniswapRouter__factory";
 export { SimpleSwap__factory } from "./factories/SimpleSwap__factory";
 export { TestToken__factory } from "./factories/TestToken__factory";
+export { Utility__factory } from "./factories/Utility__factory";
 export { WorkflowModule__factory } from "./factories/WorkflowModule__factory";
