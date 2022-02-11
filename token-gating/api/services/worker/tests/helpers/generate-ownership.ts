@@ -1,5 +1,5 @@
 import faker from 'faker';
-import ObjectId, { ObjectType } from '../../library/object-id';
+import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { ID } from '../../types';
 
 export default function (collectionID: ID, tokenId?: string | null) {

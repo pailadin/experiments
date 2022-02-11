@@ -5,7 +5,7 @@ import {
   ID,
   Ownership,
 } from '../../types';
-import Repository from '../../library/repository';
+import Repository from '../../../../library/repository';
 
 type OwnershipDocument = Document<ID> & Ownership;
 

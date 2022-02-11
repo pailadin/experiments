@@ -7,6 +7,7 @@ export enum ObjectType {
   OWNERSHIP = 1,
   ADMIN = 2,
   PROJECT = 3,
+  HOLDER = 4,
 }
 
 export default class ObjectId {

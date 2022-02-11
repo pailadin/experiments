@@ -2,9 +2,11 @@
 
 import R from 'ramda';
 import axios from 'axios';
+import AsyncGroup from '@highoutput/async-group';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 import { DiscordResponse } from '../../../../types/discord-response';
+import logger from '../../../../library/logger';
 
 export default {
   Mutation: {
@@ -31,7 +33,7 @@ export default {
       const userInfo:DiscordResponse = response.data;
 
       if (!userInfo.email) {
-        console.log('discord token error');
+        logger.warn('Invalid Discord Bot Access Token');
         return {
           data: null,
           error: {
@@ -41,6 +43,32 @@ export default {
         };
       }
 
+      const collectionExists = await ctx.services.worker.collectionController.collectionExists({
+        filter: {
+          contractAddress,
+        },
+      });
+
+      if (collectionExists) {
+        logger.warn('Contract Address exists on other projects');
+        return {
+          data: null,
+          error: {
+            __typename: 'ContractAddressExistsError',
+            message: 'Contract Address exists on other projects',
+          },
+        };
+      }
+
+      const collection = await ctx.services.worker.collectionController.createCollection({
+        id: ObjectId.generate(ObjectType.COLLECTION).buffer,
+        data: {
+          contractAddress,
+        },
+      });
+
+      AsyncGroup.add(ctx.services.worker.syncCollection(collection.id, true));
+
       const project = await ctx.services.project.projectController.createProject({
         id: ObjectId.generate(ObjectType.PROJECT).buffer,
         data: {
@@ -49,6 +77,7 @@ export default {
           contractAddress,
           discordId,
           discordChannel,
+          discordBotAccessToken,
         },
       });
 

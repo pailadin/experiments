@@ -6,4 +6,6 @@ export const TYPES = {
   BASE_URL: Symbol.for('BASE_URL'),
   CollectionRepository: Symbol.for('CollectionRepository'),
   OwnershipRepository: Symbol.for('OwnershipRepository'),
+  CollectionController: Symbol.for('CollectionController'),
+  OwnershipController: Symbol.for('OwnershipController'),
 };

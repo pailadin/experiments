@@ -17,9 +17,9 @@ import {
   CollectionStatus,
 } from '../types';
 import { TYPES } from './types';
-import CollectionRepository from './repositories/collection';
-import OwnershipRepository from './repositories/ownership';
-import ObjectId, { ObjectType } from '../library/object-id';
+import CollectionController from './controllers/collection';
+import OwnershipController from './controllers/ownership';
+import ObjectId, { ObjectType } from '../../../library/object-id';
 
 @injectable()
 export class WorkerService {
@@ -27,9 +27,9 @@ export class WorkerService {
 
   @inject(GLOBAL_TYPES.logger) private readonly logger!: Logger;
 
-  @inject(TYPES.CollectionRepository) private readonly collectionRepository!: CollectionRepository;
+  @inject(TYPES.CollectionRepository)  readonly collectionController!: CollectionController;
 
-  @inject(TYPES.OwnershipRepository) private readonly ownershipRepository!: OwnershipRepository;
+  @inject(TYPES.OwnershipController)  readonly ownershipController!: OwnershipController;
 
   private static localQueue: Queue;
 
@@ -109,7 +109,7 @@ export class WorkerService {
   private async digestEvents(events: Event[], _batchSize?: number | null) {
     const tokenIDList = R.uniq(events.map((event) => event.tokenID));
 
-    const ownerships = await this.ownershipRepository.find({
+    const ownerships = await this.ownershipController.findOwnerships({
       filter: {
         tokenID: {
           $in: tokenIDList,
@@ -120,7 +120,6 @@ export class WorkerService {
     const batchSize = _batchSize || 10000;
 
     let batch : Record<string, unknown>[] = [];
-    const model = await this.ownershipRepository.model;
     let startTimestamp = 0;
 
     for (const event of events) {
@@ -166,7 +165,7 @@ export class WorkerService {
       }
 
       if (batch.length >= batchSize) {
-        await model.bulkWrite(batch);
+        await this.ownershipController.bulkWrite(batch);
         this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} size => ${batch.length}`);
         startTimestamp = timestamp;
         batch = [];
@@ -174,14 +173,14 @@ export class WorkerService {
     }
 
     if (batch.length > 0) {
-      await model.bulkWrite(batch);
+      await this.ownershipController.bulkWrite(batch);
       this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
       batch = [];
     }
   }
 
   async syncCollection(collection: ID, priority: boolean, blockSize?: number | null, batchSize?: number | null) {
-    const collectionData = await this.collectionRepository.findOne({
+    const collectionData = await this.collectionController.findOneCollection({
       id: collection,
     });
 
@@ -225,8 +224,10 @@ export class WorkerService {
         }
       }
 
-      await this.collectionRepository.updateOne({
-        id: collection,
+      await this.collectionController.updateOneCollection({
+        filter: {
+          id: collection,
+        },
         data: {
           blockNumber: latestBlock || '0',
           status: latestBlock ? CollectionStatus.UPDATED : CollectionStatus.INITIALIZING,

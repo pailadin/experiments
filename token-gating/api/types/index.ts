@@ -4,6 +4,7 @@ export * from './collection';
 export * from './ownership';
 export * from './admin-account';
 export * from './project';
+export * from './holder-account';
 
 export const TYPES = {
   MONGODB_URI: Symbol.for('MONGODB_URI'),

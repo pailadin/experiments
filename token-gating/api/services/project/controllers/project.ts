@@ -18,7 +18,7 @@ export default class ProjectController {
   }
 
   async createProject(params: { id: ID } & InputData<Pick<Project, 'name' | 'description' | 'contractAddress' |
-  'discordId' | 'discordChannel'>>): Promise<Project> {
+  'discordId' | 'discordChannel' | 'discordBotAccessToken'>>): Promise<Project> {
     const document = await this.projectRepository.create(params);
 
     return {

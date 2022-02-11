@@ -16,6 +16,7 @@ import { createServer, Server } from 'http';
 import { ApolloError, ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 import cryptoRandomString from 'crypto-random-string';
 import assert from 'assert';
+import AsyncGroup from '@highoutput/async-group';
 import loaders from './loaders';
 import { AccountRole, TYPES as GLOBAL_TYPES } from '../../types';
 import { AccountService } from '../account';
@@ -102,6 +103,8 @@ export class ApiService {
 
         if (ctx.state.claims.role === AccountRole.ADMIN) {
           user = await ctx.loaders.adminAccount.load(ObjectId.from(ctx.state.claims.sub).buffer);
+        } else if (ctx.state.claims.role === AccountRole.HOLDER) {
+          user = await ctx.loaders.holderAccount.load(ObjectId.from(ctx.state.claims.sub).buffer);
         }
 
         assert(user, '`user` is null');
@@ -185,6 +188,8 @@ export class ApiService {
     if (this.server) {
       await promisify(this.server.close).call(this.server);
     }
+
+    await AsyncGroup.wait();
 
     this.logger.info('stopped');
   }
