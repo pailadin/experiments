@@ -5,6 +5,7 @@ import ms from 'ms';
 import { container as apiContainer } from './services/api/inversify.config';
 import { container as accountContainer } from './services/account/inversify.config';
 import { container as projectContainer } from './services/project/inversify.config';
+import { container as workerContainer } from './services/worker/src/inversify.config';
 import { TYPES } from './types';
 import logger from './library/logger';
 import retrievePage from './library/retrieve-page';
@@ -23,11 +24,8 @@ globalContainer.bind(TYPES.ENV).toConstantValue(process.env.ENV || process.env.N
 globalContainer.bind(TYPES.mongoose)
   .toDynamicValue(async (ctx) => mongoose.createConnection(ctx.container.get(TYPES.MONGODB_URI), {
     readPreference: 'secondaryPreferred',
-    useFindAndModify: false,
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     socketTimeoutMS: ms('5m'),
+    maxPoolSize: ctx.container.get(TYPES.MONGODB_POOL_SIZE),
   })).inSingletonScope();
 
 const container = Container.merge(
@@ -35,6 +33,7 @@ const container = Container.merge(
   apiContainer,
   accountContainer,
   projectContainer,
+  workerContainer,
 ) as Container;
 
 export { container };
