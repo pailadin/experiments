@@ -41,8 +41,8 @@ input DeleteProjectRequest {
 }
 
 type Mutation {
-  createProject(request: CreateProjectRequest): CreateProjectResponse
-  deleteProject(request: DeleteProjectRequest): Boolean!
+  createProject(request: CreateProjectRequest): CreateProjectResponse  @permission(roles: [ADMIN]) 
+  deleteProject(request: DeleteProjectRequest): Boolean!  @permission(roles: [ADMIN]) 
 }
 
 type Query {

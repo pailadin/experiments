@@ -23,6 +23,9 @@ import { Context, TYPES } from './types';
 import ObjectId from '../../library/object-id';
 import { ApplicationError } from '../../library/error';
 import { ProjectService } from '../project';
+import permissionDirective from './directives/permission';
+import { WorkerService } from '../worker/src';
+import { TYPES as WORKER_TYPES } from '../worker/types';
 
 @injectable()
 export class ApiService {
@@ -42,6 +45,7 @@ export class ApiService {
     @inject(GLOBAL_TYPES.fetch) private readonly fetch: typeof nodeFetch,
     @inject(GLOBAL_TYPES.AccountService) private readonly accountService: AccountService,
     @inject(GLOBAL_TYPES.ProjectService) private readonly projectService: ProjectService,
+    @inject(WORKER_TYPES.WorkerService) private readonly workerService: WorkerService,
   ) {
     this.app = new Koa();
 
@@ -55,6 +59,7 @@ export class ApiService {
       cors({
         origin: '*',
         maxAge: 3600,
+        credentials: true,
       }),
     );
 
@@ -63,6 +68,7 @@ export class ApiService {
         services: {
           account: this.accountService,
           project: this.projectService,
+          worker: this.workerService,
         },
         config: {
           MONGODB_URI: this.MONGODB_URI,
@@ -120,11 +126,15 @@ export class ApiService {
       recursive: true,
     }) as never);
 
+    const withDirectives = R.pipe(
+      permissionDirective('permission'),
+    );
+
     this.apollo = new ApolloServer({
-      schema: makeExecutableSchema({
+      schema: withDirectives(makeExecutableSchema({
         typeDefs,
         resolvers,
-      }),
+      })),
       context: ({ ctx, connection }) => Object.assign(ctx || {}, R.prop('context')(connection) || {}),
       debug: true,
       introspection: true,

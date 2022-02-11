@@ -1,0 +1,15 @@
+[Unit]
+Description=Crypto Trades Signal Service
+After=network.target
+
+[Service]
+Type=simple
+Environment=DEBUG=error*,critical*,info*
+User=ubuntu
+WorkingDirectory=/home/ubuntu/experiments/token-gating/api
+ExecStart=/home/ubuntu/.nvm/versions/node/v16.13.2/bin/node dist/index.js
+Restart=on-failure
+StandardOutput=append:/home/ubuntu/experiments/token-gating/api/output.log
+StandardError=append:/home/ubuntu/experiments/token-gating/api/error.log
+[Install]
+WantedBy=multi-user.target

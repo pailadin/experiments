@@ -3,6 +3,7 @@ import { AccountRole, AdminAccount, Project } from '../../types';
 import BasicDataLoader from '../../library/basic-data-loader';
 import { AccountService } from '../account';
 import { ProjectService } from '../project';
+import { WorkerService } from '../worker/src';
 
 export const TYPES = {
   PORT: Symbol.for('PORT'),
@@ -21,6 +22,7 @@ export type Context = ParameterizedContext<{
   services: {
     account: AccountService;
     project: ProjectService;
+    worker: WorkerService;
   };
   config: {
     MONGODB_URI: string,

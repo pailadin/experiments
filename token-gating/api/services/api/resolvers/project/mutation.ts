@@ -1,8 +1,10 @@
 /* eslint-disable no-console */
-import { Client, Intents } from 'discord.js';
+
 import R from 'ramda';
+import axios from 'axios';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
+import { DiscordResponse } from '../../../../types/discord-response';
 
 export default {
   Mutation: {
@@ -20,13 +22,15 @@ export default {
         name, description, contractAddress, discordId, discordChannel, discordBotAccessToken,
       } = args.request;
 
-      const client = new Client({
-        intents: [Intents.FLAGS.GUILDS],
+      const response = await axios.get('https://discord.com/api/users/@me', {
+        headers: {
+          Authorization: `Bearer ${discordBotAccessToken}`,
+        },
       });
 
-      await client.login(discordBotAccessToken);
+      const userInfo:DiscordResponse = response.data;
 
-      if (!client.user) {
+      if (!userInfo.email) {
         console.log('discord token error');
         return {
           data: null,

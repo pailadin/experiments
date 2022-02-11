@@ -2,6 +2,12 @@ import { gql } from 'apollo-server-koa';
 
 export default gql`
 
+enum AccountRole {
+  ADMIN
+  CREATOR
+  FOLLOWER
+}
+
 type InvalidGoogleAccessTokenError implements Error {
   message: String!
 }
