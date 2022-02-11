@@ -2,7 +2,6 @@
 
 import { Connection } from 'mongoose';
 
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { container } from './inversify.config';
 import logger from './library/logger';
 import { ApiService } from './services/api';
@@ -10,13 +9,6 @@ import { TYPES as GLOBAL_TYPES } from './types';
 
 async function start() {
   logger.info(process.env);
-
-  const mongod = await MongoMemoryServer.create();
-
-  container
-    .rebind(GLOBAL_TYPES.MONGODB_URI)
-    .toConstantValue(mongod.getUri());
-
   await container.get<ApiService>(GLOBAL_TYPES.ApiService).start();
 }
 
