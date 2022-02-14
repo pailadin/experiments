@@ -122,5 +122,5 @@ contract SimpleSwap is SelfAuthority, NonZeroAmount {
     }
 
     /// @notice Allow this contract to receive ETH
-    // receive() external payable {}
+    receive() external payable {}
 }

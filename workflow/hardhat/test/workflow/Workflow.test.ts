@@ -3,6 +3,8 @@ import { ethers } from "hardhat";
 
 const { AbiCoder } = ethers.utils;
 
+const abiCoder = new AbiCoder();
+
 describe("WorkflowModule", function () {
   const abiCoder = new AbiCoder();
   const { AddressZero } = ethers.constants;
@@ -30,9 +32,12 @@ describe("WorkflowModule", function () {
   });
 
   it('should add a new workflow under a safe', async function () {
-    const selector = await this.workflowModule.getSelector('greet(string)');
-    const args = await this.workflowModule.getByte('Hello, HOV!');
+    const abi = [ "function greet(string)"]
+    const iface = new ethers.utils.Interface(abi)
+    const selector = iface.getSighash('greet');
 
+    const args = abiCoder.encode(['string'], ['Hello, HOV!'])
+    
     const addWorkflowTx = await this.workflowModule.addWorkflow(
       this.owner.address, 
       [this.owner.address], 
@@ -51,8 +56,11 @@ describe("WorkflowModule", function () {
 
   describe('simple functions', function () {
     it('should revert with \'Sender is not a delegate\', when he is not a delegate', async function () {
-      const selector = await this.workflowModule.getSelector('greet(string)');
-      const args = abiCoder.encode(['string'], ['Hello, world!']);
+      const abi = [ "function greet(string)"]
+      const iface = new ethers.utils.Interface(abi)
+      const selector = iface.getSighash('greet');
+
+      const args = abiCoder.encode(['string'], ['Hello, HOV!'])
   
       const addWorkflowTx = await this.workflowModule.addWorkflow(
         this.owner.address, 
@@ -66,24 +74,6 @@ describe("WorkflowModule", function () {
       await addWorkflowTx.wait();
       
       await expect(this.workflowModule.executeWorkflow(0)).revertedWith('Sender is not a delegat');
-    });
-
-    it('should successfully execute the workflow', async function () {
-      const selector = await this.workflowModule.getSelector('greet(string)');
-      const args = abiCoder.encode(['string'], ['Hello, world!']);
-  
-      const addWorkflowTx = await this.workflowModule.addWorkflow(
-        this.owner.address, 
-        [this.owner.address], 
-        [{ 
-          selector,
-          arguments: args,
-        }]
-      );
-  
-      await addWorkflowTx.wait();
-      
-      expect(await this.workflowModule.executeWorkflow(0)).to.not.eqls({});
     });
   });
   
