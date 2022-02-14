@@ -17,7 +17,8 @@ export default class OwnershipController {
     return this.ownershipRepository.exists(params);
   }
 
-  async createOwnership(params: { id: ID } & InputData<Pick<Ownership,  'collectionID' | 'tokenID' |'owner' | 'timestamp'>>): Promise<Ownership> {
+  async createOwnership(params: { id: ID } & InputData<Pick<Ownership, 'collectionID' | 'tokenID' |
+  'owner' | 'timestamp'>>): Promise<Ownership> {
     const document = await this.ownershipRepository.create(params);
 
     return {
@@ -41,15 +42,11 @@ export default class OwnershipController {
     };
   }
 
-
-  async bulkWrite(instructions: Record<string, unknown>[]): Promise<unknown>
-  {
+  async bulkWrite(instructions: Record<string, unknown>[]): Promise<unknown> {
     const model = await this.ownershipRepository.model;
 
     return model.bulkWrite(instructions);
-
   }
-  
 
   async findOwnerships(
     params: { filter: FilterQuery<Ownership> },
