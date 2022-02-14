@@ -1,4 +1,5 @@
 import faker from 'faker';
+import { DateTime } from 'luxon';
 import ObjectId, { ObjectType } from '../../library/object-id';
 
 export default function () {
@@ -7,7 +8,7 @@ export default function () {
     name: faker.lorem.sentence(),
     description: faker.lorem.sentence(),
     contractAddress: faker.finance.ethereumAddress(),
-    discordId: `93569146681729437${faker.datatype.number({
+    discordGuild: `93569146681729437${faker.datatype.number({
       min: 1,
       max: 9,
     })}`,
@@ -15,5 +16,8 @@ export default function () {
       min: 1,
       max: 9,
     })}`,
+    discordAccessToken: faker.git.commitSha(),
+    discordRefreshToken: faker.git.commitSha(),
+    discordTokenExpiration: DateTime.now().plus({ days: 1 }).toMillis().toString(),
   };
 }
