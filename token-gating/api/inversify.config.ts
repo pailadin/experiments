@@ -21,6 +21,10 @@ globalContainer.bind(TYPES.MONGODB_URI).toConstantValue(process.env.MONGODB_URI 
 globalContainer.bind(TYPES.MONGODB_POOL_SIZE).toConstantValue(parseInt(process.env.MONGODB_POOL_SIZE || '5', 10));
 globalContainer.bind(TYPES.ENV).toConstantValue(process.env.ENV || process.env.NODE_ENV || 'staging');
 
+globalContainer.bind(TYPES.CLIENT_ID).toConstantValue(process.env.CLIENT_ID || '941156706908508220');
+globalContainer.bind(TYPES.CLIENT_SECRET).toConstantValue(process.env.CLIENT_SECRET || 'soGUQyVTfQcWiwUkqaalid08rcOGZtN_');
+globalContainer.bind(TYPES.REDIRECT_URI).toConstantValue(process.env.REDIRECT_URI || 'http://localhost:3000');
+
 globalContainer.bind(TYPES.mongoose)
   .toDynamicValue(async (ctx) => mongoose.createConnection(ctx.container.get(TYPES.MONGODB_URI), {
     readPreference: 'secondaryPreferred',

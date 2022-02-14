@@ -3,9 +3,12 @@ import jsonwebtoken from 'jsonwebtoken';
 import { DateTime } from 'luxon';
 import { ethers } from 'ethers';
 import axios from 'axios';
+import withQuery from 'with-query';
+import fetch from 'node-fetch';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 import { DiscordUserInfo } from '../../../../types/discord-userinfo';
+import { DiscordToken } from '../../../../types/discord-token';
 
 export default {
   Mutation: {
@@ -65,7 +68,7 @@ export default {
     async generateProjectAccessToken(_: never, args: {
       request: {
         projectId: string;
-        discordAccessToken: string;
+        discordAuthorizationCode: string;
         ethAddress: string;
         timestamp: string;
         signature: string;
@@ -73,7 +76,7 @@ export default {
       }
     }, ctx: Context) {
       const {
-        discordAccessToken, ethAddress, timestamp, signature,
+        discordAuthorizationCode, ethAddress, timestamp, signature,
       } = args.request;
 
       if (DateTime.now()
@@ -109,13 +112,41 @@ export default {
         };
       }
 
-      const response = await axios.get('https://discord.com/api/users/@me', {
+      const requestBody = {
+        client_id: ctx.config.CLIENT_ID,
+        client_secret: ctx.config.CLIENT_SECRET,
+        grant_type: 'authorization_code',
+        code: discordAuthorizationCode,
+        redirect_uri: ctx.config.REDIRECT_URI,
+      };
+
+      const tokenQueryResponse = await fetch('https://discord.com/api/v8/oauth2/token', {
+        method: 'POST',
+        body: withQuery(null, requestBody),
         headers: {
-          Authorization: `Bearer ${discordAccessToken}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
 
-      const userInfo:DiscordUserInfo = response.data;
+      const discordToken: DiscordToken = await tokenQueryResponse.json();
+
+      if (!discordToken.access_token) {
+        return {
+          data: null,
+          error: {
+            __typename: 'InvalidDiscordAuthorizationCodeError',
+            message: 'Invalid Discord Authorization Code',
+          },
+        };
+      }
+
+      const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
+        headers: {
+          Authorization: `Bearer ${discordToken.access_token}`,
+        },
+      });
+
+      const userInfo: DiscordUserInfo = userInfoQueryResponse.data;
 
       if (!userInfo.id) {
         return {
@@ -175,16 +206,14 @@ export default {
         };
       }
 
-      const addMemberResponse = await axios
-        .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
-          access_token: discordAccessToken,
-        }, {
-          headers: {
-            Authorization: `Bearer ${project.discordAccessToken}`,
-          },
-        });
-
-      console.log(addMemberResponse.data);
+      // await axios
+      //   .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
+      //     access_token: discordToken.access_token,
+      //   }, {
+      //     headers: {
+      //       Authorization: `Bearer ${project.discordAccessToken}`,
+      //     },
+      //   });
 
       return {
         data: {

@@ -25,16 +25,12 @@ export default {
         name, description, contractAddress, discordGuild, discordChannel, discordAuthorizationCode,
       } = args.request;
 
-      const CLIENT_ID = '941156706908508220';
-      const CLIENT_SECRET = 'soGUQyVTfQcWiwUkqaalid08rcOGZtN_';
-      const REDIRECT_URI = 'http://localhost:3000';
-
       const requestBody = {
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
+        client_id: ctx.config.CLIENT_ID,
+        client_secret: ctx.config.CLIENT_SECRET,
         grant_type: 'authorization_code',
         code: discordAuthorizationCode,
-        redirect_uri: REDIRECT_URI,
+        redirect_uri: ctx.config.REDIRECT_URI,
       };
 
       const tokenQueryResponse = await fetch('https://discord.com/api/v8/oauth2/token', {

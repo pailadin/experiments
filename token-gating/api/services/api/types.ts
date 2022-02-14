@@ -30,7 +30,10 @@ export type Context = ParameterizedContext<{
     MONGODB_URI: string,
     JWT_SECRET: Buffer;
     BASE_URL: string;
-    ENV: 'staging' | 'production'
+    ENV: 'staging' | 'production';
+    CLIENT_ID: string;
+    CLIENT_SECRET: string;
+    REDIRECT_URI: string;
   };
   fetch: typeof fetch,
   loaders: {

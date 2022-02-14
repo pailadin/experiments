@@ -48,6 +48,9 @@ export class ApiService {
     @inject(GLOBAL_TYPES.AccountService) private readonly accountService: AccountService,
     @inject(GLOBAL_TYPES.ProjectService) private readonly projectService: ProjectService,
     @inject(WORKER_TYPES.WorkerService) private readonly workerService: WorkerService,
+    @inject(GLOBAL_TYPES.CLIENT_ID) private readonly CLIENT_ID: string,
+    @inject(GLOBAL_TYPES.CLIENT_SECRET) private readonly CLIENT_SECRET: string,
+    @inject(GLOBAL_TYPES.REDIRECT_URI) private readonly REDIRECT_URI: string,
   ) {
     this.app = new Koa();
 
@@ -77,6 +80,9 @@ export class ApiService {
           JWT_SECRET: this.JWT_SECRET,
           BASE_URL: this.BASE_URL,
           ENV: this.ENV,
+          CLIENT_ID: this.CLIENT_ID,
+          CLIENT_SECRET: this.CLIENT_SECRET,
+          REDIRECT_URI: this.REDIRECT_URI,
         },
         fetch: this.fetch,
         loaders: loaders(ctx as never),
