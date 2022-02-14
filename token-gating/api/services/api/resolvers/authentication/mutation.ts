@@ -29,7 +29,7 @@ export default {
 
       const authorizationCodeResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
-        body: withQuery(null, authorizationCodePayload),
+        body: withQuery(null, authorizationCodePayload).slice(1),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -152,7 +152,7 @@ export default {
 
       const tokenQueryResponse = await fetch('https://discord.com/api/v8/oauth2/token', {
         method: 'POST',
-        body: withQuery(null, requestBody),
+        body: withQuery(null, requestBody).slice(1),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },

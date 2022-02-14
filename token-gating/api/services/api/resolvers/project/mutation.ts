@@ -35,7 +35,7 @@ export default {
 
       const tokenQueryResponse = await fetch('https://discord.com/api/v8/oauth2/token', {
         method: 'POST',
-        body: withQuery(null, requestBody),
+        body: withQuery(null, requestBody).slice(1),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
