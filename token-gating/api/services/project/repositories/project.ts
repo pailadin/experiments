@@ -17,10 +17,11 @@ type ProjectDocument = Document<ID> & Project;
 export default class ProjectRepository
   extends Repository<
   Project,
-    Pick<Project, 'name' | 'description' | 'contractAddress' | 'discordId' | 'discordChannel' | 'discordBotAccessToken'> &
+    Pick<Project, 'name' | 'description' | 'contractAddress' | 'discordGuild' | 'discordChannel' |
+     'discordAccessToken' | 'discordRefreshToken' | 'discordTokenExpiration'> &
      Partial<Pick<Project, 'createdAt' | 'updatedAt'>>,
-    Partial<Pick<Project, 'id' | 'name' | 'description' | 'contractAddress' | 'discordId' | 'discordChannel' |
-     'discordBotAccessToken' | 'createdAt' | 'updatedAt'>>
+    Partial<Pick<Project, 'id' | 'name' | 'description' | 'contractAddress' | 'discordGuild' | 'discordChannel' |
+    'discordAccessToken' | 'discordRefreshToken' | 'discordTokenExpiration' | 'createdAt' | 'updatedAt'>>
   > {
     @inject(TYPES.retrievePage) private readonly baseRetrievePage!: typeof baseRetrievePage;
 
@@ -42,7 +43,7 @@ export default class ProjectRepository
           type: String,
           required: true,
         },
-        discordId: {
+        discordGuild: {
           type: String,
           required: true,
         },
@@ -50,7 +51,15 @@ export default class ProjectRepository
           type: String,
           required: true,
         },
-        discordBotAccessToken: {
+        discordAccessToken: {
+          type: String,
+          required: true,
+        },
+        discordRefreshToken: {
+          type: String,
+          required: true,
+        },
+        discordTokenExpiration: {
           type: String,
           required: true,
         },

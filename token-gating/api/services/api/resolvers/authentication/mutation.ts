@@ -1,12 +1,11 @@
 /* eslint-disable no-console */
 import jsonwebtoken from 'jsonwebtoken';
-import { OAuth2Client } from 'google-auth-library';
 import { DateTime } from 'luxon';
-import ethers from 'ethers';
+import { ethers } from 'ethers';
 import axios from 'axios';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
-import { DiscordResponse } from '../../../../types/discord-response';
+import { DiscordUserInfo } from '../../../../types/discord-userinfo';
 
 export default {
   Mutation: {
@@ -15,9 +14,14 @@ export default {
         accessToken: string;
       }
     }, ctx: Context) {
-      const googleOAuth = new OAuth2Client();
+      const tokenInfoResponse = await axios.post('https://oauth2.googleapis.com/tokeninfo', {}, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${args.request.accessToken}`,
+        },
+      });
 
-      const tokenInfo = await googleOAuth.getTokenInfo(args.request.accessToken);
+      const tokenInfo = tokenInfoResponse.data;
 
       if (!tokenInfo.email) {
         return {
@@ -60,9 +64,10 @@ export default {
     },
     async generateProjectAccessToken(_: never, args: {
       request: {
+        projectId: string;
         discordAccessToken: string;
         ethAddress: string;
-        timestamp: Date;
+        timestamp: string;
         signature: string;
         ttl: string;
       }
@@ -72,7 +77,7 @@ export default {
       } = args.request;
 
       if (DateTime.now()
-        .diff(DateTime.fromISO(timestamp.toISOString()), 'minutes').minutes < 10) {
+        .diff(DateTime.fromISO(timestamp.slice(0, -1)), 'minutes').minutes < 10) {
         return {
           error: {
             __typename: 'InvalidAuthenticationSignatureError',
@@ -82,7 +87,7 @@ export default {
         };
       }
 
-      const message = `Timestamp: ${timestamp.toISOString()}`;
+      const message = `Timestamp: ${timestamp}`;
 
       const timestampBytes = ethers.utils.toUtf8Bytes(
         `\u0019Ethereum Signed Message:\n${
@@ -110,9 +115,9 @@ export default {
         },
       });
 
-      const userInfo:DiscordResponse = response.data;
+      const userInfo:DiscordUserInfo = response.data;
 
-      if (!userInfo.email) {
+      if (!userInfo.id) {
         return {
           data: null,
           error: {
@@ -149,10 +154,37 @@ export default {
           id: ObjectId.generate(ObjectType.HOLDER).buffer,
           data: {
             ethereumAddress: ethAddress,
-            discordAccessToken,
+            discordId: userInfo.id,
           },
         });
       }
+
+      const projectId = ObjectId.from(args.request.projectId).buffer;
+
+      const project = await ctx.services.project.projectController.findOneProject({
+        id: projectId,
+      });
+
+      if (!project) {
+        return {
+          data: null,
+          error: {
+            __typename: 'ProjectDoesNotExistError',
+            message: 'Project does not exist',
+          },
+        };
+      }
+
+      const addMemberResponse = await axios
+        .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
+          access_token: discordAccessToken,
+        }, {
+          headers: {
+            Authorization: `Bearer ${project.discordAccessToken}`,
+          },
+        });
+
+      console.log(addMemberResponse.data);
 
       return {
         data: {

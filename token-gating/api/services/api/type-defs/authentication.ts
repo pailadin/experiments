@@ -43,17 +43,18 @@ type InvalidAuthenticationSignatureError implements Error {
 
 union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError
 
-union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError
+
 type GenerateProjectAccessTokenResponseData {
   accessToken: String!
 }
 
 type GenerateProjectAccessTokenResponse {
-  error: GenerateAccessTokenByGoogleError
+  error: GenerateProjectAccessTokenError
   data: GenerateProjectAccessTokenResponseData
 }
 
 input GenerateProjectAccessTokenRequest {
+  projectId: ID!
   discordAccessToken: String!
   ethAddress: String!
   timestamp: DateTime!
