@@ -13,8 +13,10 @@ type HolderAccountDocument = Document<ID> & HolderAccount;
 export default class HolderAccountRepository
   extends Repository<
   HolderAccount,
-    Pick<HolderAccount, 'ethereumAddress' | 'discordAccessToken'> & Partial<Pick<HolderAccount, 'createdAt' | 'updatedAt'>>,
-    Partial<Pick<HolderAccount, 'id' | 'ethereumAddress' | 'discordAccessToken' | 'createdAt' | 'updatedAt'>>
+    Pick<HolderAccount, 'ethereumAddress' | 'discordId'> &
+    Partial<Pick<HolderAccount, 'channelJoined' | 'createdAt' | 'updatedAt'>>,
+    Partial<Pick<HolderAccount, 'id' | 'ethereumAddress' | 'discordId' |
+     'channelJoined' |'createdAt' | 'updatedAt'>>
   > {
   async getModel(db: Connection) {
     const schema = new Schema<HolderAccountDocument>({
@@ -26,9 +28,13 @@ export default class HolderAccountRepository
         type: String,
         required: true,
       },
-      discordAccessToken: {
+      discordId: {
         type: String,
         required: true,
+      },
+      channelJoined: {
+        type: Boolean,
+        default: false,
       },
       createdAt: {
         type: Date,

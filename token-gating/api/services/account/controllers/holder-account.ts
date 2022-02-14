@@ -19,7 +19,7 @@ export default class HolderAccountController {
   }
 
   async createHolderAccount(params: { id: ID } & InputData<Pick<HolderAccount,
-    'ethereumAddress' |'discordAccessToken'>>): Promise<HolderAccount> {
+    'ethereumAddress' |'discordId'>>): Promise<HolderAccount> {
     const document = await this.holderAccountRepository.create(params);
 
     return {
