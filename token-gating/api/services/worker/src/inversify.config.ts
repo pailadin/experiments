@@ -17,5 +17,4 @@ container.bind<CollectionController>(TYPES.CollectionController).to(CollectionCo
 container.bind<OwnershipController>(TYPES.OwnershipController).to(OwnershipController).inSingletonScope();
 container.bind<WorkerService>(GLOBAL_TYPES.WorkerService).to(WorkerService).inSingletonScope();
 
-
 export { container };

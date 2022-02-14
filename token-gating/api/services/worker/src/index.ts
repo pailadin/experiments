@@ -9,6 +9,10 @@ import { inject, injectable } from 'inversify';
 import Logger from '@highoutput/logger';
 import axios from 'axios';
 import R from 'ramda';
+import { delay } from 'bluebird';
+import ms from 'ms';
+import withQuery from 'with-query';
+import fetch from 'node-fetch';
 import {
   TYPES as GLOBAL_TYPES,
   ID,
@@ -20,18 +24,19 @@ import { TYPES } from './types';
 import CollectionController from './controllers/collection';
 import OwnershipController from './controllers/ownership';
 import ObjectId, { ObjectType } from '../../../library/object-id';
+import { Transaction } from '../types/transaction';
 
 @injectable()
 export class WorkerService {
   @inject(TYPES.ETHERSCAN_KEY) private readonly etherscanKey!: string;
 
-  @inject(GLOBAL_TYPES.logger) private readonly logger!: Logger;
+  @inject(GLOBAL_TYPES.logger) private logger!: Logger;
 
-  @inject(TYPES.CollectionRepository)  readonly collectionController!: CollectionController;
+  @inject(TYPES.CollectionController) readonly collectionController!: CollectionController;
 
-  @inject(TYPES.OwnershipController)  readonly ownershipController!: OwnershipController;
+  @inject(TYPES.OwnershipController) readonly ownershipController!: OwnershipController;
 
-  private static localQueue: Queue;
+  private static localQueue: Queue | null;
 
   constructor() {
     if (!WorkerService.localQueue) {
@@ -47,8 +52,12 @@ export class WorkerService {
       endBlock?: string | null,
   },
   ):Promise<EtherScanObject> {
-    const etherScanResponse = await axios.post('https://api.etherscan.io/api', {}, {
-      params: {
+    const fetchEtherScan = async () => {
+      let retriesLeft = 5;
+
+      const url = 'https://api.etherscan.io/api';
+
+      const urlParams = {
         module: 'account',
         action: 'tokennfttx',
         contractaddress: params.contractAddress,
@@ -58,10 +67,62 @@ export class WorkerService {
         endblock: params.endBlock,
         sort: 'desc',
         apikey: this.etherscanKey,
-      },
-    });
+      };
 
-    return etherScanResponse.data;
+      const queryParams = withQuery(url, urlParams);
+
+      this.logger.info(queryParams);
+
+      while (retriesLeft > 0) {
+        const controller = new AbortController();
+
+        const timeout = setTimeout(() => {
+          controller.abort();
+        }, ms('1m'));
+
+        try {
+          const response = await fetch(queryParams, {
+            method: 'POST',
+            signal: controller.signal,
+          });
+
+          if (response.status >= 400 || response.status >= 500) { throw new Error(`Status: ${response.status} => ${response.statusText}`); }
+
+          const etherScanResponse:EtherScanObject = await response.json();
+
+          if (etherScanResponse.status === '0') { throw new Error(`Status: ${etherScanResponse.status} => ${etherScanResponse.message}`); }
+
+          return etherScanResponse;
+        } catch (e) {
+          this.logger.warn((e as Error).message);
+
+          retriesLeft -= 1;
+
+          if (retriesLeft === 0) {
+            this.logger.warn(`Max Retries Reached: ${retriesLeft}`);
+            return {
+              status: '0',
+              message: 'not ok',
+              result: [],
+            };
+          }
+
+          await delay(ms('1s'));
+
+          this.logger.warn(`Execute Retries Left: ${retriesLeft}`);
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+
+      return {
+        status: '0',
+        message: 'not ok',
+        result: [],
+      };
+    };
+
+    return fetchEtherScan();
   }
 
   async retrieveEvents(
@@ -80,9 +141,9 @@ export class WorkerService {
       ...params,
     });
 
-    if (!etherScanData.result) { return []; }
+    if (etherScanData.status === '0') { return []; }
 
-    const events = etherScanData.result.map((transaction) => {
+    return etherScanData.result.map((transaction) => {
       const {
         from, contractAddress, to, tokenID, timeStamp, blockNumber,
       } = transaction;
@@ -100,16 +161,14 @@ export class WorkerService {
         blockNumber,
         timestamp: Number(timeStamp),
 
-      } as Event;
+      };
     });
-
-    return events;
   }
 
   private async digestEvents(events: Event[], _batchSize?: number | null) {
-    const tokenIDList = R.uniq(events.map((event) => event.tokenID));
+    let tokenIDList = R.uniq(events.map((event) => event.tokenID));
 
-    const ownerships = await this.ownershipController.findOwnerships({
+    let ownerships = await this.ownershipController.findOwnerships({
       filter: {
         tokenID: {
           $in: tokenIDList,
@@ -166,39 +225,76 @@ export class WorkerService {
 
       if (batch.length >= batchSize) {
         await this.ownershipController.bulkWrite(batch);
-        this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} size => ${batch.length}`);
+        this.logger.info(`BulkWrite(BATCH): timestamp => ${startTimestamp}-${timestamp} batchLen => ${batch.length}`);
         startTimestamp = timestamp;
         batch = [];
       }
+
+      await delay(1);
     }
 
     if (batch.length > 0) {
       await this.ownershipController.bulkWrite(batch);
-      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} size => ${batch.length}`);
+      this.logger.info(`BulkWrite(FINAL): timestamp => ${startTimestamp}-${R.last(events)?.timestamp} batchLen => ${batch.length}`);
       batch = [];
     }
+
+    ownerships = [];
+    tokenIDList = [];
   }
 
-  async syncCollection(collection: ID, priority: boolean, blockSize?: number | null, batchSize?: number | null) {
+  async syncCollection(params: {
+    collection: ID;
+    priority: boolean;
+    blockSize?: number | null;
+    batchSize?: number | null;
+  }) {
     const collectionData = await this.collectionController.findOneCollection({
-      id: collection,
+      id: params.collection,
     });
 
     if (!collectionData) { throw new Error('Collection does not exist'); }
 
+    if (!WorkerService.localQueue) { throw new Error('localQueue is not initialized'); }
+
+    this.logger.info(`syncCollection(${collectionData.status}) ${collectionData.contractAddress}  Started`);
+
     await WorkerService.localQueue.add(async () => {
-      const startBlock = collectionData.blockNumber;
-      let currentBlock = '0';
+      let startBlock = collectionData.blockNumber === '0' ? undefined : collectionData.blockNumber;
+
+      if (!startBlock) {
+        const initResponse = await axios.post('https://api.etherscan.io/api', {}, {
+          params: {
+            module: 'account',
+            action: 'tokennfttx',
+            contractaddress: collectionData.contractAddress,
+            sort: 'asc',
+            page: 1,
+            offset: 1,
+            apikey: this.etherscanKey,
+          },
+          timeout: ms('1m'),
+        });
+
+        const firstBlock = R.head(initResponse.data.result) as unknown as Transaction;
+
+        if (firstBlock) {
+          startBlock = firstBlock.blockNumber;
+        }
+      }
+
+      let currentBlock: string | undefined;
       let latestBlock : string | null = null;
+      const maxBlock = params.blockSize || 10000;
       this.logger.info(`ContractAddress: ${collectionData.contractAddress}`);
       while (true) {
-        const events = await this.retrieveEvents({
+        const events: Event[] = await this.retrieveEvents({
 
-          collection,
+          collection: collectionData.id,
           contractAddress: collectionData.contractAddress,
           startBlock,
-          endBlock: currentBlock === '0' ? null : currentBlock,
-          blockSize,
+          endBlock: currentBlock,
+          blockSize: maxBlock,
         });
 
         if (events.length === 0) {
@@ -212,21 +308,21 @@ export class WorkerService {
           latestBlock = latestEvent.blockNumber;
         }
 
-        this.logger.info(`LatestBlock: ${latestBlock} StartBlock: ${startBlock} EndBlock:${currentBlock} EventSize: ${events.length}`);
+        this.logger.info(`LatestBlock: ${latestBlock} StartBlock: ${startBlock} EndBlock: ${currentBlock} EventSize: ${events.length}`);
 
-        await this.digestEvents(events, batchSize);
+        await this.digestEvents(events, params.batchSize);
 
         const event = R.last(events);
         currentBlock = event ? event.blockNumber : '0';
 
-        if (events.length < 10000) {
+        if (events.length < maxBlock) {
           break;
         }
       }
 
       await this.collectionController.updateOneCollection({
         filter: {
-          id: collection,
+          id: collectionData.id,
         },
         data: {
           blockNumber: latestBlock || '0',
@@ -234,9 +330,10 @@ export class WorkerService {
         },
       });
     }, {
-      priority: priority ? 1 : 0,
+      priority: params.priority ? 1 : 0,
     });
 
-    this.logger.info('syncCollection');
+    this.logger.info(`syncCollection(${collectionData.status}) ${collectionData.contractAddress}  Complete`);
+    this.logger.info(`${collectionData.contractAddress}: UPDATED`);
   }
 }
