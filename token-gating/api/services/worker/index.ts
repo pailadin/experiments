@@ -4,7 +4,7 @@ import { TYPES } from './src/types';
 import CollectionRepository from './src/repositories/collection';
 import { container } from './inversify.config';
 import { WorkerService } from './src';
-import logger from './library/logger';
+import logger from '../../library/logger';
 
 async function startSync() {
   logger.info('Starting Worker Service');
@@ -18,7 +18,10 @@ async function startSync() {
   });
 
   await Bluebird.map(collections, async (collection) => {
-    await workerService.syncCollection(collection.id, false);
+    await workerService.syncCollection({
+      collection: collection.id,
+      priority: false,
+    });
   }, {
     concurrency: 1,
   });

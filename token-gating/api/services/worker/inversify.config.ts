@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import ms from 'ms';
 import { container as workerContainer } from './src/inversify.config';
 import { TYPES } from './types';
-import logger from './library/logger';
+import logger from '../../library/logger';
 
 const globalContainer = new Container();
 
