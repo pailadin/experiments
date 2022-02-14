@@ -13,9 +13,11 @@ type InvalidGoogleAccessTokenError implements Error {
   message: String!
 }
 
+type InvalidGoogleAuthorizationCodeError implements Error {
+  message: String!
+}
 
-
-union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError
+union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError | InvalidGoogleAuthorizationCodeError
 
 
 type GenerateAccessTokenByGoogleResponseData {
@@ -29,7 +31,7 @@ type GenerateAccessTokenByGoogleResponse {
 
 
 input GenerateAccessTokenByGoogleRequest {
-  accessToken: String!
+  googleAuthorizationCode: String!
 }
 
 #

@@ -15,13 +15,19 @@ type Context = FixtureContext & {
   secret: Buffer;
 };
 
-describe('Mutation.generateAccessTokenByGoogle', () => {
+describe.only('Mutation.generateAccessTokenByGoogle', () => {
   beforeEach(async function (this: Context) {
     await setup.apply(this);
 
     this.adminAccountRepository = container.get<AdminAccountRepository>(ACCOUNT_TYPES.AdminAccountRepository);
     this.projectRepository = container.get<ProjectRepository>(PROJECT_TYPES.ProjectRepository);
     this.secret = container.get<Buffer>(GLOBAL_TYPES.JWT_SECRET);
+
+    nock('https://oauth2.googleapis.com').post('/token').reply(200, {
+      access_token: faker.git.commitSha(),
+    }, {
+      'content-type': 'application/json',
+    });
 
     nock('https://oauth2.googleapis.com').post('/tokeninfo').reply(200, {
       email: faker.internet.email(),
@@ -39,7 +45,7 @@ describe('Mutation.generateAccessTokenByGoogle', () => {
   });
 
   test('should generate access token', async function (this: Context) {
-    const accessToken = faker.git.commitSha();
+    const googleAuthorizationCode = faker.git.commitSha();
 
     const query = `
       mutation ($request: GenerateAccessTokenByGoogleRequest){
@@ -53,7 +59,7 @@ describe('Mutation.generateAccessTokenByGoogle', () => {
 
     const variables = {
       request: {
-        accessToken,
+        googleAuthorizationCode,
       },
     };
 
