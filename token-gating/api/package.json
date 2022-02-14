@@ -7,7 +7,6 @@
     "clean": "rimraf dist/",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix --cache",
-    "start:local": "cross-env MONGODB_URI=mongodb://localhost/token-gating DEBUG=error*,critical*,info*,warn* TS_NODE_PROJECT=./tsconfig.json TS_NODE_FILES=true ts-node ./index.ts",
     "start": "cross-env MONGODB_URI=mongodb+srv://obiwan45:lasaw321@cluster0.2crm5.mongodb.net/token-gating?connectTimeoutMS=20000&authSource=admin&authMechanism=SCRAM-SHA-1 DEBUG=error*,critical*,info*,warn* TS_NODE_PROJECT=./tsconfig.json TS_NODE_FILES=true ts-node ./index.ts",
     "test": "cross-env DEBUG=error*,critical*,info*,warn*  jest -w 1 --detectOpenHandles --forceExit",
     "typecheck": "tsc --project tsconfig.json --noEmit"
