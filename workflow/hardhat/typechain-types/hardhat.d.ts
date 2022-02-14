@@ -45,6 +45,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IGnosisSafe__factory>;
     getContractFactory(
+      name: "IGuard",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IGuard__factory>;
+    getContractFactory(
       name: "IWorkflowModule",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWorkflowModule__factory>;
@@ -109,6 +113,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IGnosisSafe>;
+    getContractAt(
+      name: "IGuard",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IGuard>;
     getContractAt(
       name: "IWorkflowModule",
       address: string,
