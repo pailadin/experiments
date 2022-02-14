@@ -1,11 +1,13 @@
-import { expect } from "chai";
+import { expect, use } from "chai";
 import { ethers } from "hardhat";
+import { FakeContract, MockContract, smock } from '@defi-wonderland/smock';
+import { BulkTransfer } from "../../typechain-types";
 
-const { AbiCoder } = ethers.utils;
-
-const abiCoder = new AbiCoder();
+use(smock.matchers);
 
 describe("WorkflowModule", function () {
+  const { AbiCoder } = ethers.utils;
+
   const abiCoder = new AbiCoder();
   const { AddressZero } = ethers.constants;
 
@@ -72,16 +74,72 @@ describe("WorkflowModule", function () {
       );
   
       await addWorkflowTx.wait();
-      
-      await expect(this.workflowModule.executeWorkflow(0)).revertedWith('Sender is not a delegat');
+
+      await expect(this.workflowModule.executeWorkflow(0)).revertedWith('Sender is not a delegate');
     });
   });
   
-  describe('BulkTransfer', function () {
+  const generateTransactionHash = (args: {
+    abi: string[];
+    functionName: string;
+    signature: string[];
+    values: any[];
+  }) => {
+    const iFace = new ethers.utils.Interface(args.abi);
+    const selector = iFace.getSighash(args.functionName);
+  
+    const tx = abiCoder.encode(args.signature, args.values);
+  
+    return [selector, tx];
+  }
 
+  describe.skip('BulkTransfer', function () {
+    beforeEach(async function () {
+      const [owner, delegate01] = await ethers.getSigners();
+  
+      const WorkflowModule = await ethers.getContractFactory('WorkflowModule', owner);
+  
+      const workflowModule = await WorkflowModule.deploy();
+  
+      this.owner = owner;
+      this.delegate01 = delegate01;
+      this.workflowModule = workflowModule;
+    });
+
+    it('could run the #executeBulkTransfer', async function () {
+      const [selector, args] = generateTransactionHash({
+        abi: ['function executeBulkTransfer(address,tuple(address,address,uint256)[])'],
+        functionName: 'executeBulkTransfer',
+        signature: ['address', 'tuple(address,address,uint256)[]'],
+        values: [
+          this.owner.address,
+          // recipient, token, amount
+          [[this.delegate01.address, AddressZero, 100]],
+        ]
+      });
+
+      const addWorkflowTx = await this.workflowModule.addWorkflow(
+        this.owner.address, 
+        [this.delegate01.address],
+        [{ 
+          selector,
+          arguments: args,
+        }]
+      );
+  
+      await addWorkflowTx.wait();
+
+      let fake: FakeContract<BulkTransfer>
+
+      fake = await smock.fake('BulkTransfer', this.owner);
+      
+      console.log(fake.executeBulkTransfer());
+
+      expect(this.workflowModule.executeWorkflow(0)).to.be.equal(true);
+    });
   });
 
-  describe('SimpleSwap', function () {
+  describe.skip('SimpleSwap', function () {
 
   });
 });

@@ -35,8 +35,10 @@ contract WorkflowModule is BulkTransfer, SimpleSwap {
     /// @dev Safe -> Delegate -> Delegate or not
     mapping (address => mapping(address => bool)) private activeWorkflowDelegate;
 
-    modifier canDelegate(address _safe, address _sender) {
-        require(activeWorkflowDelegate[_safe][_sender] == true, "Sender is not a delegate");
+    modifier canDelegate(bool delegatable) {
+        console.log("CAN DELEGATE: ", delegatable);
+        require(delegatable, "Sender is not a delegate");
+
         _;
     }
 
@@ -72,7 +74,10 @@ contract WorkflowModule is BulkTransfer, SimpleSwap {
     }
 
     /// @dev should check the threshold before executing
-    function executeWorkflow(uint _workflow) external payable canDelegate(address(workflows[_workflow].safe), msg.sender) {
+    function executeWorkflow(uint _workflow) 
+        external
+        canDelegate(activeWorkflowDelegate[address(workflows[_workflow].safe)][msg.sender] == true) 
+        payable {
         Workflow memory workflow = workflows[_workflow];
 
         bool success;
