@@ -47,6 +47,6 @@ export default class HolderAccountRepository
 
     schema.index({ createdAt: 1 });
 
-    return db.model<HolderAccountDocument>('HolderAccount', schema);
+    return db.model<HolderAccountDocument>('holder', schema);
   }
 }
