@@ -315,7 +315,7 @@ export class WorkerService {
         const event = R.last(events);
         currentBlock = event ? event.blockNumber : '0';
 
-        if (events.length < maxBlock) {
+        if (events.length < 10000) {
           break;
         }
       }
