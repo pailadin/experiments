@@ -1,0 +1,9 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+
+runcmd:
+  - mkfs -t ext4 /dev/nvme1n1
+  - mkdir /data
+  - mount /dev/nvme1n1 /data
+  - echo '/dev/nvme1n1 /data ext4 defaults,nofail 0 2' >> /etc/fstab

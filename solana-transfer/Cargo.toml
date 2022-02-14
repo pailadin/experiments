@@ -1,0 +1,22 @@
+[package]
+name = "solana-transfer"
+version = "1.0.0"
+license = "Apache-2.0"
+edition = "2018"
+
+[features]
+no-entrypoint = []
+test-bpf = []
+
+[dependencies]
+solana-program = "1.8.1"
+
+[dev-dependencies]
+solana-program-test = "1.8.1"
+solana-sdk = "1.8.1"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]

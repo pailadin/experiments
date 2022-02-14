@@ -1,0 +1,12 @@
+/home/codewalker/experiments/solan-safe/program/target/debug/deps/sha2-99b4164901905786.rmeta: /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/lib.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/consts.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256/soft.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256/x86.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512/soft.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512/x86.rs
+
+/home/codewalker/experiments/solan-safe/program/target/debug/deps/sha2-99b4164901905786.d: /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/lib.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/consts.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256/soft.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256/x86.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512/soft.rs /home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512/x86.rs
+
+/home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/lib.rs:
+/home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/consts.rs:
+/home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256.rs:
+/home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512.rs:
+/home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256/soft.rs:
+/home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha256/x86.rs:
+/home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512/soft.rs:
+/home/codewalker/.cargo/registry/src/github.com-1ecc6299db9ec823/sha2-0.9.8/src/sha512/x86.rs:
