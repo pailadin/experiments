@@ -4,14 +4,14 @@ import faker from 'faker';
 import { ethers } from 'ethers';
 import { DateTime } from 'luxon';
 import { Context as FixtureContext, setup, teardown } from '../../helpers/fixture';
-import { TYPES as PROJECT_TYPES } from '../../../services/project/types';
 import { container } from '../../../inversify.config';
-import ProjectRepository from '../../../services/project/repositories/project';
 import { TYPES as GLOBAL_TYPES } from '../../../types';
+import { TYPES as PROJECT_TYPES } from '../../../services/project/types';
 import { TYPES as WORKER_TYPES } from '../../../services/worker/src/types';
 import generateProject from '../../helpers/generate-project';
 import ObjectId, { ObjectType } from '../../../library/object-id';
 import OwnershipRepository from '../../../services/worker/src/repositories/ownership';
+import ProjectRepository from '../../../services/project/repositories/project';
 import generateOwnership from '../../helpers/generate-ownership';
 
 type Context = FixtureContext & {
@@ -27,6 +27,16 @@ describe('Mutation.generateProjectAccessToken', () => {
     this.ownershipRepository = container.get<OwnershipRepository>(WORKER_TYPES.OwnershipRepository);
     this.projectRepository = container.get<ProjectRepository>(PROJECT_TYPES.ProjectRepository);
     this.secret = container.get<Buffer>(GLOBAL_TYPES.JWT_SECRET);
+
+    nock('https://discord.com').post('/api/v8/oauth2/token').reply(200, {
+      access_token: faker.git.commitSha(),
+      expires_in: DateTime.now().plus({ days: 1 }).toMillis(),
+      refresh_token: faker.git.commitSha(),
+      scope: 'guilds.join guilds guilds.members.read',
+      token_type: 'Bearer',
+    }, {
+      'content-type': 'application/json',
+    });
 
     nock('https://discord.com').get('/api/users/@me').reply(200, {
       id: `93569146681729437${faker.datatype.number({
@@ -102,7 +112,7 @@ describe('Mutation.generateProjectAccessToken', () => {
     const variables = {
       request: {
         projectId: new ObjectId(project.id).toString(),
-        discordAccessToken: faker.git.commitSha(),
+        discordAuthorizationCode: faker.git.commitSha(),
         ethAddress,
         timestamp,
         signature,
