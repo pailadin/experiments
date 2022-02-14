@@ -15,7 +15,11 @@ type InvalidDiscordBotAccessTokenError implements Error {
   message: String!
 }
 
-union CreateProjectError = InvalidDiscordBotAccessTokenError
+type ContractAddressExistsError implements Error {
+  message: String!
+}
+
+union CreateProjectError = InvalidDiscordBotAccessTokenError | ContractAddressExistsError
 
 type CreateProjectResponseData {
   project: Project!

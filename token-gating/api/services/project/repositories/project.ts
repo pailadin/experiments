@@ -17,10 +17,10 @@ type ProjectDocument = Document<ID> & Project;
 export default class ProjectRepository
   extends Repository<
   Project,
-    Pick<Project, 'name' | 'description' | 'contractAddress' | 'discordId' | 'discordChannel'> &
+    Pick<Project, 'name' | 'description' | 'contractAddress' | 'discordId' | 'discordChannel' | 'discordBotAccessToken'> &
      Partial<Pick<Project, 'createdAt' | 'updatedAt'>>,
     Partial<Pick<Project, 'id' | 'name' | 'description' | 'contractAddress' | 'discordId' | 'discordChannel' |
-     'createdAt' | 'updatedAt'>>
+     'discordBotAccessToken' | 'createdAt' | 'updatedAt'>>
   > {
     @inject(TYPES.retrievePage) private readonly baseRetrievePage!: typeof baseRetrievePage;
 
@@ -47,6 +47,10 @@ export default class ProjectRepository
           required: true,
         },
         discordChannel: {
+          type: String,
+          required: true,
+        },
+        discordBotAccessToken: {
           type: String,
           required: true,
         },

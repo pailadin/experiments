@@ -6,7 +6,7 @@ import {
   Collection,
   CollectionStatus,
 } from '../../types';
-import Repository from '../../library/repository';
+import Repository from '../../../../library/repository';
 
 type CollectionDocument = Document<ID> & Collection;
 
@@ -14,7 +14,7 @@ type CollectionDocument = Document<ID> & Collection;
 export default class CollectionRepository
   extends Repository<
   Collection,
-    Pick<Collection, 'contractAddress' | 'status' > & Partial<Pick<Collection, 'blockNumber' | 'createdAt'>>,
+    Pick<Collection, 'contractAddress' > & Partial<Pick<Collection, 'status' | 'blockNumber' | 'createdAt'>>,
     Partial<Pick<Collection, 'id' | 'contractAddress' | 'status' | 'blockNumber' | 'createdAt'>>
   > {
   async getModel(db: Connection) {

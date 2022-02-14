@@ -7,7 +7,7 @@ import { Context as FixtureContext, setup, teardown } from './helpers/fixture';
 import { TYPES } from '../src/types';
 import { TYPES as GLOBAL_TYPES, CollectionStatus, Collection } from '../types';
 import { container } from '../inversify.config';
-import ObjectId, { ObjectType } from '../library/object-id';
+import ObjectId, { ObjectType } from '../../../library/object-id';
 import { WorkerService } from '../src/index';
 import OwnershipRepository from '../src/repositories/ownership';
 import generateOwnership from './helpers/generate-ownership';

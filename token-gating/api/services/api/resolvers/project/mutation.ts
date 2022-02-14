@@ -2,9 +2,11 @@
 
 import R from 'ramda';
 import axios from 'axios';
+import AsyncGroup from '@highoutput/async-group';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 import { DiscordResponse } from '../../../../types/discord-response';
+import logger from '../../../../library/logger';
 
 export default {
   Mutation: {
@@ -31,12 +33,51 @@ export default {
       const userInfo:DiscordResponse = response.data;
 
       if (!userInfo.email) {
-        console.log('discord token error');
+        logger.warn('Invalid Discord Bot Access Token');
         return {
           data: null,
           error: {
             __typename: 'InvalidDiscordBotAccessTokenError',
             message: 'Invalid Discord Bot Access Token',
+          },
+        };
+      }
+
+      logger.info(`DiscordToken: ${userInfo.email}`);
+
+      let collection = await ctx.services.worker.collectionController.findOneCollection({
+        filter: {
+          contractAddress,
+        },
+      });
+
+      if (!collection) {
+        collection = await ctx.services.worker.collectionController.createCollection({
+          id: ObjectId.generate(ObjectType.COLLECTION).buffer,
+          data: {
+            contractAddress,
+          },
+        });
+
+        AsyncGroup.add(ctx.services.worker.syncCollection({
+          collection: collection.id,
+          priority: true,
+        }));
+      }
+
+      const projectExists = await ctx.services.project.projectController.findOneProject({
+        filter: {
+          contractAddress,
+        },
+      });
+
+      if (projectExists) {
+        logger.warn('Contract Address exists on other projects');
+        return {
+          data: null,
+          error: {
+            __typename: 'ContractAddressExistsError',
+            message: 'Contract Address exists on other projects',
           },
         };
       }
@@ -49,6 +90,7 @@ export default {
           contractAddress,
           discordId,
           discordChannel,
+          discordBotAccessToken,
         },
       });
 

@@ -1,5 +1,7 @@
 import { ParameterizedContext } from 'koa';
-import { AccountRole, AdminAccount, Project } from '../../types';
+import {
+  AccountRole, AdminAccount, HolderAccount, Project,
+} from '../../types';
 import BasicDataLoader from '../../library/basic-data-loader';
 import { AccountService } from '../account';
 import { ProjectService } from '../project';
@@ -17,7 +19,7 @@ export type Context = ParameterizedContext<{
     sub: string;
     role: AccountRole;
   };
-  user: Pick<AdminAccount, 'id' | 'role'>;
+  user: Pick<AdminAccount, 'id' | 'role'> | Pick<HolderAccount, 'id' | 'role'>;
 }> & {
   services: {
     account: AccountService;
@@ -34,5 +36,6 @@ export type Context = ParameterizedContext<{
   loaders: {
     adminAccount: BasicDataLoader<AdminAccount>;
     project: BasicDataLoader<Project>;
+    holderAccount: BasicDataLoader<HolderAccount>;
   }
 };

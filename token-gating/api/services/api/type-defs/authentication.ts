@@ -31,26 +31,38 @@ input GenerateAccessTokenByGoogleRequest {
   accessToken: String!
 }
 
+#
 
-# type GenerateProjectAccessTokenResponseData {
-#   accessToken: String!
-# }
+type InvalidDiscordAccessTokenError implements Error {
+  message: String!
+}
 
-# type GenerateProjectAccessTokenResponse {
-#   error: GenerateAccessTokenByGoogleError
-#   data: GenerateProjectAccessTokenResponseData
-# }
+type InvalidAuthenticationSignatureError implements Error {
+  message: String!
+}
 
-# input GenerateProjectAccessTokenRequest {
-#   discordAccessToken: String!
-#   ethAddress: String!
-#   timestamp: DateTime!
-#   signature: String!
-#   ttl: Duration
-# }
+union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError
+
+union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError
+type GenerateProjectAccessTokenResponseData {
+  accessToken: String!
+}
+
+type GenerateProjectAccessTokenResponse {
+  error: GenerateAccessTokenByGoogleError
+  data: GenerateProjectAccessTokenResponseData
+}
+
+input GenerateProjectAccessTokenRequest {
+  discordAccessToken: String!
+  ethAddress: String!
+  timestamp: DateTime!
+  signature: String!
+  ttl: Duration
+}
 
 type Mutation {
   generateAccessTokenByGoogle(request: GenerateAccessTokenByGoogleRequest): GenerateAccessTokenByGoogleResponse!
-  # generateProjectAccessToken(request: GenerateProjectAccessTokenRequest): GenerateProjectAccessTokenResponse!
+  generateProjectAccessToken(request: GenerateProjectAccessTokenRequest): GenerateProjectAccessTokenResponse!
 }
 `;
