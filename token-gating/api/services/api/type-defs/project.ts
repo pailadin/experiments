@@ -15,11 +15,15 @@ type InvalidDiscordBotAccessTokenError implements Error {
   message: String!
 }
 
+type InvalidDiscordAuthorizationCodeError implements Error {
+  message: String!
+}
+
 type ContractAddressExistsError implements Error {
   message: String!
 }
 
-union CreateProjectError = InvalidDiscordBotAccessTokenError | ContractAddressExistsError
+union CreateProjectError = InvalidDiscordBotAccessTokenError | ContractAddressExistsError | InvalidDiscordAuthorizationCodeError
 
 type CreateProjectResponseData {
   project: Project!
@@ -34,9 +38,9 @@ input CreateProjectRequest {
   name: String!
   description: String
   contractAddress: String!
-  discordId: String!
+  discordGuild: String!
   discordChannel: String!
-  discordBotAccessToken: String!
+  discordAuthorizationCode: String!
 }
 
 
