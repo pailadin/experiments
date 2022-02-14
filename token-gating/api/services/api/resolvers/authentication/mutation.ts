@@ -122,6 +122,22 @@ export default {
         };
       }
 
+      const ownershipExists = await ctx.services.worker.ownershipController.ownershipExists({
+        filter: {
+          owner: ethAddress,
+        },
+      });
+
+      if (!ownershipExists) {
+        return {
+          data: null,
+          error: {
+            __typename: 'NftOwnershipDoesNotExistError',
+            message: 'NFT Ownership does not exist',
+          },
+        };
+      }
+
       let holderAccount = await ctx.services.account.holderAccountController.findOneHolderAccount({
         filter: {
           ethereumAddress: ethAddress,
