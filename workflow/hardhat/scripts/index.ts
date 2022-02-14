@@ -2,7 +2,6 @@ import { ethers } from 'ethers';
 
 const AbiCoder = new ethers.utils.AbiCoder();
 
-
 const generateTransactionHash = (args: {
   abi: string[];
   functionName: string;
