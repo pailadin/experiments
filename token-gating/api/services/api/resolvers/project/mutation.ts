@@ -43,13 +43,35 @@ export default {
         };
       }
 
-      const collectionExists = await ctx.services.worker.collectionController.collectionExists({
+      logger.info(`DiscordToken: ${userInfo.email}`);
+
+      let collection = await ctx.services.worker.collectionController.findOneCollection({
         filter: {
           contractAddress,
         },
       });
 
-      if (collectionExists) {
+      if (!collection) {
+        collection = await ctx.services.worker.collectionController.createCollection({
+          id: ObjectId.generate(ObjectType.COLLECTION).buffer,
+          data: {
+            contractAddress,
+          },
+        });
+
+        AsyncGroup.add(ctx.services.worker.syncCollection({
+          collection: collection.id,
+          priority: true,
+        }));
+      }
+
+      const projectExists = await ctx.services.project.projectController.findOneProject({
+        filter: {
+          contractAddress,
+        },
+      });
+
+      if (projectExists) {
         logger.warn('Contract Address exists on other projects');
         return {
           data: null,
@@ -59,15 +81,6 @@ export default {
           },
         };
       }
-
-      const collection = await ctx.services.worker.collectionController.createCollection({
-        id: ObjectId.generate(ObjectType.COLLECTION).buffer,
-        data: {
-          contractAddress,
-        },
-      });
-
-      AsyncGroup.add(ctx.services.worker.syncCollection(collection.id, true));
 
       const project = await ctx.services.project.projectController.createProject({
         id: ObjectId.generate(ObjectType.PROJECT).buffer,
