@@ -1,17 +1,16 @@
+/* eslint-disable max-len */
 import { gql } from 'apollo-server-koa';
 
 export default gql`
 
 enum AccountRole {
   ADMIN
-  CREATOR
-  FOLLOWER
+  HOLDER
 }
 
 type InvalidGoogleAccessTokenError implements Error {
   message: String!
 }
-
 
 
 union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError
@@ -31,7 +30,6 @@ input GenerateAccessTokenByGoogleRequest {
   accessToken: String!
 }
 
-#
 
 type InvalidDiscordAccessTokenError implements Error {
   message: String!
@@ -41,15 +39,19 @@ type InvalidAuthenticationSignatureError implements Error {
   message: String!
 }
 
-union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError
+type NftOwnershipDoesNotExistError implements Error {
+  message: String!
+}
 
-union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError
+
+union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | NftOwnershipDoesNotExistError
+
 type GenerateProjectAccessTokenResponseData {
   accessToken: String!
 }
 
 type GenerateProjectAccessTokenResponse {
-  error: GenerateAccessTokenByGoogleError
+  error: GenerateProjectAccessTokenError
   data: GenerateProjectAccessTokenResponseData
 }
 
