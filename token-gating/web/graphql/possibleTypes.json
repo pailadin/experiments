@@ -1,0 +1,55 @@
+{
+  "Node": [
+    "Member",
+    "CoreValue",
+    "Organization",
+    "Comment",
+    "CheckInAnswer",
+    "CheckInAnswerTask",
+    "StatusCategory",
+    "Status",
+    "Holiday",
+    "MoodPost",
+    "BoostPost",
+    "NewMemberPost",
+    "AnniversaryPost",
+    "BirthdayPost",
+    "CheckInPost",
+    "BroadcastPost",
+    "Team",
+    "DailyReviewEntry"
+  ],
+  "Post": ["MoodPost", "BoostPost", "NewMemberPost", "AnniversaryPost", "BirthdayPost", "CheckInPost", "BroadcastPost"],
+  "Reactable": [
+    "Comment",
+    "MoodPost",
+    "BoostPost",
+    "NewMemberPost",
+    "AnniversaryPost",
+    "BirthdayPost",
+    "CheckInPost",
+    "BroadcastPost"
+  ],
+  "Commentable": [
+    "MoodPost",
+    "BoostPost",
+    "NewMemberPost",
+    "AnniversaryPost",
+    "BirthdayPost",
+    "CheckInPost",
+    "BroadcastPost"
+  ],
+  "CheckInReplyFormQuestion": [
+    "CheckInReplyFormOpenQuestion",
+    "CheckInReplyFormBooleanQuestion",
+    "CheckInReplyFormNumericQuestion",
+    "CheckInReplyFormEmojiQuestion",
+    "CheckInReplyFormSentimentQuestion",
+    "CheckInReplyFormBlockerQuestion",
+    "CheckInReplyFormCurrentGoalQuestion",
+    "CheckInReplyFormPreviousGoalQuestion",
+    "CheckInReplyFormBoostQuestion"
+  ],
+  "TimeOff": ["Status", "Holiday"],
+  "CompanyEvent": ["NewMemberPost", "AnniversaryPost", "BirthdayPost"]
+}
