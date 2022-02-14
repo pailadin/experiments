@@ -68,6 +68,7 @@ export const useWeb3 = () => {
       .then((res) => setHasAccount(true));
 
   const sendEth = (val, to) => {
+    console.log(typeof web3.utils.toWei(val, "ether"));
     web3.eth
       .sendTransaction({
         from: account,

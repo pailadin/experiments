@@ -14,13 +14,6 @@
     "icon": "/generic.png"
   },
   {
-    "name": "XEENUS",
-    "address": "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c",
-    "symbol": "XEENUS",
-    "decimals": 18,
-    "icon": "/generic.png"
-  },
-  {
     "name": "WEENUS",
     "address": "0xaFF4481D10270F50f203E0763e2597776068CBc5",
     "symbol": "WEENUS",
