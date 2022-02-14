@@ -27,6 +27,7 @@ import { ProjectService } from '../project';
 import permissionDirective from './directives/permission';
 import { WorkerService } from '../worker/src';
 import { TYPES as WORKER_TYPES } from '../worker/types';
+import routes from './routes';
 
 @injectable()
 export class ApiService {
@@ -84,6 +85,9 @@ export class ApiService {
       await next();
     });
 
+    this.app.use(routes.routes());
+    this.app.use(routes.allowedMethods());
+
     this.app.use(async (ctx: Context, next) => {
       const { authorization } = ctx.headers;
       if (!authorization) {
@@ -103,8 +107,6 @@ export class ApiService {
 
         if (ctx.state.claims.role === AccountRole.ADMIN) {
           user = await ctx.loaders.adminAccount.load(ObjectId.from(ctx.state.claims.sub).buffer);
-        } else if (ctx.state.claims.role === AccountRole.HOLDER) {
-          user = await ctx.loaders.holderAccount.load(ObjectId.from(ctx.state.claims.sub).buffer);
         }
 
         assert(user, '`user` is null');

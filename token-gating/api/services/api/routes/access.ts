@@ -1,16 +1,36 @@
 import KoaRouter from '@koa/router';
+import jsonWebToken from 'jsonwebtoken';
 import ObjectId from '../../../library/object-id';
 import { Context } from '../types';
 
 export default function (router: KoaRouter) {
   router.get('/access', async (ctx: Context) => {
-    if (!ctx.query.projectId) {
+    const forbiddenData = {
+      result: {
+        status: 0,
+        message: 'Forbidden',
+      },
+    };
+
+    if (!ctx.query.projectId || !ctx.query.accessToken) {
       ctx.status = 400;
       ctx.body = {
-        result: {
-          status: 0,
-          message: 'Forbidden',
-        },
+        ...forbiddenData,
+      };
+      return;
+    }
+
+    const claims = jsonWebToken.verify(
+      ctx.query.accessToken as string,
+      ctx.config.JWT_SECRET,
+    ) as typeof ctx.state.claims;
+
+    const holderAccount = await ctx.loaders.holderAccount.load(ObjectId.from(claims.sub).buffer);
+
+    if (!holderAccount) {
+      ctx.status = 400;
+      ctx.body = {
+        ...forbiddenData,
       };
       return;
     }
@@ -21,15 +41,12 @@ export default function (router: KoaRouter) {
     if (!project) {
       ctx.status = 400;
       ctx.body = {
-        error: {
-          status: 0,
-          message: 'Forbidden',
-        },
+        ...forbiddenData,
       };
       return;
     }
 
     ctx.status = 302;
-    ctx.redirect(`https://discord.com/channels/${'serverId'}/${project.discordChannel}`);
+    ctx.redirect(`https://discord.com/channels/${project.discordGuild}/${project.discordChannel}`);
   });
 }
