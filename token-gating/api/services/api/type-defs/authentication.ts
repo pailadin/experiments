@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { gql } from 'apollo-server-koa';
 
 export default gql`
@@ -41,7 +42,7 @@ type InvalidAuthenticationSignatureError implements Error {
   message: String!
 }
 
-union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError
+union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | InvalidDiscordAuthorizationCodeError
 
 
 type GenerateProjectAccessTokenResponseData {
@@ -55,7 +56,7 @@ type GenerateProjectAccessTokenResponse {
 
 input GenerateProjectAccessTokenRequest {
   projectId: ID!
-  discordAccessToken: String!
+  discordAuthorizationCode: String!
   ethAddress: String!
   timestamp: DateTime!
   signature: String!
