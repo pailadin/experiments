@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
 
 import R from 'ramda';
-import axios from 'axios';
 import AsyncGroup from '@highoutput/async-group';
+import fetch from 'node-fetch';
+import withQuery from 'with-query';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
-import { DiscordResponse } from '../../../../types/discord-response';
+import { DiscordToken } from '../../../../types/discord-token';
 import logger from '../../../../library/logger';
 
 export default {
@@ -15,35 +16,47 @@ export default {
         name: string;
         description: string;
         contractAddress: string;
-        discordId:string;
+        discordGuild:string;
         discordChannel: string;
-        discordBotAccessToken: string;
+        discordAuthorizationCode: string;
       }
     }, ctx: Context) {
       const {
-        name, description, contractAddress, discordId, discordChannel, discordBotAccessToken,
+        name, description, contractAddress, discordGuild, discordChannel, discordAuthorizationCode,
       } = args.request;
 
-      const response = await axios.get('https://discord.com/api/users/@me', {
+      const CLIENT_ID = '941156706908508220';
+      const CLIENT_SECRET = 'soGUQyVTfQcWiwUkqaalid08rcOGZtN_';
+      const REDIRECT_URI = 'http://localhost:3000';
+
+      const requestBody = {
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        grant_type: 'authorization_code',
+        code: discordAuthorizationCode,
+        redirect_uri: REDIRECT_URI,
+      };
+
+      const tokenQueryResponse = await fetch('https://discord.com/api/v8/oauth2/token', {
+        method: 'POST',
+        body: withQuery(null, requestBody),
         headers: {
-          Authorization: `Bearer ${discordBotAccessToken}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
 
-      const userInfo:DiscordResponse = response.data;
+      const discordToken: DiscordToken = await tokenQueryResponse.json();
 
-      if (!userInfo.email) {
-        logger.warn('Invalid Discord Bot Access Token');
+      if (!discordToken.access_token) {
+        logger.warn('Invalid Discord Authorization Code');
         return {
           data: null,
           error: {
-            __typename: 'InvalidDiscordBotAccessTokenError',
-            message: 'Invalid Discord Bot Access Token',
+            __typename: 'InvalidDiscordAuthorizationCodeError',
+            message: 'Invalid Discord Authorization Code',
           },
         };
       }
-
-      logger.info(`DiscordToken: ${userInfo.email}`);
 
       let collection = await ctx.services.worker.collectionController.findOneCollection({
         filter: {
@@ -88,9 +101,11 @@ export default {
           name,
           description,
           contractAddress,
-          discordId,
+          discordGuild,
           discordChannel,
-          discordBotAccessToken,
+          discordAccessToken: discordToken.access_token,
+          discordRefreshToken: discordToken.refresh_token,
+          discordTokenExpiration: discordToken.expires_in.toString(),
         },
       });
 
