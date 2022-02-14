@@ -7,7 +7,7 @@ export default function (router: KoaRouter) {
   router.get('/access', async (ctx: Context) => {
     const forbiddenData = {
       result: {
-        status: 0,
+        status: 400,
         message: 'Forbidden',
       },
     };
