@@ -3,10 +3,10 @@
 
 import R from 'ramda';
 import CollectionRepository from '../../services/worker/src/repositories/collection';
-import { Context as FixtureContext, setup, teardown } from '../../services/worker/tests/helpers/fixture';
+import { Context as FixtureContext, setup, teardown } from '../helpers/fixture';
 import { TYPES } from '../../services/worker/src/types';
 import { TYPES as GLOBAL_TYPES, CollectionStatus, Collection } from '../../services/worker/types';
-import { container } from '../../services/worker/inversify.config';
+import { container } from '../../inversify.config';
 import ObjectId, { ObjectType } from '../../library/object-id';
 import { WorkerService } from '../../services/worker/src/index';
 import OwnershipRepository from '../../services/worker/src/repositories/ownership';
@@ -25,7 +25,7 @@ type Context = FixtureContext & {
 
 };
 
-describe('Worker Service Test', () => {
+describe.only('Worker Service Test', () => {
   beforeEach(async function (this: Context) {
     await setup.apply(this);
 
@@ -132,7 +132,7 @@ describe('Worker Service Test', () => {
     expect(currentOwnerships.length).toEqual(updatedOwnerships.length);
   });
 
-  test('should update the collection by single contract address', async function (this: Context) {
+  test.skip('should update the collection by single contract address', async function (this: Context) {
     this.blockSize = 10000;
     await this.workerService.syncCollection({
       collection: this.collection.id,
