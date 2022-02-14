@@ -4,9 +4,11 @@ export type Project = Node & {
   name: string;
   description: string;
   contractAddress: string;
-  discordId: string;
+  discordGuild: string;
   discordChannel: string;
-  discordBotAccessToken: string;
+  discordAccessToken: string;
+  discordRefreshToken: string;
+  discordTokenExpiration: string;
   createdAt: Date;
   updatedAt: Date;
 };
