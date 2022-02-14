@@ -43,6 +43,6 @@ export default class AdminAccountRepository
 
     schema.index({ createdAt: 1 });
 
-    return db.model<AdminAccountDocument>('AdminAccount', schema);
+    return db.model<AdminAccountDocument>('admin', schema);
   }
 }
