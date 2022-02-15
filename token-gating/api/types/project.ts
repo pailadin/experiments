@@ -1,4 +1,4 @@
-import { Node } from './node';
+import { ID, Node } from './node';
 
 export type Project = Node & {
   name: string;
@@ -9,6 +9,7 @@ export type Project = Node & {
   discordAccessToken: string;
   discordRefreshToken: string;
   discordTokenExpiration: string;
+  adminAccount: ID;
   createdAt: Date;
   updatedAt: Date;
 };

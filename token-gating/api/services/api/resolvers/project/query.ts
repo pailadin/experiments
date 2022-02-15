@@ -7,6 +7,11 @@ export default {
       return ctx.services.project.projectController.retrieveProjectsPage({
         ...args,
         first: args.first || 100,
+        filter: {
+          adminAccount: {
+            $in: [ctx.state.user.id],
+          },
+        },
       });
     },
   },

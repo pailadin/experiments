@@ -102,6 +102,7 @@ export default {
           discordAccessToken: discordToken.access_token,
           discordRefreshToken: discordToken.refresh_token,
           discordTokenExpiration: discordToken.expires_in.toString(),
+          adminAccount: ctx.state.user.id,
         },
       });
 
@@ -126,6 +127,7 @@ export default {
       await ctx.services.project.projectController.deleteProject({
         filter: {
           id,
+          adminAccount: ctx.state.user.id,
         },
       });
 
