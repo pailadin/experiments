@@ -21,9 +21,9 @@ globalContainer.bind(TYPES.MONGODB_URI).toConstantValue(process.env.MONGODB_URI 
 globalContainer.bind(TYPES.MONGODB_POOL_SIZE).toConstantValue(parseInt(process.env.MONGODB_POOL_SIZE || '5', 10));
 globalContainer.bind(TYPES.ENV).toConstantValue(process.env.ENV || process.env.NODE_ENV || 'staging');
 
-globalContainer.bind(TYPES.CLIENT_ID).toConstantValue(process.env.CLIENT_ID || '941156706908508220');
-globalContainer.bind(TYPES.CLIENT_SECRET).toConstantValue(process.env.CLIENT_SECRET || 'soGUQyVTfQcWiwUkqaalid08rcOGZtN_');
-globalContainer.bind(TYPES.REDIRECT_URI).toConstantValue(process.env.REDIRECT_URI || 'http://localhost:3000');
+globalContainer.bind(TYPES.CLIENT_ID).toConstantValue(process.env.CLIENT_ID || '939013514922713109');
+globalContainer.bind(TYPES.CLIENT_SECRET).toConstantValue(process.env.CLIENT_SECRET || 'F6DcfHfXAH_2Uo3006i-d2IfXVUA1Kws');
+globalContainer.bind(TYPES.REDIRECT_URI).toConstantValue(process.env.REDIRECT_URI || 'http://localhost:3000/api/discord');
 globalContainer.bind(TYPES.BOT_TOKEN).toConstantValue(process.env.BOT_TOKEN);
 
 globalContainer.bind(TYPES.mongoose)
