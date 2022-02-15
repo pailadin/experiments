@@ -14,43 +14,13 @@ export default {
   Mutation: {
     async generateAccessTokenByGoogle(_: never, args: {
       request: {
-        googleAuthorizationCode: string;
+        accessToken: string;
       }
     }, ctx: Context) {
-      const authorizationCodePayload = {
-        code: args.request.googleAuthorizationCode,
-        redirect_uri: 'http://localhost:3000',
-        client_id: '170683676664-p6purmiveulul6b7gcgugldqlag3tb60.apps.googleusercontent.com',
-        client_secret: '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',
-        scope: 'https://www.googleapis.com/auth/userinfo.email',
-        grant_type: 'authorization_code',
-
-      };
-
-      const authorizationCodeResponse = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        body: withQuery(null, authorizationCodePayload).slice(1),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      const authorizationCodeInfo = await authorizationCodeResponse.json();
-
-      if (!authorizationCodeInfo.access_token) {
-        return {
-          data: null,
-          error: {
-            __typename: 'InvalidGoogleAuthorizationCodeError',
-            message: 'Invalid Google Authorization Code',
-          },
-        };
-      }
-
       const tokenInfoResponse = await axios.post('https://oauth2.googleapis.com/tokeninfo', {}, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer ${authorizationCodeInfo.access_token}`,
+          Authorization: `Bearer ${args.request.accessToken}`,
         },
       });
 

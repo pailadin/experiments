@@ -31,7 +31,7 @@ type GenerateAccessTokenByGoogleResponse {
 
 
 input GenerateAccessTokenByGoogleRequest {
-  googleAuthorizationCode: String!
+  accessToken: String!
 }
 
 #

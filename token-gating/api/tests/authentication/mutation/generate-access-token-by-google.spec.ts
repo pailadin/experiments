@@ -45,7 +45,7 @@ describe.only('Mutation.generateAccessTokenByGoogle', () => {
   });
 
   test('should generate access token', async function (this: Context) {
-    const googleAuthorizationCode = faker.git.commitSha();
+    const accessToken = faker.git.commitSha();
 
     const query = `
       mutation ($request: GenerateAccessTokenByGoogleRequest){
@@ -59,7 +59,7 @@ describe.only('Mutation.generateAccessTokenByGoogle', () => {
 
     const variables = {
       request: {
-        googleAuthorizationCode,
+        accessToken,
       },
     };
 
