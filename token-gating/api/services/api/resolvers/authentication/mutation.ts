@@ -3,12 +3,9 @@ import jsonwebtoken from 'jsonwebtoken';
 import { DateTime } from 'luxon';
 import { ethers } from 'ethers';
 import axios from 'axios';
-import withQuery from 'with-query';
-import fetch from 'node-fetch';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 import { DiscordUserInfo } from '../../../../types/discord-userinfo';
-import { DiscordToken } from '../../../../types/discord-token';
 
 export default {
   Mutation: {
@@ -68,7 +65,7 @@ export default {
     async generateProjectAccessToken(_: never, args: {
       request: {
         projectId: string;
-        discordAuthorizationCode: string;
+        discordAccessToken: string;
         ethAddress: string;
         timestamp: string;
         signature: string;
@@ -76,7 +73,7 @@ export default {
       }
     }, ctx: Context) {
       const {
-        discordAuthorizationCode, ethAddress, timestamp, signature,
+        discordAccessToken, ethAddress, timestamp, signature,
       } = args.request;
 
       if (DateTime.now()
@@ -112,37 +109,9 @@ export default {
         };
       }
 
-      const requestBody = {
-        client_id: ctx.config.CLIENT_ID,
-        client_secret: ctx.config.CLIENT_SECRET,
-        grant_type: 'authorization_code',
-        code: discordAuthorizationCode,
-        redirect_uri: ctx.config.REDIRECT_URI,
-      };
-
-      const tokenQueryResponse = await fetch('https://discord.com/api/v8/oauth2/token', {
-        method: 'POST',
-        body: withQuery(null, requestBody).slice(1),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      const discordToken: DiscordToken = await tokenQueryResponse.json();
-
-      if (!discordToken || !discordToken.access_token) {
-        return {
-          data: null,
-          error: {
-            __typename: 'InvalidDiscordAuthorizationCodeError',
-            message: 'Invalid Discord Authorization Code',
-          },
-        };
-      }
-
       const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
         headers: {
-          Authorization: `Bearer ${discordToken.access_token}`,
+          Authorization: `Bearer ${discordAccessToken}`,
         },
       });
 
@@ -193,6 +162,7 @@ export default {
       let holderAccount = await ctx.services.account.holderAccountController.findOneHolderAccount({
         filter: {
           ethereumAddress: ethAddress,
+          discordId: userInfo.id,
         },
       });
 
@@ -207,7 +177,7 @@ export default {
 
         await axios
           .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
-            access_token: discordToken.access_token,
+            access_token: discordAccessToken,
           }, {
             headers: {
               Authorization: `Bot ${ctx.config.BOT_TOKEN}`,

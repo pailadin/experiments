@@ -2,7 +2,6 @@
 import R from 'ramda';
 import nock from 'nock';
 import faker from 'faker';
-import { DateTime } from 'luxon';
 import jsonWebToken from 'jsonwebtoken';
 import { Context as FixtureContext, setup, teardown } from '../../helpers/fixture';
 import { TYPES as PROJECT_TYPES } from '../../../services/project/types';
@@ -29,12 +28,12 @@ describe('Mutation.createProject', () => {
     this.projectRepository = container.get<ProjectRepository>(PROJECT_TYPES.ProjectRepository);
     this.secret = container.get<Buffer>(GLOBAL_TYPES.JWT_SECRET);
 
-    nock('https://discord.com').post('/api/v8/oauth2/token').reply(200, {
-      access_token: faker.git.commitSha(),
-      expires_in: DateTime.now().plus({ days: 1 }).toMillis(),
-      refresh_token: faker.git.commitSha(),
-      scope: 'guilds.join guilds guilds.members.read',
-      token_type: 'Bearer',
+    nock('https://discord.com').get('/api/users/@me').reply(200, {
+      id: `93569146681729437${faker.datatype.number({
+        min: 0,
+        max: 9,
+      })}`,
+      email: faker.internet.email(),
     }, {
       'content-type': 'application/json',
     });
@@ -67,8 +66,6 @@ describe('Mutation.createProject', () => {
 
     const project = generateProject();
 
-    const discordAuthorizationCode = faker.git.commitSha();
-
     const query = `
       mutation ($request: CreateProjectRequest){
         createProject(request: $request){
@@ -84,7 +81,7 @@ describe('Mutation.createProject', () => {
     const variables = {
       request: {
         ...R.omit(['id', 'discordAccessToken', 'discordRefreshToken', 'discordTokenExpiration', 'adminAccount'], project),
-        discordAuthorizationCode,
+        discordAccessToken: faker.git.commitSha(),
       },
     };
 
@@ -94,6 +91,8 @@ describe('Mutation.createProject', () => {
       .send({
         query, variables,
       });
+
+    console.log(response);
 
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty(['data', 'createProject', 'data', 'project', 'name'], project.name);

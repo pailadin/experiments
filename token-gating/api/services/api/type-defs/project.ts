@@ -40,7 +40,7 @@ input CreateProjectRequest {
   contractAddress: String!
   discordGuild: String!
   discordChannel: String!
-  discordAuthorizationCode: String!
+  discordAccessToken: String!
 }
 
 

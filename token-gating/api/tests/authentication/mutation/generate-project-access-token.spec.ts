@@ -114,7 +114,7 @@ describe('Mutation.generateProjectAccessToken', () => {
     const variables = {
       request: {
         projectId: new ObjectId(project.id).toString(),
-        discordAuthorizationCode: faker.git.commitSha(),
+        discordAccessToken: faker.git.commitSha(),
         ethAddress,
         timestamp,
         signature,

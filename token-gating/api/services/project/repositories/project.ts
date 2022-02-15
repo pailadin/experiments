@@ -18,10 +18,10 @@ export default class ProjectRepository
   extends Repository<
   Project,
     Pick<Project, 'name' | 'description' | 'contractAddress' | 'discordGuild' | 'discordChannel' |
-     'discordAccessToken' | 'discordRefreshToken' | 'discordTokenExpiration' | 'adminAccount'> &
+     'discordAccessToken' | 'adminAccount'> &
      Partial<Pick<Project, 'createdAt' | 'updatedAt'>>,
     Partial<Pick<Project, 'id' | 'name' | 'description' | 'contractAddress' | 'discordGuild' | 'discordChannel' |
-    'discordAccessToken' | 'discordRefreshToken' | 'discordTokenExpiration' | 'adminAccount' | 'createdAt' | 'updatedAt'>>
+    'discordAccessToken' | 'adminAccount' | 'createdAt' | 'updatedAt'>>
   > {
     @inject(TYPES.retrievePage) private readonly baseRetrievePage!: typeof baseRetrievePage;
 
@@ -52,14 +52,6 @@ export default class ProjectRepository
           required: true,
         },
         discordAccessToken: {
-          type: String,
-          required: true,
-        },
-        discordRefreshToken: {
-          type: String,
-          required: true,
-        },
-        discordTokenExpiration: {
           type: String,
           required: true,
         },

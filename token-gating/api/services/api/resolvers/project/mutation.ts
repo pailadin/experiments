@@ -2,12 +2,11 @@
 
 import R from 'ramda';
 import AsyncGroup from '@highoutput/async-group';
-import fetch from 'node-fetch';
-import withQuery from 'with-query';
+import axios from 'axios';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
-import { DiscordToken } from '../../../../types/discord-token';
 import logger from '../../../../library/logger';
+import { DiscordUserInfo } from '../../../../types/discord-userinfo';
 
 export default {
   Mutation: {
@@ -18,38 +17,27 @@ export default {
         contractAddress: string;
         discordGuild:string;
         discordChannel: string;
-        discordAuthorizationCode: string;
+        discordAccessToken: string;
       }
     }, ctx: Context) {
       const {
-        name, description, contractAddress, discordGuild, discordChannel, discordAuthorizationCode,
+        name, description, contractAddress, discordGuild, discordChannel, discordAccessToken,
       } = args.request;
 
-      const requestBody = {
-        client_id: ctx.config.CLIENT_ID,
-        client_secret: ctx.config.CLIENT_SECRET,
-        grant_type: 'authorization_code',
-        code: discordAuthorizationCode,
-        redirect_uri: ctx.config.REDIRECT_URI,
-      };
-
-      const tokenQueryResponse = await fetch('https://discord.com/api/v8/oauth2/token', {
-        method: 'POST',
-        body: withQuery(null, requestBody).slice(1),
+      const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${discordAccessToken}`,
         },
       });
 
-      const discordToken: DiscordToken = await tokenQueryResponse.json();
+      const userInfo: DiscordUserInfo = userInfoQueryResponse.data;
 
-      if (!discordToken || !discordToken.access_token) {
-        logger.warn('Invalid Discord Authorization Code');
+      if (!userInfo.id) {
         return {
           data: null,
           error: {
-            __typename: 'InvalidDiscordAuthorizationCodeError',
-            message: 'Invalid Discord Authorization Code',
+            __typename: 'InvalidDiscordAccessTokenError',
+            message: 'Invalid Discord Access Token',
           },
         };
       }
@@ -99,9 +87,7 @@ export default {
           contractAddress,
           discordGuild,
           discordChannel,
-          discordAccessToken: discordToken.access_token,
-          discordRefreshToken: discordToken.refresh_token,
-          discordTokenExpiration: discordToken.expires_in.toString(),
+          discordAccessToken,
           adminAccount: ctx.state.user.id,
         },
       });

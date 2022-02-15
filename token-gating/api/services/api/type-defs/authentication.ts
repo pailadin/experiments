@@ -58,7 +58,7 @@ type GenerateProjectAccessTokenResponse {
 
 input GenerateProjectAccessTokenRequest {
   projectId: ID!
-  discordAuthorizationCode: String!
+  discordAccessToken: String!
   ethAddress: String!
   timestamp: DateTime!
   signature: String!
