@@ -205,12 +205,14 @@ $: {
 **Topics learned on Week 2**
 
 - Svelte as one of the best ranking frameworks when it comes to **bundle size**, **performance**, **lines of code** and most importantly **developer satisfaction** [](https://2019.stateofjs.com/front-end-frameworks/)[https://2019.stateofjs.com/front-end-frameworks/](https://2019.stateofjs.com/front-end-frameworks/)
-  - Much recent (most popular on github)![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/c4e00f9b-d26d-4d75-aba1-9e9046561f14/Untitled.png)
+  - Much recent (most popular on github)
+  ![github ranking](https://raw.githubusercontent.com/HighOutputVentures/experiments/main/001/static/misc/github-rank.png)
   - An excerpt from JS framework benchmark on Github [](https://dev.to/jannikwempe/why-svelte-is-different-and-awesome-4381)[https://dev.to/jannikwempe/why-svelte-is-different-and-awesome-4381](https://dev.to/jannikwempe/why-svelte-is-different-and-awesome-4381)
     - It's based on a large table with randomized entries and measures the time for various operations including rendering duration.
     - **_Performance_**
-      ![https://res.cloudinary.com/practicaldev/image/fetch/s--zUeXmMxN--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://cdn.hashnode.com/res/hashnode/image/upload/v1619355158508/Olvdi5zOk.png](https://res.cloudinary.com/practicaldev/image/fetch/s--zUeXmMxN--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://cdn.hashnode.com/res/hashnode/image/upload/v1619355158508/Olvdi5zOk.png)
-      ![https://res.cloudinary.com/practicaldev/image/fetch/s--I3wT_8Vc--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://cdn.hashnode.com/res/hashnode/image/upload/v1619355565050/accrTZHyr.png](https://res.cloudinary.com/practicaldev/image/fetch/s--I3wT_8Vc--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://cdn.hashnode.com/res/hashnode/image/upload/v1619355565050/accrTZHyr.png)
+
+![https://res.cloudinary.com/practicaldev/image/fetch/s--zUeXmMxN--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://cdn.hashnode.com/res/hashnode/image/upload/v1619355158508/Olvdi5zOk.png](https://res.cloudinary.com/practicaldev/image/fetch/s--zUeXmMxN--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://cdn.hashnode.com/res/hashnode/image/upload/v1619355158508/Olvdi5zOk.png)
+![https://res.cloudinary.com/practicaldev/image/fetch/s--I3wT_8Vc--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://cdn.hashnode.com/res/hashnode/image/upload/v1619355565050/accrTZHyr.png](https://res.cloudinary.com/practicaldev/image/fetch/s--I3wT_8Vc--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://cdn.hashnode.com/res/hashnode/image/upload/v1619355565050/accrTZHyr.png)
 - What does "Svelte is a compiler" mean?
   - It essentially means that **Svelte-specific code** gets compiled (think about transformed) to JavaScript, which is executable by the browser.
   - Svelte is a compiler and therefore does not require a **runtime system** to be loaded into the client
