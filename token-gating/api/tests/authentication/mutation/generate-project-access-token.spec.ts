@@ -18,6 +18,7 @@ type Context = FixtureContext & {
   projectRepository: ProjectRepository;
   ownershipRepository: OwnershipRepository;
   secret: Buffer;
+  discordId: string;
 };
 
 describe('Mutation.generateProjectAccessToken', () => {
@@ -27,6 +28,10 @@ describe('Mutation.generateProjectAccessToken', () => {
     this.ownershipRepository = container.get<OwnershipRepository>(WORKER_TYPES.OwnershipRepository);
     this.projectRepository = container.get<ProjectRepository>(PROJECT_TYPES.ProjectRepository);
     this.secret = container.get<Buffer>(GLOBAL_TYPES.JWT_SECRET);
+    this.discordId = `93569146681729437${faker.datatype.number({
+      min: 0,
+      max: 9,
+    })}`;
 
     nock('https://discord.com').post('/api/v8/oauth2/token').reply(200, {
       access_token: faker.git.commitSha(),
@@ -39,10 +44,7 @@ describe('Mutation.generateProjectAccessToken', () => {
     });
 
     nock('https://discord.com').get('/api/users/@me').reply(200, {
-      id: `93569146681729437${faker.datatype.number({
-        min: 0,
-        max: 9,
-      })}`,
+      id: this.discordId,
       email: faker.internet.email(),
     }, {
       'content-type': 'application/json',
@@ -119,6 +121,16 @@ describe('Mutation.generateProjectAccessToken', () => {
         ttl: 'P10D',
       },
     };
+
+    nock('https://discord.com').put(`/api/guilds/${project.discordGuild}/members/${this.discordId}`).reply(200, {
+      id: `93569146681729437${faker.datatype.number({
+        min: 0,
+        max: 9,
+      })}`,
+      email: faker.internet.email(),
+    }, {
+      'content-type': 'application/json',
+    });
 
     const response = await this.request
       .post('/graphql')

@@ -34,6 +34,7 @@ export type Context = ParameterizedContext<{
     CLIENT_ID: string;
     CLIENT_SECRET: string;
     REDIRECT_URI: string;
+    BOT_TOKEN: string;
   };
   fetch: typeof fetch,
   loaders: {

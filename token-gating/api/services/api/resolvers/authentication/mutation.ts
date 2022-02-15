@@ -204,22 +204,6 @@ export default {
         };
       }
 
-      let holderAccount = await ctx.services.account.holderAccountController.findOneHolderAccount({
-        filter: {
-          ethereumAddress: ethAddress,
-        },
-      });
-
-      if (!holderAccount) {
-        holderAccount = await ctx.services.account.holderAccountController.createHolderAccount({
-          id: ObjectId.generate(ObjectType.HOLDER).buffer,
-          data: {
-            ethereumAddress: ethAddress,
-            discordId: userInfo.id,
-          },
-        });
-      }
-
       const projectId = ObjectId.from(args.request.projectId).buffer;
 
       const project = await ctx.services.project.projectController.findOneProject({
@@ -236,14 +220,30 @@ export default {
         };
       }
 
-      // await axios
-      //   .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
-      //     access_token: discordToken.access_token,
-      //   }, {
-      //     headers: {
-      //       Authorization: `Bearer ${project.discordAccessToken}`,
-      //     },
-      //   });
+      let holderAccount = await ctx.services.account.holderAccountController.findOneHolderAccount({
+        filter: {
+          ethereumAddress: ethAddress,
+        },
+      });
+
+      if (!holderAccount) {
+        holderAccount = await ctx.services.account.holderAccountController.createHolderAccount({
+          id: ObjectId.generate(ObjectType.HOLDER).buffer,
+          data: {
+            ethereumAddress: ethAddress,
+            discordId: userInfo.id,
+          },
+        });
+
+        await axios
+          .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
+            access_token: discordToken.access_token,
+          }, {
+            headers: {
+              Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
+            },
+          });
+      }
 
       return {
         data: {

@@ -14,6 +14,7 @@ export const TYPES = {
   CLIENT_ID: Symbol.for('CLIENT_ID'),
   CLIENT_SECRET: Symbol.for('CLIENT_SECRET'),
   REDIRECT_URI: Symbol.for('REDIRECT_URI'),
+  BOT_TOKEN: Symbol.for('BOT_TOKEN'),
   mongoose: Symbol.for('mongoose'),
   fetch: Symbol.for('fetch'),
   logger: Symbol.for('logger'),
