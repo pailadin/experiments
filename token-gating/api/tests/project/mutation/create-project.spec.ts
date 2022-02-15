@@ -83,7 +83,7 @@ describe('Mutation.createProject', () => {
 
     const variables = {
       request: {
-        ...R.omit(['id', 'discordAccessToken', 'discordRefreshToken', 'discordTokenExpiration'], project),
+        ...R.omit(['id', 'discordAccessToken', 'discordRefreshToken', 'discordTokenExpiration', 'adminAccount'], project),
         discordAuthorizationCode,
       },
     };

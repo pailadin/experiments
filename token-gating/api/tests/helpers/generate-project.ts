@@ -19,5 +19,6 @@ export default function () {
     discordAccessToken: faker.git.commitSha(),
     discordRefreshToken: faker.git.commitSha(),
     discordTokenExpiration: DateTime.now().plus({ days: 1 }).toMillis().toString(),
+    adminAccount: ObjectId.generate(ObjectType.ADMIN).buffer,
   };
 }

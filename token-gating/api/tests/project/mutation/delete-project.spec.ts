@@ -55,6 +55,7 @@ describe('Mutation.deleteProject', () => {
       id: project.id,
       data: {
         ...project,
+        adminAccount: adminAccount.id,
       },
     });
 
