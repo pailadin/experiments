@@ -24,8 +24,7 @@ globalContainer.bind(TYPES.ENV).toConstantValue(process.env.ENV || process.env.N
 globalContainer.bind(TYPES.CLIENT_ID).toConstantValue(process.env.CLIENT_ID || '941156706908508220');
 globalContainer.bind(TYPES.CLIENT_SECRET).toConstantValue(process.env.CLIENT_SECRET || 'soGUQyVTfQcWiwUkqaalid08rcOGZtN_');
 globalContainer.bind(TYPES.REDIRECT_URI).toConstantValue(process.env.REDIRECT_URI || 'http://localhost:3000');
-globalContainer.bind(TYPES.BOT_TOKEN).toConstantValue(process.env.BOT_TOKEN
-  || 'OTQxMTU2NzA2OTA4NTA4MjIw.YgR2fA.ouL6CfV25o2ZKe85XmTMCt30hPw');
+globalContainer.bind(TYPES.BOT_TOKEN).toConstantValue(process.env.BOT_TOKEN);
 
 globalContainer.bind(TYPES.mongoose)
   .toDynamicValue(async (ctx) => mongoose.createConnection(ctx.container.get(TYPES.MONGODB_URI), {
