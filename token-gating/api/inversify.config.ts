@@ -23,7 +23,7 @@ globalContainer.bind(TYPES.ENV).toConstantValue(process.env.ENV || process.env.N
 
 globalContainer.bind(TYPES.CLIENT_ID).toConstantValue(process.env.CLIENT_ID || '942737934946287617');
 globalContainer.bind(TYPES.CLIENT_SECRET).toConstantValue(process.env.CLIENT_SECRET || 'GqNj6xXF_g3IWxyVLwVBkTugW5w0Ycw_');
-globalContainer.bind(TYPES.REDIRECT_URI).toConstantValue(process.env.REDIRECT_URI || 'http://localhost:3000');
+globalContainer.bind(TYPES.REDIRECT_URI).toConstantValue(process.env.REDIRECT_URI || 'http://localhost:3000/api/discord');
 globalContainer.bind(TYPES.BOT_TOKEN).toConstantValue(process.env.BOT_TOKEN);
 
 globalContainer.bind(TYPES.mongoose)
