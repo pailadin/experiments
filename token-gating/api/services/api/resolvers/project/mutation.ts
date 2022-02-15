@@ -43,7 +43,7 @@ export default {
 
       const discordToken: DiscordToken = await tokenQueryResponse.json();
 
-      if (!discordToken.access_token) {
+      if (!discordToken || !discordToken.access_token) {
         logger.warn('Invalid Discord Authorization Code');
         return {
           data: null,

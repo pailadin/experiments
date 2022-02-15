@@ -26,7 +26,7 @@ export default {
 
       const tokenInfo = tokenInfoResponse.data;
 
-      if (!tokenInfo.email) {
+      if (!tokenInfo || !tokenInfo.email) {
         return {
           data: null,
           error: {
@@ -130,7 +130,7 @@ export default {
 
       const discordToken: DiscordToken = await tokenQueryResponse.json();
 
-      if (!discordToken.access_token) {
+      if (!discordToken || !discordToken.access_token) {
         return {
           data: null,
           error: {
