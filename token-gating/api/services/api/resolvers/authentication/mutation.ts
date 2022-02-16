@@ -16,7 +16,7 @@ export default {
       const tokenInfoResponse = await axios.post('https://oauth2.googleapis.com/tokeninfo', {}, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer ${args.request.accessToken}`,
+          Authorization: `Bot ${args.request.accessToken}`,
         },
       });
 
