@@ -6,7 +6,7 @@ type Project implements Node {
   name: String!
   description: String
   contractAddress: String!
-  discordId: String!
+  discordGuild: String!
   discordChannel: String!
   createdAt: DateTime!
 }
