@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 import axios from 'axios';
-
 import { Context } from '../../types';
-import logger from '../../../../library/logger';
+import { DiscordChannel } from '../../../../types/discord-channel';
 
 export default {
   Mutation: {
@@ -19,9 +18,9 @@ export default {
         },
       });
 
-      logger.info(channelsResponse.data);
+      const channels: DiscordChannel[] = channelsResponse.data;
 
-      if (!channelsResponse.data) {
+      if (channels.length === 0) {
         return {
           error: {
             __typename: 'InvalidDiscordAccessTokenError',
@@ -35,9 +34,7 @@ export default {
         data: {
           guild: {
             id: guildId,
-            channels: {
-              ...channelsResponse.data,
-            },
+            channels,
           },
         },
 
