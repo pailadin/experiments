@@ -4,13 +4,11 @@ import { Context } from '../../types';
 import { DiscordChannel } from '../../../../types/discord-channel';
 
 export default {
-  Mutation: {
-    async getDiscordGuildInfo(_: never, args: {
-      request: {
-        guildId: string;
-      }
+  Query: {
+    async getDiscordChannels(_: never, args: {
+      guildId: string;
     }, ctx: Context) {
-      const { guildId } = args.request;
+      const { guildId } = args;
 
       const channelsResponse = await axios.get(`https://discord.com/api/guilds/${guildId}/channels`, {
         headers: {
@@ -32,10 +30,7 @@ export default {
       return {
 
         data: {
-          guild: {
-            id: guildId,
-            channels,
-          },
+          channels,
         },
 
       };

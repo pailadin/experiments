@@ -10,32 +10,24 @@ type DiscordChannel {
   type: Int!
 }
 
-type DiscordGuildInfo {
-  id: String!
-  channels: [DiscordChannel!]
-}
 
 type InvalidDiscordGuildIdError implements Error {
   message: String!
 }
 
-union GetDiscordGuildInfoError = InvalidDiscordAccessTokenError | InvalidDiscordGuildIdError
+union GetDiscordChannelsError = InvalidDiscordAccessTokenError | InvalidDiscordGuildIdError
 
 
-type GetDiscordGuildInfoResponseData {
-  guild: DiscordGuildInfo
+type GetDiscordChannelsResponseData {
+  channels: [DiscordChannel!]
 }
 
-type GetDiscordGuildInfoResponse {
-  error: GetDiscordGuildInfoError
-  data: GetDiscordGuildInfoResponseData
+type GetDiscordChannelsResponse {
+  error: GetDiscordChannelsError
+  data: GetDiscordChannelsResponseData
 }
 
-input GetDiscordGuildInfoRequest {
-  guildId: String!
-}
-
-type Mutation {
-  getDiscordGuildInfo(request: GetDiscordGuildInfoRequest): GetDiscordGuildInfoResponse!  @permission(roles: [ADMIN]) 
+type Query {
+  getDiscordChannels(guildId: String!): GetDiscordChannelsResponse!  @permission(roles: [ADMIN]) 
 }
 `;
