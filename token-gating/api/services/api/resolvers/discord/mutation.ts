@@ -15,7 +15,7 @@ export default {
 
       const channelsResponse = await axios.get(`https://discord.com/api/guilds/${guildId}/channels`, {
         headers: {
-          Authorization: `Bearer ${ctx.config.BOT_TOKEN}`,
+          Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
         },
       });
 
