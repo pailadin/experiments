@@ -13,6 +13,7 @@ import { delay } from 'bluebird';
 import ms from 'ms';
 import withQuery from 'with-query';
 import fetch from 'node-fetch';
+import EventEmitter from 'events';
 import {
   TYPES as GLOBAL_TYPES,
   ID,
@@ -38,10 +39,14 @@ export class WorkerService {
 
   private static localQueue: Queue | null;
 
+  public eventHandler: EventEmitter;
+
   constructor() {
     if (!WorkerService.localQueue) {
       WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
     }
+
+    this.eventHandler = new EventEmitter();
   }
 
   async getEtherScanData(
@@ -314,6 +319,10 @@ export class WorkerService {
 
         const event = R.last(events);
         currentBlock = event ? event.blockNumber : '0';
+
+        R.uniqBy(R.prop('tokenID'))(events);
+
+        this.eventHandler.emit('transfer', collectionData.contractAddress);
 
         if (events.length < 10000) {
           break;
