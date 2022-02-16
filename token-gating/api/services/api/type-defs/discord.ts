@@ -6,8 +6,8 @@ export default gql`
 
 type DiscordChannel {
   id: String!
-  name: String!
-  
+  name: String!  
+  type: Int!
 }
 
 type DiscordGuildInfo {

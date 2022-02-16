@@ -13,7 +13,7 @@ export default {
     }, ctx: Context) {
       const { guildId } = args.request;
 
-      const channelsResponse = await axios.post(`https://discord.com/api/guilds/${guildId}/channels`, {}, {
+      const channelsResponse = await axios.get(`https://discord.com/api/guilds/${guildId}/channels`, {
         headers: {
           Authorization: `Bearer ${ctx.config.BOT_TOKEN}`,
         },
