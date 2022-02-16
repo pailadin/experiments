@@ -87,7 +87,7 @@ export default {
 
       const recoveredAddress = ethers.utils.verifyMessage(timestampHash, signature);
 
-      if (ethAddress !== recoveredAddress) {
+      if (ethAddress.toLowerCase() !== recoveredAddress.toLowerCase()) {
         return {
           error: {
             __typename: 'InvalidAuthenticationSignatureError',
@@ -115,13 +115,13 @@ export default {
         };
       }
 
-      const ownershipExists = await ctx.services.worker.ownershipController.ownershipExists({
+      const ownershipExists = await ctx.services.worker.ownershipController.findOneOwnership({
         filter: {
           owner: ethAddress,
         },
       });
 
-      if (!ownershipExists) {
+      if (ownershipExists) {
         return {
           data: null,
           error: {
