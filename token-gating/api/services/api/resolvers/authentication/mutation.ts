@@ -76,8 +76,7 @@ export default {
         discordAccessToken, ethAddress, timestamp, signature,
       } = args.request;
 
-      if (DateTime.now()
-        .diff(DateTime.fromISO(timestamp.slice(0, -1)), 'minutes').minutes < 10) {
+      if (DateTime.fromISO(timestamp.slice(0, -1)) < DateTime.now()) {
         return {
           error: {
             __typename: 'InvalidAuthenticationSignatureError',
