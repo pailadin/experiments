@@ -12,7 +12,7 @@ type DiscordChannel {
 
 type DiscordGuildInfo {
   id: String!
-  channels: DiscordChannel[]
+  channels: [DiscordChannel!]
 }
 
 type InvalidDiscordGuildIdError implements Error {
