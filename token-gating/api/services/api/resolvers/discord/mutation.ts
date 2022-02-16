@@ -6,7 +6,7 @@ import logger from '../../../../library/logger';
 
 export default {
   Mutation: {
-    async getDiscordChannels(_: never, args: {
+    async getDiscordGuildInfo(_: never, args: {
       request: {
         guildId: string;
       }
