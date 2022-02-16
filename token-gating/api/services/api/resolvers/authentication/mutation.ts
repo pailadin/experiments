@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import jsonwebtoken from 'jsonwebtoken';
-import { DateTime } from 'luxon';
 import { ethers } from 'ethers';
 import axios from 'axios';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
@@ -75,16 +74,6 @@ export default {
       const {
         discordAccessToken, ethAddress, timestamp, signature,
       } = args.request;
-
-      if (DateTime.fromISO(timestamp.slice(0, -1)) < DateTime.now()) {
-        return {
-          error: {
-            __typename: 'InvalidAuthenticationSignatureError',
-            message: 'Invalid Timestamp',
-          },
-          data: null,
-        };
-      }
 
       const message = `Timestamp: ${timestamp}`;
 
