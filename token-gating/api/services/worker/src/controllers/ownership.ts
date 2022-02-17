@@ -4,7 +4,7 @@ import {
   ID,
   Ownership,
   InputData,
-} from '../../types';
+} from '../../../../types';
 import { FilterQuery } from '../../../../library/repository';
 import { TYPES } from '../types';
 import OwnershipRepository from '../repositories/ownership';

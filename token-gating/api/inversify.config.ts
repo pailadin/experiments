@@ -20,7 +20,7 @@ globalContainer.bind(TYPES.retrievePage).toFunction(retrievePage);
 globalContainer.bind<typeof logger>(TYPES.logger).toConstantValue(logger);
 globalContainer.bind(TYPES.MONGODB_URI).toConstantValue(process.env.MONGODB_URI || 'mongodb://localhost/token-gating');
 globalContainer.bind(TYPES.MONGODB_POOL_SIZE).toConstantValue(parseInt(process.env.MONGODB_POOL_SIZE || '5', 10));
-globalContainer.bind(TYPES.ENV).toConstantValue(process.env.ENV || process.env.NODE_ENV || 'staging');
+globalContainer.bind(TYPES.ENV).toConstantValue(process.env.ENV || 'staging');
 
 globalContainer.bind(TYPES.CLIENT_ID).toConstantValue(process.env.CLIENT_ID || '942737934946287617');
 globalContainer.bind(TYPES.CLIENT_SECRET).toConstantValue(process.env.CLIENT_SECRET || 'GqNj6xXF_g3IWxyVLwVBkTugW5w0Ycw_');

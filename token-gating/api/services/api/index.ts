@@ -26,7 +26,6 @@ import { ApplicationError } from '../../library/error';
 import { ProjectService } from '../project';
 import permissionDirective from './directives/permission';
 import { WorkerService } from '../worker/src';
-import { TYPES as WORKER_TYPES } from '../worker/types';
 import routes from './routes';
 import { DiscordService } from '../discord';
 
@@ -49,7 +48,7 @@ export class ApiService {
     @inject(GLOBAL_TYPES.AccountService) private readonly accountService: AccountService,
     @inject(GLOBAL_TYPES.DiscordService) private readonly discordService: DiscordService,
     @inject(GLOBAL_TYPES.ProjectService) private readonly projectService: ProjectService,
-    @inject(WORKER_TYPES.WorkerService) private readonly workerService: WorkerService,
+    @inject(GLOBAL_TYPES.WorkerService) private readonly workerService: WorkerService,
     @inject(GLOBAL_TYPES.CLIENT_ID) private readonly CLIENT_ID: string,
     @inject(GLOBAL_TYPES.CLIENT_SECRET) private readonly CLIENT_SECRET: string,
     @inject(GLOBAL_TYPES.REDIRECT_URI) private readonly REDIRECT_URI: string,
@@ -181,7 +180,7 @@ export class ApiService {
   }
 
   async start() {
-    this.logger.info('APIService => Starting');
+    this.logger.info(`APIService => Starting ${this.ENV}`);
 
     await this.apollo.start();
 

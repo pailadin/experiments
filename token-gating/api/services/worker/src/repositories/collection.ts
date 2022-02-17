@@ -5,7 +5,7 @@ import {
   ID,
   Collection,
   CollectionStatus,
-} from '../../types';
+} from '../../../../types';
 import Repository from '../../../../library/repository';
 
 type CollectionDocument = Document<ID> & Collection;

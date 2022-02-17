@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
-import { TYPES as GLOBAL_TYPES } from '../types';
+import { TYPES as GLOBAL_TYPES } from '../../../types';
 import { WorkerService } from '.';
 import { TYPES } from './types';
 import CollectionRepository from './repositories/collection';

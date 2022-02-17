@@ -1,6 +1,6 @@
 import Bluebird from 'bluebird';
 import cron from 'node-cron';
-import { CollectionStatus, TYPES as GLOBAL_TYPES } from './types';
+import { CollectionStatus, TYPES as GLOBAL_TYPES } from '../../types';
 import { TYPES } from './src/types';
 import CollectionRepository from './src/repositories/collection';
 import { container } from '../../inversify.config';

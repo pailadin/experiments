@@ -4,7 +4,7 @@ import {
   ID,
   Collection,
   InputData,
-} from '../../types';
+} from '../../../../types';
 import { FilterQuery } from '../../../../library/repository';
 import { TYPES } from '../types';
 import CollectionRepository from '../repositories/collection';

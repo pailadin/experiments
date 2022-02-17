@@ -5,6 +5,9 @@ export * from './ownership';
 export * from './admin-account';
 export * from './project';
 export * from './holder-account';
+export * from './etherscan';
+export * from './event';
+export * from './transaction';
 
 export const TYPES = {
   MONGODB_URI: Symbol.for('MONGODB_URI'),
@@ -23,6 +26,7 @@ export const TYPES = {
   AccountService: Symbol.for('AccountService'),
   ProjectService: Symbol.for('ProjectService'),
   DiscordService: Symbol.for('DiscordService'),
+  WorkerService: Symbol.for('WorkerService'),
   retrievePage: Symbol.for('retrievePage'),
 };
 

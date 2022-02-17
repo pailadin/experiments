@@ -4,7 +4,7 @@ import { injectable } from 'inversify';
 import {
   ID,
   Ownership,
-} from '../../types';
+} from '../../../../types';
 import Repository from '../../../../library/repository';
 
 type OwnershipDocument = Document<ID> & Ownership;

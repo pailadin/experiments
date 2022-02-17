@@ -20,12 +20,12 @@ import {
   Event,
   EtherScanObject,
   CollectionStatus,
-} from '../types';
+  Transaction,
+} from '../../../types';
 import { TYPES } from './types';
 import CollectionController from './controllers/collection';
 import OwnershipController from './controllers/ownership';
 import ObjectId, { ObjectType } from '../../../library/object-id';
-import { Transaction } from '../types/transaction';
 
 @injectable()
 export class WorkerService {
@@ -37,20 +37,18 @@ export class WorkerService {
 
   @inject(TYPES.OwnershipController) readonly ownershipController!: OwnershipController;
 
-  @inject(GLOBAL_TYPES.ENV) readonly ENV!: string;
+  @inject(GLOBAL_TYPES.ENV) private readonly ENV!: string;
 
   private static localQueue: Queue | null;
 
   public eventHandler: EventEmitter;
 
-  public etherScanNetwork : string;
+  public etherScanNetwork : string | null = null;
 
   constructor() {
     if (!WorkerService.localQueue) {
       WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
     }
-
-    this.etherScanNetwork = this.ENV === 'staging' ? '-rinkeby' : '';
 
     this.eventHandler = new EventEmitter();
   }
@@ -267,6 +265,8 @@ export class WorkerService {
     if (!collectionData) { throw new Error('Collection does not exist'); }
 
     if (!WorkerService.localQueue) { throw new Error('localQueue is not initialized'); }
+
+    this.etherScanNetwork = this.ENV === 'staging' ? '-rinkeby' : '';
 
     this.logger.info(`EtherScan URL: https://api${this.etherScanNetwork}.etherscan.io/api`);
     this.logger.info(`syncCollection(${collectionData.status}) ${collectionData.contractAddress} Started`);

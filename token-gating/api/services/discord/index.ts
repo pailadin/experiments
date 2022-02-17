@@ -12,7 +12,6 @@ import axios from 'axios';
 import { TYPES as ACCOUNT_TYPES } from '../account/types';
 import { TYPES as GLOBAL_TYPES } from '../../types';
 import { TYPES as PROJECT_TYPES } from '../project/types';
-import { TYPES as WORKER_TYPES } from '../worker/types';
 import { TYPES } from '../worker/src/types';
 import { WorkerService } from '../worker/src';
 import OwnershipController from '../worker/src/controllers/ownership';
@@ -26,7 +25,7 @@ import { DiscordRole, DiscordRoleAction } from '../../types/discord-role';
 export class DiscordService {
   @inject(GLOBAL_TYPES.logger) private logger!: Logger;
 
-  @inject(WORKER_TYPES.WorkerService) private workerService!: WorkerService;
+  @inject(GLOBAL_TYPES.WorkerService) private workerService!: WorkerService;
 
   @inject(TYPES.OwnershipController) private ownershipController!: OwnershipController;
 
