@@ -117,7 +117,7 @@ export default {
         },
       });
 
-      if (ownershipExists) {
+      if (!ownershipExists) {
         return {
           data: null,
           error: {
