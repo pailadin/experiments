@@ -13,11 +13,15 @@ import { TYPES as GLOBAL_TYPES } from '../../../types';
 import { TYPES as ACCOUNT_TYPES } from '../../../services/account/types';
 import ObjectId from '../../../library/object-id';
 import generateAdminAccount from '../../helpers/generate-admin-account';
+import { DiscordRole } from '../../../types/discord-role';
 
 type Context = FixtureContext & {
   projectRepository: ProjectRepository;
   adminAccountRepository: AdminAccountRepository;
   secret: Buffer;
+  guildId: string;
+  channelId: string;
+  roleId: string;
 };
 
 describe('Mutation.createProject', () => {
@@ -28,13 +32,61 @@ describe('Mutation.createProject', () => {
     this.projectRepository = container.get<ProjectRepository>(PROJECT_TYPES.ProjectRepository);
     this.secret = container.get<Buffer>(GLOBAL_TYPES.JWT_SECRET);
 
+    this.guildId = `93569146681729437${faker.datatype.number({
+      min: 0,
+      max: 9,
+    })}`;
+
+    this.channelId = `93569146681729438${faker.datatype.number({
+      min: 0,
+      max: 9,
+    })}`;
+
+    this.roleId = `93569146681729441${faker.datatype.number({
+      min: 0,
+      max: 9,
+    })}`;
+
     nock('https://discord.com').get('/api/users/@me').reply(200, {
-      id: `93569146681729437${faker.datatype.number({
+      id: `93569146681729439${faker.datatype.number({
         min: 0,
         max: 9,
       })}`,
       email: faker.internet.email(),
     }, {
+      'content-type': 'application/json',
+    });
+
+    nock('https://discord.com').get(`/api/guilds/${this.guildId}/roles`).reply(200, R.times(() => ({
+      id: `93569146681729430${faker.datatype.number({
+        min: 0,
+        max: 9,
+      })}`,
+      name: faker.lorem.sentence(),
+      permissions: faker.datatype.number({
+        min: 104320570,
+        max: 104320579,
+      }),
+    } as DiscordRole))(5), {
+      'content-type': 'application/json',
+    });
+
+    nock('https://discord.com').post(`/api/guilds/${this.guildId}/roles`).reply(200, {
+      id: this.roleId,
+      name: 'VIP',
+      permissions: faker.datatype.number({
+        min: 104320570,
+        max: 104320579,
+      }),
+    } as DiscordRole, {
+      'content-type': 'application/json',
+    });
+
+    nock('https://discord.com').post(`/api/v9/channels/${this.channelId}/permissions/${this.guildId}`).reply(200, {}, {
+      'content-type': 'application/json',
+    });
+
+    nock('https://discord.com').post(`/api/v9/channels/${this.channelId}/permissions/${this.roleId}`).reply(200, {}, {
       'content-type': 'application/json',
     });
   });
@@ -80,8 +132,9 @@ describe('Mutation.createProject', () => {
 
     const variables = {
       request: {
-        ...R.omit(['id', 'discordAccessToken', 'discordRefreshToken', 'discordTokenExpiration', 'adminAccount'], project),
-        discordAccessToken: faker.git.commitSha(),
+        ...R.omit(['id', 'discordGuild', 'discordChannel', 'discordRoleId', 'adminAccount'], project),
+        discordGuild: this.guildId,
+        discordChannel: this.channelId,
       },
     };
 
@@ -91,8 +144,6 @@ describe('Mutation.createProject', () => {
       .send({
         query, variables,
       });
-
-    console.log(response);
 
     expect(response.status).toEqual(200);
     expect(response.body).toHaveProperty(['data', 'createProject', 'data', 'project', 'name'], project.name);

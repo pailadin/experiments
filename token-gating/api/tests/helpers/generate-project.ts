@@ -15,7 +15,6 @@ export default function () {
       min: 1,
       max: 9,
     })}`,
-    discordAccessToken: faker.git.commitSha(),
     discordRoleId: `93957398493935619${faker.datatype.number({
       min: 1,
       max: 9,
