@@ -268,7 +268,8 @@ export class WorkerService {
 
     if (!WorkerService.localQueue) { throw new Error('localQueue is not initialized'); }
 
-    this.logger.info(`syncCollection(${collectionData.status}) ${collectionData.contractAddress}  Started`);
+    this.logger.info(`EtherScan URL: https://api${this.etherScanNetwork}.etherscan.io/api`);
+    this.logger.info(`syncCollection(${collectionData.status}) ${collectionData.contractAddress} Started`);
 
     await WorkerService.localQueue.add(async () => {
       let startBlock = collectionData.blockNumber === '0' ? undefined : collectionData.blockNumber;
