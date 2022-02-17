@@ -17,11 +17,10 @@ export default {
         contractAddress: string;
         discordGuild:string;
         discordChannel: string;
-        discordAccessToken: string;
       }
     }, ctx: Context) {
       const {
-        name, description, contractAddress, discordGuild, discordChannel, discordAccessToken,
+        name, description, contractAddress, discordGuild, discordChannel,
       } = args.request;
 
       let collection = await ctx.services.worker.collectionController.findOneCollection({
@@ -105,7 +104,6 @@ export default {
           contractAddress,
           discordGuild,
           discordChannel,
-          discordAccessToken,
           discordRoleId: discordRole.id,
           adminAccount: ctx.state.user.id,
         },

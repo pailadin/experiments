@@ -6,7 +6,6 @@ export type Project = Node & {
   contractAddress: string;
   discordGuild: string;
   discordChannel: string;
-  discordAccessToken: string;
   discordRoleId: string;
   adminAccount: ID;
   createdAt: Date;
