@@ -126,7 +126,7 @@ export class DiscordService {
   async start() {
     this.logger.info('DiscordService => Starting');
 
-    await this.startAutoKick();
+    // await this.startAutoKick();
 
     this.logger.info('DiscordService => Started');
   }
