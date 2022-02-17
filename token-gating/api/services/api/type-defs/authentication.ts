@@ -5,8 +5,6 @@ export default gql`
 
 enum AccountRole {
   ADMIN
-  CREATOR
-  FOLLOWER
 }
 
 type InvalidGoogleAccessTokenError implements Error {
