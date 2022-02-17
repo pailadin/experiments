@@ -1,4 +1,10 @@
 /* eslint-disable camelcase */
+
+export enum DiscordRoleAction {
+  ALLOW = 'ALLOW',
+  DENY = 'DENY',
+}
+
 export type DiscordRole = {
   id: string;
   name: string;

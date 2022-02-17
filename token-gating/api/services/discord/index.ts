@@ -8,7 +8,6 @@ import { inject, injectable } from 'inversify';
 import Logger from '@highoutput/logger';
 import Queue from 'p-queue';
 import axios from 'axios';
-import { Client, Intents } from 'discord.js';
 import { TYPES as ACCOUNT_TYPES } from '../account/types';
 import { TYPES as GLOBAL_TYPES } from '../../types';
 import { TYPES as PROJECT_TYPES } from '../project/types';
@@ -18,6 +17,9 @@ import { WorkerService } from '../worker/src';
 import OwnershipController from '../worker/src/controllers/ownership';
 import HolderAccountRepository from '../account/repositories/holder-account';
 import ProjectController from '../project/controllers/project';
+import { DiscordUserInfo } from '../../types/discord-userinfo';
+import { DiscordChannel } from '../../types/discord-channel';
+import { DiscordRole, DiscordRoleAction } from '../../types/discord-role';
 
 @injectable()
 export class DiscordService {
@@ -35,16 +37,82 @@ export class DiscordService {
 
   private localQueue: Queue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
 
-  public discordClient = new Client({ intents: [Intents.FLAGS.GUILDS] });
+  async addRoleToChannelPermission(params:{
+    roleId: string;
+    guildId: string;
+    channelId: string;
+    roleAction: DiscordRoleAction;
+  }) {
+    await axios.put(`https://discord.com/api/v9/channels/${params.channelId}/permissions/${params.guildId}`, {
+      id: params.roleId,
+      type: 0,
+      allow: params.roleAction === DiscordRoleAction.ALLOW ? '1024' : '0',
+      deny: params.roleAction === DiscordRoleAction.DENY ? '1024' : '0',
+    }, {
+      headers: {
+        Authorization: `Bot ${this.BOT_TOKEN}`,
+      },
+    });
+  }
+
+  async addGuildRole(params:{
+    roleName: string;
+    guildId: string;
+  }): Promise<DiscordRole> {
+    const discordRoleResponse = await axios.post(`https://discord.com/api/guilds/${params.guildId}/roles`, {
+      name: params.roleName,
+    }, {
+      headers: {
+        Authorization: `Bot ${this.BOT_TOKEN}`,
+      },
+    });
+
+    return discordRoleResponse.data;
+  }
+
+  async addGuildMember(params: {
+    guildId: string;
+    userId: string;
+    userOAuth2Token: string;
+    roleId?: string | null;
+  }): Promise<void> {
+    await axios
+      .put(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}`, {
+        access_token: params.userOAuth2Token,
+        roles: [params.roleId],
+      }, {
+        headers: {
+          Authorization: `Bot ${this.BOT_TOKEN}`,
+        },
+      });
+  }
+
+  async getGuildChannels(params: {
+    guildId: string;
+  }): Promise<DiscordChannel[]> {
+    const channelsResponse = await axios.get(`https://discord.com/api/guilds/${params.guildId}/channels`, {
+      headers: {
+        Authorization: `Bot ${this.BOT_TOKEN}`,
+      },
+    });
+
+    return channelsResponse.data || [];
+  }
+
+  async getUserInfo(params:{
+    userOAuth2Token: string
+  }): Promise<DiscordUserInfo> {
+    const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
+      headers: {
+        Authorization: `Bearer ${params.userOAuth2Token}`,
+      },
+    });
+
+    return userInfoQueryResponse.data;
+  }
 
   async start() {
     this.logger.info('DiscordService => starting');
-
-    this.discordClient.on('ready', () => {
-      this.logger.info('DiscordService => connected to server');
-    });
-
-    await this.discordClient.login(this.BOT_TOKEN);
 
     await this.startAutoKick();
 
@@ -54,8 +122,6 @@ export class DiscordService {
   async stop() {
     this.logger.info('DiscordService => stopping');
     await this.stopAutoKick();
-    this.discordClient.removeAllListeners();
-    this.discordClient.destroy();
     this.logger.info('DiscordService => stopped');
   }
 

@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
-import axios from 'axios';
 import { Context } from '../../types';
-import { DiscordChannel } from '../../../../types/discord-channel';
 
 export default {
   Query: {
@@ -10,13 +8,9 @@ export default {
     }, ctx: Context) {
       const { guildId } = args;
 
-      const channelsResponse = await axios.get(`https://discord.com/api/guilds/${guildId}/channels`, {
-        headers: {
-          Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
-        },
+      const channels = await ctx.services.discord.getGuildChannels({
+        guildId,
       });
-
-      const channels: DiscordChannel[] = channelsResponse.data || [];
 
       return {
 

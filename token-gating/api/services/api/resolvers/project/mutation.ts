@@ -2,11 +2,10 @@
 
 import R from 'ramda';
 import AsyncGroup from '@highoutput/async-group';
-import axios from 'axios';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 import logger from '../../../../library/logger';
-import { DiscordRole } from '../../../../types/discord-role';
+import { DiscordRoleAction } from '../../../../types/discord-role';
 
 export default {
   Mutation: {
@@ -60,15 +59,10 @@ export default {
         };
       }
 
-      const discordRoleResponse = await axios.post(`https://discord.com/api/guilds/${discordGuild}/roles`, {
-        name: 'VIP',
-      }, {
-        headers: {
-          Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
-        },
+      const discordRole = await ctx.services.discord.addGuildRole({
+        roleName: 'VIP',
+        guildId: discordGuild,
       });
-
-      const discordRole: DiscordRole = discordRoleResponse.data;
 
       if (!discordRole.id) {
         return {
@@ -80,20 +74,18 @@ export default {
         };
       }
 
-      await axios.put(`https://discord.com/api/v9/channels/${discordChannel}/permissions/${discordGuild}`, {
-        id: discordRole.id, type: 0, allow: '1024', deny: '0',
-      }, {
-        headers: {
-          Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
-        },
+      await ctx.services.discord.addRoleToChannelPermission({
+        roleId: discordRole.id,
+        guildId: discordGuild,
+        channelId: discordChannel,
+        roleAction: DiscordRoleAction.ALLOW,
       });
 
-      await axios.put(`https://discord.com/api/v9/channels/${discordChannel}/permissions/${discordGuild}`, {
-        id: discordGuild, type: 0, allow: '0', deny: '1024',
-      }, {
-        headers: {
-          Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
-        },
+      await ctx.services.discord.addRoleToChannelPermission({
+        roleId: discordGuild,
+        guildId: discordGuild,
+        channelId: discordChannel,
+        roleAction: DiscordRoleAction.DENY,
       });
 
       const project = await ctx.services.project.projectController.createProject({

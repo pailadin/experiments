@@ -97,13 +97,9 @@ export default {
         };
       }
 
-      const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
-        headers: {
-          Authorization: `Bearer ${discordAccessToken}`,
-        },
+      const userInfo: DiscordUserInfo = await ctx.services.discord.getUserInfo({
+        userOAuth2Token: discordAccessToken,
       });
-
-      const userInfo: DiscordUserInfo = userInfoQueryResponse.data;
 
       if (!userInfo.id) {
         return {
@@ -164,15 +160,12 @@ export default {
         });
       }
 
-      await axios
-        .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
-          access_token: discordAccessToken,
-          roles: [project.discordRoleId],
-        }, {
-          headers: {
-            Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
-          },
-        });
+      await ctx.services.discord.addGuildMember({
+        guildId: project.discordGuild,
+        userId: userInfo.id,
+        userOAuth2Token: discordAccessToken,
+        roleId: project.discordRoleId,
+      });
 
       return {
         data: {
