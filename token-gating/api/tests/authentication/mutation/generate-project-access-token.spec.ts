@@ -3,6 +3,7 @@ import nock from 'nock';
 import faker from 'faker';
 import { ethers } from 'ethers';
 import { DateTime } from 'luxon';
+import R from 'ramda';
 import { Context as FixtureContext, setup, teardown } from '../../helpers/fixture';
 import { container } from '../../../inversify.config';
 import { TYPES as GLOBAL_TYPES } from '../../../types';
@@ -13,10 +14,13 @@ import ObjectId, { ObjectType } from '../../../library/object-id';
 import OwnershipRepository from '../../../services/worker/src/repositories/ownership';
 import ProjectRepository from '../../../services/project/repositories/project';
 import generateOwnership from '../../helpers/generate-ownership';
+import generateCollection from '../../helpers/generate-collection';
+import CollectionRepository from '../../../services/worker/src/repositories/collection';
 
 type Context = FixtureContext & {
   projectRepository: ProjectRepository;
   ownershipRepository: OwnershipRepository;
+  collectionRepository: CollectionRepository;
   secret: Buffer;
   discordId: string;
 };
@@ -26,6 +30,7 @@ describe('Mutation.generateProjectAccessToken', () => {
     await setup.apply(this);
 
     this.ownershipRepository = container.get<OwnershipRepository>(WORKER_TYPES.OwnershipRepository);
+    this.collectionRepository = container.get<CollectionRepository>(WORKER_TYPES.CollectionRepository);
     this.projectRepository = container.get<ProjectRepository>(PROJECT_TYPES.ProjectRepository);
     this.secret = container.get<Buffer>(GLOBAL_TYPES.JWT_SECRET);
     this.discordId = `93569146681729437${faker.datatype.number({
@@ -60,11 +65,20 @@ describe('Mutation.generateProjectAccessToken', () => {
   });
 
   test('should generate access token', async function (this: Context) {
+    const collection = generateCollection();
+    await this.collectionRepository.create({
+      id: collection.id,
+      data: {
+        ...collection,
+      },
+    });
+
     const project = generateProject();
     await this.projectRepository.create({
       id: project.id,
       data: {
-        ...project,
+        ...R.omit(['contractAddress'], project),
+        contractAddress: collection.contractAddress,
       },
     });
 
@@ -92,8 +106,8 @@ describe('Mutation.generateProjectAccessToken', () => {
     await this.ownershipRepository.create({
       id: ownership.id,
       data: {
-        collectionID: ownership.collectionID,
-        owner: ethAddress,
+        collectionID: collection.id,
+        owner: ethAddress.toLowerCase(),
         timestamp: DateTime.now().toMillis(),
         tokenID: faker.datatype.number({
           min: 1000, max: 9999,
@@ -106,6 +120,11 @@ describe('Mutation.generateProjectAccessToken', () => {
         generateProjectAccessToken(request: $request){
           data {
             accessToken
+          }
+          error {
+            ... on Error {
+              message
+            }
           }
         }
       }
