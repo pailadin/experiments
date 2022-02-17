@@ -210,7 +210,7 @@ export class WorkerService {
               update: {
                 $set: {
                   ...ownership,
-                  owner: receiver,
+                  owner: receiver.toLowerCase(),
                   timestamp,
                 },
               },
@@ -225,7 +225,7 @@ export class WorkerService {
               timestamp,
               tokenID,
               collectionID: collection,
-              owner: receiver,
+              owner: receiver.toLowerCase(),
               createdAt: new Date(),
             },
           },

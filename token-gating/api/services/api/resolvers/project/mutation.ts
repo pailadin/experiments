@@ -59,7 +59,7 @@ export default {
 
       let collection = await ctx.services.worker.collectionController.findOneCollection({
         filter: {
-          contractAddress,
+          contractAddress: contractAddress.toLowerCase(),
         },
       });
 
@@ -67,7 +67,7 @@ export default {
         collection = await ctx.services.worker.collectionController.createCollection({
           id: ObjectId.generate(ObjectType.COLLECTION).buffer,
           data: {
-            contractAddress,
+            contractAddress: contractAddress.toLowerCase(),
           },
         });
 
@@ -79,7 +79,7 @@ export default {
 
       const projectExists = await ctx.services.project.projectController.findOneProject({
         filter: {
-          contractAddress,
+          contractAddress: collection.contractAddress,
         },
       });
 
@@ -99,7 +99,7 @@ export default {
         data: {
           name,
           description,
-          contractAddress,
+          contractAddress: collection.contractAddress,
           discordGuild,
           discordChannel,
           discordRoleId: discordRole.id,

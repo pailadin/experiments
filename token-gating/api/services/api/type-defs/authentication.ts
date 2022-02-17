@@ -49,8 +49,11 @@ type CollectionDoesNotExistError implements Error {
   message: String!
 }
 
+type NftOwnershipDoesNotExistError implements Error {
+  message: String!
+}
 
-union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | EthereumAddressExistsError | DiscordIdExistsError | CollectionDoesNotExistError
+union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | EthereumAddressExistsError | DiscordIdExistsError | CollectionDoesNotExistError | NftOwnershipDoesNotExistError
 
 
 type GenerateProjectAccessTokenResponseData {

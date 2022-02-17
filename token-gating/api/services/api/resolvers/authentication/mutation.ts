@@ -129,7 +129,7 @@ export default {
 
       const collection = await ctx.services.worker.collectionController.findOneCollection({
         filter: {
-          contractAddress: project.contractAddress,
+          contractAddress: project.contractAddress.toLowerCase(),
         },
       });
 
@@ -145,7 +145,7 @@ export default {
 
       const ownershipExists = await ctx.services.worker.ownershipController.findOneOwnership({
         filter: {
-          owner: ethAddress,
+          owner: ethAddress.toLowerCase(),
           collectionID: collection.id,
         },
       });
@@ -162,7 +162,7 @@ export default {
 
       let holderAccount = await ctx.services.account.holderAccountController.findOneHolderAccount({
         filter: {
-          ethereumAddress: ethAddress,
+          ethereumAddress: ethAddress.toLowerCase(),
           discordId: userInfo.id,
         },
       });
@@ -170,7 +170,7 @@ export default {
       if (!holderAccount) {
         const ethereumAddressExists = await ctx.services.account.holderAccountController.findOneHolderAccount({
           filter: {
-            ethereumAddress: ethAddress,
+            ethereumAddress: ethAddress.toLowerCase(),
           },
         });
 
@@ -203,7 +203,7 @@ export default {
         holderAccount = await ctx.services.account.holderAccountController.createHolderAccount({
           id: ObjectId.generate(ObjectType.HOLDER).buffer,
           data: {
-            ethereumAddress: ethAddress,
+            ethereumAddress: ethAddress.toLowerCase(),
             discordId: userInfo.id,
           },
         });
