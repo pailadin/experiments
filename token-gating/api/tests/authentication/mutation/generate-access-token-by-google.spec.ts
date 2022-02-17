@@ -15,7 +15,7 @@ type Context = FixtureContext & {
   secret: Buffer;
 };
 
-describe.only('Mutation.generateAccessTokenByGoogle', () => {
+describe('Mutation.generateAccessTokenByGoogle', () => {
   beforeEach(async function (this: Context) {
     await setup.apply(this);
 
