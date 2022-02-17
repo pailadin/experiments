@@ -6,7 +6,7 @@ This includes the following objectives:
 1. To identify the requirements for the application or problem to be solved.
     - What type of problem is being solved?
     - What algorithm is more appropriate to use to solve the problem?
-2. To methodologies in data preprocessing.
+2. To know the methodologies in data preprocessing.
     - Acquiring/Gathering data.
     - Data manipulation or clean up.
     - Encoding data
