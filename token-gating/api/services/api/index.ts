@@ -181,7 +181,7 @@ export class ApiService {
   }
 
   async start() {
-    this.logger.info('starting');
+    this.logger.info('APIService => Starting');
 
     await this.apollo.start();
 
@@ -190,11 +190,11 @@ export class ApiService {
     this.server = createServer(this.app.callback());
     this.server.listen(this.PORT);
 
-    this.logger.info('started');
+    this.logger.info('APIService => Started');
   }
 
   async stop() {
-    this.logger.info('stopping');
+    this.logger.info('APIService => Stopping');
 
     await this.apollo.stop();
 
@@ -204,6 +204,6 @@ export class ApiService {
 
     await AsyncGroup.wait();
 
-    this.logger.info('stopped');
+    this.logger.info('APIService => Stopped');
   }
 }
