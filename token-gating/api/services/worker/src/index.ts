@@ -37,14 +37,20 @@ export class WorkerService {
 
   @inject(TYPES.OwnershipController) readonly ownershipController!: OwnershipController;
 
+  @inject(GLOBAL_TYPES.ENV) readonly ENV!: string;
+
   private static localQueue: Queue | null;
 
   public eventHandler: EventEmitter;
+
+  public etherScanNetwork : string;
 
   constructor() {
     if (!WorkerService.localQueue) {
       WorkerService.localQueue = new Queue({ concurrency: 1, interval: 200, intervalCap: 1 });
     }
+
+    this.etherScanNetwork = this.ENV === 'staging' ? '-rinkeby' : '';
 
     this.eventHandler = new EventEmitter();
   }
@@ -60,7 +66,7 @@ export class WorkerService {
     const fetchEtherScan = async () => {
       let retriesLeft = 5;
 
-      const url = 'https://api.etherscan.io/api';
+      const url = `https://api${this.etherScanNetwork}.etherscan.io/api`;
 
       const urlParams = {
         module: 'account',
@@ -268,7 +274,7 @@ export class WorkerService {
       let startBlock = collectionData.blockNumber === '0' ? undefined : collectionData.blockNumber;
 
       if (!startBlock) {
-        const initResponse = await axios.post('https://api.etherscan.io/api', {}, {
+        const initResponse = await axios.post(`https://api${this.etherScanNetwork}.etherscan.io/api`, {}, {
           params: {
             module: 'account',
             action: 'tokennfttx',
