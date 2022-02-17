@@ -17,7 +17,7 @@ type Context = FixtureContext & {
   secret: Buffer;
 };
 
-describe('access', () => {
+describe('Redirect access endpoint', () => {
   beforeEach(async function (this: Context) {
     await setup.apply(this);
 
