@@ -70,6 +70,18 @@ export class DiscordService {
     return discordRoleResponse.data;
   }
 
+  async removeMemberRole(params:{
+    userId: string;
+    roleId: string;
+    guildId: string;
+  }): Promise<void> {
+    await axios.delete(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}/roles/${params.roleId}`, {
+      headers: {
+        Authorization: `Bearer ${this.BOT_TOKEN}`,
+      },
+    });
+  }
+
   async addGuildMember(params: {
     guildId: string;
     userId: string;
@@ -112,21 +124,21 @@ export class DiscordService {
   }
 
   async start() {
-    this.logger.info('DiscordService => starting');
+    this.logger.info('DiscordService => Starting');
 
     await this.startAutoKick();
 
-    this.logger.info('DiscordService => started');
+    this.logger.info('DiscordService => Started');
   }
 
   async stop() {
-    this.logger.info('DiscordService => stopping');
+    this.logger.info('DiscordService => Stopping');
     await this.stopAutoKick();
-    this.logger.info('DiscordService => stopped');
+    this.logger.info('DiscordService => Stopped');
   }
 
   async scanAndKickMember(contractAddress: string) {
-    const batchSize = 100;
+    const batchSize = 1000;
     const model = await this.holderAccountRepository.model;
 
     const project = await this.projectController.findOneProject({
@@ -152,10 +164,10 @@ export class DiscordService {
             });
 
             if (!ownership) {
-              await axios.delete(`https://discord.com/api/guilds/${project.discordGuild}/members/${document.discordId}/roles/${project.discordRoleId}`, {
-                headers: {
-                  Authorization: `Bearer ${this.BOT_TOKEN}`,
-                },
+              await this.removeMemberRole({
+                userId: document.discordId,
+                roleId: project.discordRoleId,
+                guildId: project.discordGuild,
               });
             }
           }
@@ -165,19 +177,19 @@ export class DiscordService {
   }
 
   async startAutoKick() {
-    this.logger.info('DiscordService => AutoKick starting');
+    this.logger.info('DiscordService => AutoKick Starting');
 
     this.workerService.eventHandler.on('transfer', async (contractAddress) => {
       this.logger.info(`Event Changed: ${contractAddress}`);
       await this.scanAndKickMember(contractAddress);
     });
 
-    this.logger.info('DiscordService => AutoKick started');
+    this.logger.info('DiscordService => AutoKick Started');
   }
 
   async stopAutoKick() {
-    this.logger.info('DiscordService => AutoKick stopping');
+    this.logger.info('DiscordService => AutoKick Stopping');
     this.workerService.eventHandler.removeAllListeners();
-    this.logger.info('DiscordService => AutoKick stopped');
+    this.logger.info('DiscordService => AutoKick Stopped');
   }
 }
