@@ -45,7 +45,12 @@ type DiscordIdExistsError implements Error {
   message: String!
 }
 
-union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | EthereumAddressExistsError | DiscordIdExistsError
+type CollectionDoesNotExistError implements Error {
+  message: String!
+}
+
+
+union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | EthereumAddressExistsError | DiscordIdExistsError | CollectionDoesNotExistError
 
 
 type GenerateProjectAccessTokenResponseData {

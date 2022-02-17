@@ -111,22 +111,6 @@ export default {
         };
       }
 
-      const ownershipExists = await ctx.services.worker.ownershipController.findOneOwnership({
-        filter: {
-          owner: ethAddress,
-        },
-      });
-
-      if (!ownershipExists) {
-        return {
-          data: null,
-          error: {
-            __typename: 'NftOwnershipDoesNotExistError',
-            message: 'NFT Ownership does not exist',
-          },
-        };
-      }
-
       const projectId = ObjectId.from(args.request.projectId).buffer;
 
       const project = await ctx.services.project.projectController.findOneProject({
@@ -139,6 +123,39 @@ export default {
           error: {
             __typename: 'ProjectDoesNotExistError',
             message: 'Project does not exist',
+          },
+        };
+      }
+
+      const collection = await ctx.services.worker.collectionController.findOneCollection({
+        filter: {
+          contractAddress: project.contractAddress,
+        },
+      });
+
+      if (!collection) {
+        return {
+          data: null,
+          error: {
+            __typename: 'CollectionDoesNotExistError',
+            message: 'Collection does not exist',
+          },
+        };
+      }
+
+      const ownershipExists = await ctx.services.worker.ownershipController.findOneOwnership({
+        filter: {
+          owner: ethAddress,
+          collectionID: collection.id,
+        },
+      });
+
+      if (!ownershipExists) {
+        return {
+          data: null,
+          error: {
+            __typename: 'NftOwnershipDoesNotExistError',
+            message: 'NFT Ownership does not exist',
           },
         };
       }
