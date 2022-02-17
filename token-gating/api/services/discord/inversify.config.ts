@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import { DiscordService } from '.';
-import { TYPES } from './types';
+import { TYPES } from '../../types';
 
 const container = new Container();
 

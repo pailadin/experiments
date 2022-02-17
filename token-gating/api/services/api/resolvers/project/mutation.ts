@@ -6,7 +6,7 @@ import axios from 'axios';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 import logger from '../../../../library/logger';
-import { DiscordUserInfo } from '../../../../types/discord-userinfo';
+import { DiscordRole } from '../../../../types/discord-role';
 
 export default {
   Mutation: {
@@ -17,30 +17,11 @@ export default {
         contractAddress: string;
         discordGuild:string;
         discordChannel: string;
-        discordAccessToken: string;
       }
     }, ctx: Context) {
       const {
-        name, description, contractAddress, discordGuild, discordChannel, discordAccessToken,
+        name, description, contractAddress, discordGuild, discordChannel,
       } = args.request;
-
-      const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
-        headers: {
-          Authorization: `Bearer ${discordAccessToken}`,
-        },
-      });
-
-      const userInfo: DiscordUserInfo = userInfoQueryResponse.data;
-
-      if (!userInfo.id) {
-        return {
-          data: null,
-          error: {
-            __typename: 'InvalidDiscordAccessTokenError',
-            message: 'Invalid Discord Access Token',
-          },
-        };
-      }
 
       let collection = await ctx.services.worker.collectionController.findOneCollection({
         filter: {
@@ -79,6 +60,42 @@ export default {
         };
       }
 
+      const discordRoleResponse = await axios.post(`https://discord.com/api/guilds/${discordGuild}/roles`, {
+        name: 'VIP',
+      }, {
+        headers: {
+          Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
+        },
+      });
+
+      const discordRole: DiscordRole = discordRoleResponse.data;
+
+      if (!discordRole.id) {
+        return {
+          data: null,
+          error: {
+            __typename: 'InvalidDiscordAccessTokenError',
+            message: 'Invalid Discord Access Token',
+          },
+        };
+      }
+
+      await axios.put(`https://discord.com/api/v9/channels/${discordChannel}/permissions/${discordGuild}`, {
+        id: discordRole.id, type: 0, allow: '1024', deny: '0',
+      }, {
+        headers: {
+          Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
+        },
+      });
+
+      await axios.put(`https://discord.com/api/v9/channels/${discordChannel}/permissions/${discordGuild}`, {
+        id: discordGuild, type: 0, allow: '0', deny: '1024',
+      }, {
+        headers: {
+          Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
+        },
+      });
+
       const project = await ctx.services.project.projectController.createProject({
         id: ObjectId.generate(ObjectType.PROJECT).buffer,
         data: {
@@ -87,7 +104,7 @@ export default {
           contractAddress,
           discordGuild,
           discordChannel,
-          discordAccessToken,
+          discordRoleId: discordRole.id,
           adminAccount: ctx.state.user.id,
         },
       });

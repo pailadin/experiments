@@ -1,5 +1,4 @@
 import faker from 'faker';
-import { DateTime } from 'luxon';
 import ObjectId, { ObjectType } from '../../library/object-id';
 
 export default function () {
@@ -17,8 +16,10 @@ export default function () {
       max: 9,
     })}`,
     discordAccessToken: faker.git.commitSha(),
-    discordRefreshToken: faker.git.commitSha(),
-    discordTokenExpiration: DateTime.now().plus({ days: 1 }).toMillis().toString(),
+    discordRoleId: `93957398493935619${faker.datatype.number({
+      min: 1,
+      max: 9,
+    })}`,
     adminAccount: ObjectId.generate(ObjectType.ADMIN).buffer,
   };
 }

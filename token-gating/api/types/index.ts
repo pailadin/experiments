@@ -22,6 +22,7 @@ export const TYPES = {
   ApiService: Symbol.for('ApiService'),
   AccountService: Symbol.for('AccountService'),
   ProjectService: Symbol.for('ProjectService'),
+  DiscordService: Symbol.for('DiscordService'),
   retrievePage: Symbol.for('retrievePage'),
 };
 

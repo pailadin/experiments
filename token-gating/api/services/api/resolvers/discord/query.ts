@@ -16,16 +16,7 @@ export default {
         },
       });
 
-      const channels: DiscordChannel[] = channelsResponse.data;
-
-      if (channels.length === 0) {
-        return {
-          error: {
-            __typename: 'InvalidDiscordAccessTokenError',
-            message: 'Invalid Discord Access Token',
-          },
-        };
-      }
+      const channels: DiscordChannel[] = channelsResponse.data || [];
 
       return {
 
