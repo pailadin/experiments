@@ -162,16 +162,17 @@ export default {
             discordId: userInfo.id,
           },
         });
-
-        await axios
-          .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
-            access_token: discordAccessToken,
-          }, {
-            headers: {
-              Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
-            },
-          });
       }
+
+      await axios
+        .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
+          access_token: discordAccessToken,
+          roles: [project.discordRoleId],
+        }, {
+          headers: {
+            Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
+          },
+        });
 
       return {
         data: {
