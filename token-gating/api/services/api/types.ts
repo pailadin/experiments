@@ -6,6 +6,7 @@ import BasicDataLoader from '../../library/basic-data-loader';
 import { AccountService } from '../account';
 import { ProjectService } from '../project';
 import { WorkerService } from '../worker/src';
+import { DiscordService } from '../discord';
 
 export const TYPES = {
   PORT: Symbol.for('PORT'),
@@ -25,6 +26,7 @@ export type Context = ParameterizedContext<{
     account: AccountService;
     project: ProjectService;
     worker: WorkerService;
+    discord: DiscordService;
   };
   config: {
     MONGODB_URI: string,

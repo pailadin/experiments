@@ -6,6 +6,7 @@ import { container as apiContainer } from './services/api/inversify.config';
 import { container as accountContainer } from './services/account/inversify.config';
 import { container as projectContainer } from './services/project/inversify.config';
 import { container as workerContainer } from './services/worker/src/inversify.config';
+import { container as discordContainer } from './services/discord/inversify.config';
 import { TYPES } from './types';
 import logger from './library/logger';
 import retrievePage from './library/retrieve-page';
@@ -39,6 +40,7 @@ const container = Container.merge(
   accountContainer,
   projectContainer,
   workerContainer,
+  discordContainer,
 ) as Container;
 
 export { container };

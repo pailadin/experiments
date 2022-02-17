@@ -28,6 +28,7 @@ import permissionDirective from './directives/permission';
 import { WorkerService } from '../worker/src';
 import { TYPES as WORKER_TYPES } from '../worker/types';
 import routes from './routes';
+import { DiscordService } from '../discord';
 
 @injectable()
 export class ApiService {
@@ -46,6 +47,7 @@ export class ApiService {
     @inject(GLOBAL_TYPES.logger) private readonly logger: Logger,
     @inject(GLOBAL_TYPES.fetch) private readonly fetch: typeof nodeFetch,
     @inject(GLOBAL_TYPES.AccountService) private readonly accountService: AccountService,
+    @inject(GLOBAL_TYPES.DiscordService) private readonly discordService: DiscordService,
     @inject(GLOBAL_TYPES.ProjectService) private readonly projectService: ProjectService,
     @inject(WORKER_TYPES.WorkerService) private readonly workerService: WorkerService,
     @inject(GLOBAL_TYPES.CLIENT_ID) private readonly CLIENT_ID: string,
@@ -75,6 +77,7 @@ export class ApiService {
           account: this.accountService,
           project: this.projectService,
           worker: this.workerService,
+          discord: this.discordService,
         },
         config: {
           MONGODB_URI: this.MONGODB_URI,
