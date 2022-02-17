@@ -45,69 +45,88 @@ export class DiscordService {
       params,
     });
 
-    const getGuildRolesResponse = await axios.get(`https://discord.com/api/guilds/${params.guildId}/roles`, {
-      headers: {
-        Authorization: `Bot ${this.BOT_TOKEN}`,
-      },
-    });
+    try {
+      const getGuildRolesResponse = await axios.get(`https://discord.com/api/guilds/${params.guildId}/roles`, {
+        headers: {
+          Authorization: `Bot ${this.BOT_TOKEN}`,
+        },
+      });
 
-    return getGuildRolesResponse.data || [];
+      return getGuildRolesResponse.data;
+    } catch {
+      return [];
+    }
   }
 
   async addRoleToChannelPermission(params:{
     roleId: string;
     channelId: string;
     roleAction: DiscordRoleAction;
-  }) {
+  }): Promise<boolean> {
     this.logger.info({
       name: 'addRoleToChannelPermission',
       params,
     });
-    return axios.put(`https://discord.com/api/v9/channels/${params.channelId}/permissions/${params.roleId}`, {
-      id: params.roleId,
-      type: 0,
-      allow: params.roleAction === DiscordRoleAction.ALLOW ? '1024' : '0',
-      deny: params.roleAction === DiscordRoleAction.DENY ? '1024' : '0',
-    }, {
-      headers: {
-        Authorization: `Bot ${this.BOT_TOKEN}`,
-      },
-    });
+    try {
+      await axios.put(`https://discord.com/api/v9/channels/${params.channelId}/permissions/${params.roleId}`, {
+        id: params.roleId,
+        type: 0,
+        allow: params.roleAction === DiscordRoleAction.ALLOW ? '1024' : '0',
+        deny: params.roleAction === DiscordRoleAction.DENY ? '1024' : '0',
+      }, {
+        headers: {
+          Authorization: `Bot ${this.BOT_TOKEN}`,
+        },
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async addGuildRole(params:{
     roleName: string;
     guildId: string;
-  }): Promise<DiscordRole> {
+  }): Promise<DiscordRole|null> {
     this.logger.info({
       name: 'addGuildRole',
       params,
     });
-    const discordRoleResponse = await axios.post(`https://discord.com/api/guilds/${params.guildId}/roles`, {
-      name: params.roleName,
-    }, {
-      headers: {
-        Authorization: `Bot ${this.BOT_TOKEN}`,
-      },
-    });
+    try {
+      const discordRoleResponse = await axios.post(`https://discord.com/api/guilds/${params.guildId}/roles`, {
+        name: params.roleName,
+      }, {
+        headers: {
+          Authorization: `Bot ${this.BOT_TOKEN}`,
+        },
+      });
 
-    return discordRoleResponse.data;
+      return discordRoleResponse.data;
+    } catch {
+      return null;
+    }
   }
 
   async removeMemberRole(params:{
     userId: string;
     roleId: string;
     guildId: string;
-  }): Promise<void> {
+  }): Promise<boolean> {
     this.logger.info({
       name: 'removeMemberRole',
       params,
     });
-    return axios.delete(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}/roles/${params.roleId}`, {
-      headers: {
-        Authorization: `Bot ${this.BOT_TOKEN}`,
-      },
-    });
+    try {
+      await axios.delete(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}/roles/${params.roleId}`, {
+        headers: {
+          Authorization: `Bot ${this.BOT_TOKEN}`,
+        },
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async addGuildMember(params: {
@@ -115,20 +134,25 @@ export class DiscordService {
     userId: string;
     userOAuth2Token: string;
     roleId?: string | null;
-  }): Promise<void> {
+  }): Promise<boolean> {
     this.logger.info({
       name: 'addGuildMember',
       params,
     });
-    return axios
-      .put(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}`, {
-        access_token: params.userOAuth2Token,
-        roles: [params.roleId],
-      }, {
-        headers: {
-          Authorization: `Bot ${this.BOT_TOKEN}`,
-        },
-      });
+    try {
+      await axios
+        .put(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}`, {
+          access_token: params.userOAuth2Token,
+          roles: [params.roleId],
+        }, {
+          headers: {
+            Authorization: `Bot ${this.BOT_TOKEN}`,
+          },
+        });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async getGuildChannels(params: {
@@ -138,29 +162,38 @@ export class DiscordService {
       name: 'getGuildChannels',
       params,
     });
-    const channelsResponse = await axios.get(`https://discord.com/api/guilds/${params.guildId}/channels`, {
-      headers: {
-        Authorization: `Bot ${this.BOT_TOKEN}`,
-      },
-    });
+    try {
+      const channelsResponse = await axios.get(`https://discord.com/api/guilds/${params.guildId}/channels`, {
+        headers: {
+          Authorization: `Bot ${this.BOT_TOKEN}`,
+        },
+      });
 
-    return channelsResponse.data || [];
+      return channelsResponse.data;
+    } catch {
+      return [];
+    }
   }
 
   async getUserInfo(params:{
     userOAuth2Token: string
-  }): Promise<DiscordUserInfo> {
+  }): Promise<DiscordUserInfo | null> {
     this.logger.info({
       name: 'getUserInfo',
       params,
     });
-    const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
-      headers: {
-        Authorization: `Bearer ${params.userOAuth2Token}`,
-      },
-    });
 
-    return userInfoQueryResponse.data;
+    try {
+      const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
+        headers: {
+          Authorization: `Bearer ${params.userOAuth2Token}`,
+        },
+      });
+
+      return userInfoQueryResponse.data;
+    } catch {
+      return null;
+    }
   }
 
   async start() {

@@ -97,11 +97,11 @@ export default {
         };
       }
 
-      const userInfo: DiscordUserInfo = await ctx.services.discord.getUserInfo({
+      const userInfo: DiscordUserInfo | null = await ctx.services.discord.getUserInfo({
         userOAuth2Token: discordAccessToken,
       });
 
-      if (!userInfo.id) {
+      if (!userInfo || !userInfo.id) {
         return {
           data: null,
           error: {

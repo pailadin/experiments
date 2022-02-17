@@ -5,7 +5,7 @@ import AsyncGroup from '@highoutput/async-group';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 import logger from '../../../../library/logger';
-import { DiscordRoleAction } from '../../../../types/discord-role';
+import { DiscordRole, DiscordRoleAction } from '../../../../types/discord-role';
 
 export default {
   Mutation: {
@@ -26,7 +26,7 @@ export default {
         guildId: discordGuild,
       });
 
-      let discordRole = discordRoles.find((x) => x.name === 'VIP');
+      let discordRole : DiscordRole | null | undefined = discordRoles.find((x) => x.name === 'VIP');
 
       if (!discordRole) {
         discordRole = await ctx.services.discord.addGuildRole({
@@ -34,7 +34,7 @@ export default {
           guildId: discordGuild,
         });
 
-        if (!discordRole.id) {
+        if (!discordRole) {
           return {
             data: null,
             error: {
