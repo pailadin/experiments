@@ -13,11 +13,8 @@ type InvalidGoogleAccessTokenError implements Error {
   message: String!
 }
 
-type InvalidGoogleAuthorizationCodeError implements Error {
-  message: String!
-}
 
-union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError | InvalidGoogleAuthorizationCodeError
+union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError
 
 
 type GenerateAccessTokenByGoogleResponseData {
@@ -34,9 +31,11 @@ input GenerateAccessTokenByGoogleRequest {
   accessToken: String!
 }
 
-#
-
 type InvalidDiscordAccessTokenError implements Error {
+  message: String!
+}
+
+type InvalidAuthenticationSignatureError implements Error {
   message: String!
 }
 
