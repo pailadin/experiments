@@ -47,14 +47,12 @@ export default {
 
       await ctx.services.discord.addRoleToChannelPermission({
         roleId: discordGuild,
-        guildId: discordGuild,
         channelId: discordChannel,
         roleAction: DiscordRoleAction.DENY,
       });
 
       await ctx.services.discord.addRoleToChannelPermission({
         roleId: discordRole.id,
-        guildId: discordGuild,
         channelId: discordChannel,
         roleAction: DiscordRoleAction.ALLOW,
       });

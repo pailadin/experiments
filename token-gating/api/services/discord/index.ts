@@ -57,7 +57,6 @@ export class DiscordService {
 
   async addRoleToChannelPermission(params:{
     roleId: string;
-    guildId: string;
     channelId: string;
     roleAction: DiscordRoleAction;
   }) {
@@ -65,7 +64,7 @@ export class DiscordService {
       name: 'addRoleToChannelPermission',
       params,
     });
-    await axios.put(`https://discord.com/api/v9/channels/${params.channelId}/permissions/${params.guildId}`, {
+    return axios.put(`https://discord.com/api/v9/channels/${params.channelId}/permissions/${params.roleId}`, {
       id: params.roleId,
       type: 0,
       allow: params.roleAction === DiscordRoleAction.ALLOW ? '1024' : '0',
@@ -105,7 +104,7 @@ export class DiscordService {
       name: 'removeMemberRole',
       params,
     });
-    await axios.delete(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}/roles/${params.roleId}`, {
+    return axios.delete(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}/roles/${params.roleId}`, {
       headers: {
         Authorization: `Bot ${this.BOT_TOKEN}`,
       },
@@ -122,7 +121,7 @@ export class DiscordService {
       name: 'addGuildMember',
       params,
     });
-    await axios
+    return axios
       .put(`https://discord.com/api/guilds/${params.guildId}/members/${params.userId}`, {
         access_token: params.userOAuth2Token,
         roles: [params.roleId],
