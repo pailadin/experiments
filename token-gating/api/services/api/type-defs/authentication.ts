@@ -40,11 +40,15 @@ type InvalidDiscordAccessTokenError implements Error {
   message: String!
 }
 
-type InvalidAuthenticationSignatureError implements Error {
+type EthereumAddressExistsError implements Error {
   message: String!
 }
 
-union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | InvalidDiscordAuthorizationCodeError
+type DiscordIdExistsError implements Error {
+  message: String!
+}
+
+union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | EthereumAddressExistsError | DiscordIdExistsError
 
 
 type GenerateProjectAccessTokenResponseData {

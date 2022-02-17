@@ -151,6 +151,38 @@ export default {
       });
 
       if (!holderAccount) {
+        const ethereumAddressExists = await ctx.services.account.holderAccountController.findOneHolderAccount({
+          filter: {
+            ethereumAddress: ethAddress,
+          },
+        });
+
+        if (ethereumAddressExists) {
+          return {
+            data: null,
+            error: {
+              __typename: 'EthereumAddressExistsError',
+              message: 'Ethereum Address exists',
+            },
+          };
+        }
+
+        const discordIdExists = await ctx.services.account.holderAccountController.findOneHolderAccount({
+          filter: {
+            discordId: userInfo.id,
+          },
+        });
+
+        if (discordIdExists) {
+          return {
+            data: null,
+            error: {
+              __typename: 'DiscordIdExistsError',
+              message: 'Discord ID exists',
+            },
+          };
+        }
+
         holderAccount = await ctx.services.account.holderAccountController.createHolderAccount({
           id: ObjectId.generate(ObjectType.HOLDER).buffer,
           data: {
