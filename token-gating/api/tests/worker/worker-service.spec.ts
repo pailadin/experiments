@@ -5,14 +5,14 @@ import R from 'ramda';
 import CollectionRepository from '../../services/worker/src/repositories/collection';
 import { Context as FixtureContext, setup, teardown } from '../helpers/fixture';
 import { TYPES } from '../../services/worker/src/types';
-import { TYPES as GLOBAL_TYPES, CollectionStatus, Collection } from '../../services/worker/types';
+import { TYPES as GLOBAL_TYPES, CollectionStatus, Collection } from '../../types';
 import { container } from '../../inversify.config';
 import ObjectId, { ObjectType } from '../../library/object-id';
 import { WorkerService } from '../../services/worker/src/index';
 import OwnershipRepository from '../../services/worker/src/repositories/ownership';
-import generateOwnership from '../../services/worker/tests/helpers/generate-ownership';
-import { sortByTokenID } from '../../services/worker/tests/helpers/utils';
-import { getEtherScanData } from '../../services/worker/tests/helpers/etherscan';
+import generateOwnership from '../helpers/generate-ownership';
+import { sortByTokenID } from '../helpers/utils';
+import { getEtherScanData } from '../helpers/etherscan';
 
 type Context = FixtureContext & {
   collectionRepository: CollectionRepository;
