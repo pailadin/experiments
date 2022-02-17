@@ -5,19 +5,14 @@ export default gql`
 
 enum AccountRole {
   ADMIN
-  CREATOR
-  FOLLOWER
 }
 
 type InvalidGoogleAccessTokenError implements Error {
   message: String!
 }
 
-type InvalidGoogleAuthorizationCodeError implements Error {
-  message: String!
-}
 
-union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError | InvalidGoogleAuthorizationCodeError
+union GenerateAccessTokenByGoogleError = InvalidGoogleAccessTokenError
 
 
 type GenerateAccessTokenByGoogleResponseData {
@@ -34,8 +29,6 @@ input GenerateAccessTokenByGoogleRequest {
   accessToken: String!
 }
 
-#
-
 type InvalidDiscordAccessTokenError implements Error {
   message: String!
 }
@@ -44,7 +37,15 @@ type InvalidAuthenticationSignatureError implements Error {
   message: String!
 }
 
-union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | InvalidDiscordAuthorizationCodeError
+type EthereumAddressExistsError implements Error {
+  message: String!
+}
+
+type DiscordIdExistsError implements Error {
+  message: String!
+}
+
+union GenerateProjectAccessTokenError = InvalidDiscordAccessTokenError | InvalidAuthenticationSignatureError | EthereumAddressExistsError | DiscordIdExistsError
 
 
 type GenerateProjectAccessTokenResponseData {

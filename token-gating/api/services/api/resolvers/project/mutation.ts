@@ -2,11 +2,10 @@
 
 import R from 'ramda';
 import AsyncGroup from '@highoutput/async-group';
-import axios from 'axios';
 import ObjectId, { ObjectType } from '../../../../library/object-id';
 import { Context } from '../../types';
 import logger from '../../../../library/logger';
-import { DiscordUserInfo } from '../../../../types/discord-userinfo';
+import { DiscordRoleAction } from '../../../../types/discord-role';
 
 export default {
   Mutation: {
@@ -17,30 +16,11 @@ export default {
         contractAddress: string;
         discordGuild:string;
         discordChannel: string;
-        discordAccessToken: string;
       }
     }, ctx: Context) {
       const {
-        name, description, contractAddress, discordGuild, discordChannel, discordAccessToken,
+        name, description, contractAddress, discordGuild, discordChannel,
       } = args.request;
-
-      const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
-        headers: {
-          Authorization: `Bearer ${discordAccessToken}`,
-        },
-      });
-
-      const userInfo: DiscordUserInfo = userInfoQueryResponse.data;
-
-      if (!userInfo.id) {
-        return {
-          data: null,
-          error: {
-            __typename: 'InvalidDiscordAccessTokenError',
-            message: 'Invalid Discord Access Token',
-          },
-        };
-      }
 
       let collection = await ctx.services.worker.collectionController.findOneCollection({
         filter: {
@@ -79,6 +59,35 @@ export default {
         };
       }
 
+      const discordRole = await ctx.services.discord.addGuildRole({
+        roleName: 'VIP',
+        guildId: discordGuild,
+      });
+
+      if (!discordRole.id) {
+        return {
+          data: null,
+          error: {
+            __typename: 'InvalidDiscordAccessTokenError',
+            message: 'Invalid Discord Access Token',
+          },
+        };
+      }
+
+      await ctx.services.discord.addRoleToChannelPermission({
+        roleId: discordRole.id,
+        guildId: discordGuild,
+        channelId: discordChannel,
+        roleAction: DiscordRoleAction.ALLOW,
+      });
+
+      await ctx.services.discord.addRoleToChannelPermission({
+        roleId: discordGuild,
+        guildId: discordGuild,
+        channelId: discordChannel,
+        roleAction: DiscordRoleAction.DENY,
+      });
+
       const project = await ctx.services.project.projectController.createProject({
         id: ObjectId.generate(ObjectType.PROJECT).buffer,
         data: {
@@ -87,7 +96,7 @@ export default {
           contractAddress,
           discordGuild,
           discordChannel,
-          discordAccessToken,
+          discordRoleId: discordRole.id,
           adminAccount: ctx.state.user.id,
         },
       });

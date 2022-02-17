@@ -97,13 +97,9 @@ export default {
         };
       }
 
-      const userInfoQueryResponse = await axios.get('https://discord.com/api/users/@me', {
-        headers: {
-          Authorization: `Bearer ${discordAccessToken}`,
-        },
+      const userInfo: DiscordUserInfo = await ctx.services.discord.getUserInfo({
+        userOAuth2Token: discordAccessToken,
       });
-
-      const userInfo: DiscordUserInfo = userInfoQueryResponse.data;
 
       if (!userInfo.id) {
         return {
@@ -155,6 +151,38 @@ export default {
       });
 
       if (!holderAccount) {
+        const ethereumAddressExists = await ctx.services.account.holderAccountController.findOneHolderAccount({
+          filter: {
+            ethereumAddress: ethAddress,
+          },
+        });
+
+        if (ethereumAddressExists) {
+          return {
+            data: null,
+            error: {
+              __typename: 'EthereumAddressExistsError',
+              message: 'Ethereum Address exists',
+            },
+          };
+        }
+
+        const discordIdExists = await ctx.services.account.holderAccountController.findOneHolderAccount({
+          filter: {
+            discordId: userInfo.id,
+          },
+        });
+
+        if (discordIdExists) {
+          return {
+            data: null,
+            error: {
+              __typename: 'DiscordIdExistsError',
+              message: 'Discord ID exists',
+            },
+          };
+        }
+
         holderAccount = await ctx.services.account.holderAccountController.createHolderAccount({
           id: ObjectId.generate(ObjectType.HOLDER).buffer,
           data: {
@@ -162,16 +190,14 @@ export default {
             discordId: userInfo.id,
           },
         });
-
-        await axios
-          .put(`https://discord.com/api/guilds/${project.discordGuild}/members/${userInfo.id}`, {
-            access_token: discordAccessToken,
-          }, {
-            headers: {
-              Authorization: `Bot ${ctx.config.BOT_TOKEN}`,
-            },
-          });
       }
+
+      await ctx.services.discord.addGuildMember({
+        guildId: project.discordGuild,
+        userId: userInfo.id,
+        userOAuth2Token: discordAccessToken,
+        roleId: project.discordRoleId,
+      });
 
       return {
         data: {
