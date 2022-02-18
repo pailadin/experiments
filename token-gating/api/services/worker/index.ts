@@ -15,7 +15,7 @@ export async function startSync() {
   const workerService = container.get<WorkerService>(GLOBAL_TYPES.WorkerService);
   const collectionRepository = container.get<CollectionRepository>(TYPES.CollectionRepository);
 
-  cronJob = cron.schedule('0 */10 * * * *', async () => {
+  cronJob = cron.schedule('0 */1 * * * *', async () => {
     const collections = await collectionRepository.find({
       filter: {
         status: CollectionStatus.UPDATED,

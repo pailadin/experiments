@@ -199,7 +199,7 @@ export class DiscordService {
   async start() {
     this.logger.info('DiscordService => Starting');
 
-    // await this.startAutoKick();
+    await this.startAutoKick();
 
     this.logger.info('DiscordService => Started');
   }
@@ -242,6 +242,8 @@ export class DiscordService {
                 roleId: project.discordRoleId,
                 guildId: project.discordGuild,
               });
+
+              this.logger.info(`DiscordService => Kick ${document.discordId} on guild ${project.discordGuild}`);
             }
           }
         }
