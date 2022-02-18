@@ -47,3 +47,5 @@ In this experiment, I will be using Keras with TensorFlow as backend.
 ## Conclusion
 
 ## Resources
+- [Anomaly detection with TensorFlow | Workshop](https://www.youtube.com/watch?v=2K3ScZp1dXQ)
+- [Anomaly Detection: Definition, Best Practices and Use Cases](https://datrics.ai/anomaly-detection-best-practices)
