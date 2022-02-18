@@ -28,6 +28,7 @@ export const drawBoxes = ({ ctx, boxes = [] }) => {
       case SHAPE_TYPE.triangle: drawTriangle(ctx, data); break;
       case SHAPE_TYPE.diamond: drawDiamond(ctx, data); break;
       case SHAPE_TYPE.parallelogram: drawParallelogram(ctx, data); break;
+      case SHAPE_TYPE.hexagon: drawHexagon(ctx, data); break;
       default: drawRectangle(ctx, data); break;
     }
   });
@@ -141,6 +142,25 @@ const drawParallelogram = (ctx, data) => {
   ctx.lineTo(right, top);
   ctx.lineTo(almostRight, bottom);
   ctx.lineTo(left, bottom);
+  ctx.lineTo(almostLeft, top);
+
+  ctx.fill();
+  ctx.stroke();
+}
+
+const drawHexagon = (ctx, data) => {
+  const { left, right, top, bottom, centerY, w } = data;
+  const almostLeft = left + (w * 0.2)
+  const almostRight = right - (w * 0.2)
+
+  ctx.beginPath();
+
+  ctx.moveTo(almostLeft, top);
+  ctx.lineTo(almostRight, top);
+  ctx.lineTo(right, centerY);
+  ctx.lineTo(almostRight, bottom);
+  ctx.lineTo(almostLeft, bottom);
+  ctx.lineTo(left, centerY);
   ctx.lineTo(almostLeft, top);
 
   ctx.fill();
