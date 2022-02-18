@@ -26,6 +26,7 @@ export const drawBoxes = ({ ctx, boxes = [] }) => {
       case SHAPE_TYPE.rectangleProcess: drawRectangleProcess(ctx, data); break;
       case SHAPE_TYPE.ellipse: drawEllipse(ctx, data); break;
       case SHAPE_TYPE.triangle: drawTriangle(ctx, data); break;
+      case SHAPE_TYPE.diamond: drawDiamond(ctx, data); break;
       default: drawRectangle(ctx, data); break;
     }
   });
@@ -108,6 +109,21 @@ const drawTriangle = (ctx, data) => {
   ctx.lineTo(left, top);
   ctx.lineTo(left, bottom);
   ctx.lineTo(right, centerY);
+
+  ctx.fill();
+  ctx.stroke();
+}
+
+const drawDiamond = (ctx, data) => {
+  const { left, right, top, bottom, centerX, centerY } = data;
+
+  ctx.beginPath();
+
+  ctx.moveTo(centerX, top);
+  ctx.lineTo(right, centerY);
+  ctx.lineTo(centerX, bottom);
+  ctx.lineTo(left, centerY);
+  ctx.lineTo(centerX, top);
 
   ctx.fill();
   ctx.stroke();
