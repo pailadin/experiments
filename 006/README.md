@@ -1,3 +1,6 @@
+## Authors
+* [Christopher Clint Pacillos](https://app.identifi.com/profile/0095e202d60a44b88bc75ca97c266e2e)
+
 ## Goal Statements
 
 The goal of this experiment is to establish and demonstrate a workflow in solving or building Data Science applications using ML tools.
