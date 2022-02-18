@@ -4,7 +4,7 @@
 ## Goal Statements
 
 The goal of this experiment is to establish and demonstrate a workflow in solving or building Data Science applications using ML tools.
-This experiments will include (but not limited to) the following objectives:
+This experiment will include (but not limited to) the following objectives:
 
 1. To identify the requirements for the application or problem to be solved.
     - What type of problem is being solved?
