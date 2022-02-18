@@ -32,8 +32,15 @@ For this approach I'm going to use Autoencoder.
 
 ![Autoencoder](./docs/autoencoder.png "Autoencoder")
 
+The idea here is:
+  1. We have a time series of response times logs (in consistent intervals) as input.
+  2. We are going to learn a latent representation of that input.
+  3. Reconstruct the input from the latent representation.
+  4. Measure the error.
+
 Planned Steps:
   1. Retrieve logs for response times for every 1 minute interval.
+  2. Normalize the points to be between 0 and 1. Make sure data is consistent and dimensionality is right.
   2. For the training data, filter out those data we consider to be normal or good `training_normal_logs`.
   3. Train the model with using `training_normal_logs` and determine the training loss to establish a threshold.
   4. Input logs that will generate loss greater than the threshold should be anomalous.
@@ -43,3 +50,5 @@ In this experiment, I will be using Keras with TensorFlow as backend.
 ## Conclusion
 
 ## Resources
+- [Anomaly detection with TensorFlow | Workshop](https://www.youtube.com/watch?v=2K3ScZp1dXQ)
+- [Anomaly Detection: Definition, Best Practices and Use Cases](https://datrics.ai/anomaly-detection-best-practices)
