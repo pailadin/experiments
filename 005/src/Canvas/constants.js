@@ -10,6 +10,7 @@ export const SHAPE_TYPE = {
   ellipse: 'ELLIPSE',
   triangle: 'TRIANGLE',
   diamond: 'DIAMOND',
+  parallelogram: 'PARALLELOGRAM',
   human: 'HUMAN',
 }
 
@@ -32,7 +33,7 @@ export const DEFAULT_BOX = {
 
 export const DEFAULT_BOXES = [
   { x: 200, y: 320, w: 100, h: 50, fillColor: 'darkgreen' },
-  { x: 100, y: 120, w: 200, h: 100, debugDrawOutline: true, type: SHAPE_TYPE.diamond },
+  { x: 100, y: 120, w: 200, h: 100, debugDrawOutline: true, type: SHAPE_TYPE.parallelogram },
   { x: 400, y: 517, w: 30, h: 75, fillColor: '#E75480' },
 ];
 

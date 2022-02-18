@@ -27,6 +27,7 @@ export const drawBoxes = ({ ctx, boxes = [] }) => {
       case SHAPE_TYPE.ellipse: drawEllipse(ctx, data); break;
       case SHAPE_TYPE.triangle: drawTriangle(ctx, data); break;
       case SHAPE_TYPE.diamond: drawDiamond(ctx, data); break;
+      case SHAPE_TYPE.parallelogram: drawParallelogram(ctx, data); break;
       default: drawRectangle(ctx, data); break;
     }
   });
@@ -94,7 +95,7 @@ const drawEllipse = (ctx, data) => {
 
   ctx.beginPath();
 
-  ctx.ellipse(centerX, centerY, w/2, h/2, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX, centerY, (w * 0.2), (h * 0.2), 0, 0, Math.PI * 2);
 
   ctx.fill();
   ctx.stroke();
@@ -124,6 +125,23 @@ const drawDiamond = (ctx, data) => {
   ctx.lineTo(centerX, bottom);
   ctx.lineTo(left, centerY);
   ctx.lineTo(centerX, top);
+
+  ctx.fill();
+  ctx.stroke();
+}
+
+const drawParallelogram = (ctx, data) => {
+  const { left, right, top, bottom, w } = data;
+  const almostLeft = left + (w * 0.2)
+  const almostRight = right - (w * 0.2)
+
+  ctx.beginPath();
+
+  ctx.moveTo(almostLeft, top);
+  ctx.lineTo(right, top);
+  ctx.lineTo(almostRight, bottom);
+  ctx.lineTo(left, bottom);
+  ctx.lineTo(almostLeft, top);
 
   ctx.fill();
   ctx.stroke();
