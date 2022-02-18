@@ -30,7 +30,7 @@ My approach in solving this problem is to train a model for it to learn to be ve
 
 For this approach I'm going to use Autoencoder.
 
-![Autoencoder](/docs/autoencoder.png "Autoencoder")
+![Autoencoder](./docs/autoencoder.png "Autoencoder")
 
 Planned Steps:
   1. Retrieve logs for response times for every 1 minute interval.
