@@ -112,6 +112,7 @@ export const Canvas = () => {
         padding: 16,
       }}>
         <button onClick={() => addShape()}>Rectangle</button>
+        <button onClick={() => addShape(SHAPE_TYPE.human)}>User</button>
         <button onClick={() => addShape(SHAPE_TYPE.rectangleRounded)}>Rounded Rectangle</button>
         <button onClick={() => addShape(SHAPE_TYPE.rectangleProcess)}>Process</button>
         <button onClick={() => addShape(SHAPE_TYPE.ellipse)}>Ellipse</button>
@@ -119,7 +120,7 @@ export const Canvas = () => {
         <button onClick={() => addShape(SHAPE_TYPE.diamond)}>Diamond</button>
         <button onClick={() => addShape(SHAPE_TYPE.parallelogram)}>Parallelogram</button>
         <button onClick={() => addShape(SHAPE_TYPE.hexagon)}>Hexagon</button>
-        <button onClick={() => addShape(SHAPE_TYPE.human)}>User</button>
+        <button onClick={() => addShape(SHAPE_TYPE.cylinder)}>Cylinder</button>
       </div>
     </div>
   );

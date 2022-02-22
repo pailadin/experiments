@@ -29,6 +29,7 @@ export const drawBoxes = ({ ctx, boxes = [] }) => {
       case SHAPE_TYPE.diamond: drawDiamond(ctx, data); break;
       case SHAPE_TYPE.parallelogram: drawParallelogram(ctx, data); break;
       case SHAPE_TYPE.hexagon: drawHexagon(ctx, data); break;
+      case SHAPE_TYPE.cylinder: drawCylinder(ctx, data); break;
       default: drawRectangle(ctx, data); break;
     }
   });
@@ -96,7 +97,7 @@ const drawEllipse = (ctx, data) => {
 
   ctx.beginPath();
 
-  ctx.ellipse(centerX, centerY, (w * 0.2), (h * 0.2), 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX, centerY, (w * 0.5), (h * 0.5), 0, 0, Math.PI * 2);
 
   ctx.fill();
   ctx.stroke();
@@ -131,27 +132,10 @@ const drawDiamond = (ctx, data) => {
   ctx.stroke();
 }
 
-const drawParallelogram = (ctx, data) => {
-  const { left, right, top, bottom, w } = data;
-  const almostLeft = left + (w * 0.2)
-  const almostRight = right - (w * 0.2)
-
-  ctx.beginPath();
-
-  ctx.moveTo(almostLeft, top);
-  ctx.lineTo(right, top);
-  ctx.lineTo(almostRight, bottom);
-  ctx.lineTo(left, bottom);
-  ctx.lineTo(almostLeft, top);
-
-  ctx.fill();
-  ctx.stroke();
-}
-
 const drawHexagon = (ctx, data) => {
   const { left, right, top, bottom, centerY, w } = data;
-  const almostLeft = left + (w * 0.2)
-  const almostRight = right - (w * 0.2)
+  const almostLeft = left + (w * 0.2);
+  const almostRight = right - (w * 0.2);
 
   ctx.beginPath();
 
@@ -166,6 +150,56 @@ const drawHexagon = (ctx, data) => {
   ctx.fill();
   ctx.stroke();
 }
+
+const drawParallelogram = (ctx, data) => {
+  const { left, right, top, bottom, w } = data;
+  const almostLeft = left + (w * 0.2);
+  const almostRight = right - (w * 0.2);
+
+  ctx.beginPath();
+
+  ctx.moveTo(almostLeft, top);
+  ctx.lineTo(right, top);
+  ctx.lineTo(almostRight, bottom);
+  ctx.lineTo(left, bottom);
+  ctx.lineTo(almostLeft, top);
+
+  ctx.fill();
+  ctx.stroke();
+}
+
+const drawCylinder = (ctx, data) => {
+  const { left, right, top, bottom, centerX, w, h } = data;
+  const almostTop = top + (h * 0.2);
+  const almostBottom = bottom - (h * 0.2);
+
+  ctx.beginPath();
+
+  ctx.moveTo(left, almostTop);
+  ctx.lineTo(left, almostBottom);
+
+  ctx.arcTo(centerX, bottom, right, almostBottom, w);
+  ctx.lineTo(right, almostBottom);
+
+  ctx.lineTo(right, almostTop);
+  // ctx.lineTo(left, almostTop);
+  ctx.fill();
+  // ctx.lineTo(left, almostBottom);
+
+  // ctx.arcTo(centerX, almostBottom, (w * 0.5), almostBottom, (h * 0.2));
+  // ctx.lineTo(almostRight, bottom);
+  // ctx.lineTo(left, bottom);
+  // ctx.lineTo(almostLeft, top);
+
+  // ctx.arcTo(left, almostBottom, right, almostBottom, w/4);
+  // ctx.bezierCurveTo(left, almostBottom, right, almostBottom, 180,10, 220,140);
+
+  ctx.ellipse(centerX, almostTop, (w * 0.5), (h * 0.2), 0, 0, Math.PI * 2);
+
+  ctx.fill();
+  ctx.stroke();
+}
+
 
 const drawHuman = (ctx, data) => {
   const {
